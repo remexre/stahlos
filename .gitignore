@@ -1,0 +1,10 @@
+.*
+!.gitignore
+!.tokeirc
+
+tmp/
+out/
+
+*.elf
+*.img
+*.o

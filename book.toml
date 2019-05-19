@@ -1,0 +1,8 @@
+[book]
+authors = ["Nathan Ringo <remexre@protonmail.com>"]
+multilingual = false
+src = "docs"
+title = "StahlOS"
+
+[build]
+build-dir = "out/docs/"
