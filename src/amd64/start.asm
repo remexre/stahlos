@@ -3,6 +3,7 @@ bits 64
 extern int_init
 extern int_register_all
 extern pic8259_init
+extern uart8250_init
 extern start32.end
 
 global start64
@@ -24,11 +25,13 @@ start64:
 	; can reuse it as the stack.
 	mov rsp, start32.end
 
-	cli
 	call pic8259_init ; Remap the PIC.
 	call int_register_all ; Register all the default interrupt handlers.
 	call int_init ; Set the IDT.
 	sti ; Enable interrupts.
+
+	; Start the serial driver.
+	call uart8250_init
 
 .loop:
 	hlt

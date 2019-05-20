@@ -1,7 +1,9 @@
 bits 64
 
 extern idt
+extern idt.end
 extern idtr
+extern pic8259_unmask
 
 global int_init
 global int_register
@@ -16,14 +18,47 @@ int_init:
 ; rdx - Address of interrupt handler.
 ; rcx - Interrupt number.
 int_register:
-	lea rcx, [idt+rcx*8]
-	mov [rcx], dx
-	mov word [rcx+2], 0x0008
-	mov word [rcx+4], 0x8e00
+	; Save the flags, then disable interrupts.
+	pushfq
+	cli
+
+	; rdi is the address of the IDT entry.
+	lea rdi, [rcx*8]
+	lea rdi, [idt+rcx*8+rdi]
+
+	; Check if the IDT has enough space; if not, skip this.
+	cmp rdi, idt.end
+	jae .end_bp
+
+	; Set up the IDT descriptor.
+	mov [rdi], dx
+	mov word [rdi+2], 0x0008
+	mov word [rdi+4], 0x8e00
 	shr rdx, 16
-	mov [rcx+6], dx
+	mov [rdi+6], dx
 	shr rdx, 16
-	mov [rcx+8], edx
+	mov [rdi+8], edx
+	xor edx, edx
+	mov [rdi+12], edx
+
+	; Check if this is an interrupt on the PIC.
+	cmp rcx, 0x20
+	jb .end
+	cmp rcx, 0x30
+	jae .end
+
+.pic:
+	; Unmask the interrupt in the PIC.
+	sub rcx, 0x20
+	call pic8259_unmask
+
+.end:
+	; Restore the flags, possibly reenabling interrupts.
+	popfq
+	ret
+.end_bp:
+	xchg bx, bx
+	popfq
 	ret
 
 int_register_all:

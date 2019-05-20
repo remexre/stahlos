@@ -2,6 +2,7 @@ bits 64
 
 global gdtr
 global idt
+global idt.end
 global idtr
 global ipb ; The Important Pointer Block.
 global p3 ; aka PDPT
@@ -53,7 +54,7 @@ idtr:
 
 [section .bss]
 
-idt: times 32 resb 16
+idt: times 48 resb 16
 .end:
 
 ; vi: cc=80 ft=nasm

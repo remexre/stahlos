@@ -13,9 +13,10 @@ SECTIONS {
 	}
 	.bss : { *(.bss) }
 
-	. = 0x123456;
+	. = 2M - 32;
 	.ipb : {
 		/* The "Important Pointer Block" */
 		KEEP(*(.ipb))
 	}
+	ASSERT((. == 2M), "IPB has the wrong size")
 }

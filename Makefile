@@ -6,6 +6,7 @@ ASM_UNITS += amd64/start32
 ASM_UNITS += amd64/structures
 ASM_UNITS += amd64/start
 ASM_UNITS += amd64/int
+ASM_UNITS += amd64/mp
 ASM_UNITS += amd64/devices/pic8259
 ASM_UNITS += amd64/devices/uart8250
 # ASM_UNITS += kernel/builtins
@@ -14,7 +15,7 @@ ASM_UNITS += amd64/devices/uart8250
 # ASM_UNITS += kernel/startup
 # ASM_UNITS += kernel/utils
 
-# FORTH_UNITS += acpi
+FORTH_UNITS += acpi
 # FORTH_UNITS += ata-pio
 # FORTH_UNITS += gpt
 # FORTH_UNITS += mbr
