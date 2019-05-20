@@ -63,6 +63,10 @@ run-qemu: out/stahlos.img
 		-machine q35
 .PHONY: disas run-qemu
 
+ci: all
+	chown $(shell stat -c '%u:%g' Makefile) -R tmp out
+.PHONY: ci
+
 out/stahlos.img: out/stahlos.elf src/misc/grub.cfg $(FORTH_SRCS)
 	@grub-file --is-x86-multiboot2 out/stahlos.elf
 	@mkdir -p tmp/isodir/boot/grub

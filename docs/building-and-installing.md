@@ -10,10 +10,11 @@ Building requires:
 -	[GRUB](https://www.gnu.org/software/grub/), for `grub-file` and `grub-mkrescue`
 -	[mdbook](https://github.com/rust-lang-nursery/mdBook), to build this documentation
 -	[nasm](https://nasm.us/)
+-	[xorriso](https://www.gnu.org/software/xorriso/), for `grub-mkrescue`
 
 Additionally, for other targets, the following dependencies apply:
 
--	Bochs, for the `run` target
+-	[Bochs](http://bochs.sourceforge.net/), for the `run` target
 -	`objdump` (from binutils), for the `disas` target
--	QEMU, for the `run-qemu` target
--	watchexec, for the `watch` target
+-	[QEMU](https://www.qemu.org/), for the `run-qemu` target
+-	[watchexec](https://github.com/watchexec/watchexec), for the `watch` target

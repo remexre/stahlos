@@ -1,6 +1,8 @@
 .*
 !.gitignore
 !.tokeirc
+!.travis/
+!.travis.yml
 
 tmp/
 out/

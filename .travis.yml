@@ -1,0 +1,23 @@
+language: minimal
+os: linux
+services:
+- docker
+
+before_install: docker build -t remexre/stahlos-builder .travis
+
+script: docker run -v "$PWD:/code" --rm remexre/stahlos-builder make ci
+
+deploy:
+- provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  local-dir: out/docs
+  keep-history: false
+  on:
+    branch: master
+- provider: releases
+  api_key: $GITHUB_TOKEN
+  file: out/stahlos.img
+  on:
+    tags: true
+  skip_cleanup: true
