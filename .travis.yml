@@ -8,7 +8,7 @@ cache:
     - $HOME/docker
 
 before_install:
-- zcat $HOME/docker/stahlos-builder.tgz | docker load
+- if [[ -e $HOME/docker/stahlos-builder.tgz ]]; then zcat $HOME/docker/stahlos-builder.tgz | docker load; fi
 - docker build -t remexre/stahlos-builder .travis
 
 script: docker run -v "$PWD:/code" --rm remexre/stahlos-builder make ci
