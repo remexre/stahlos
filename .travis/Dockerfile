@@ -5,6 +5,7 @@ FROM alpine:edge
 RUN apk add --no-cache cargo && \
 	cargo install --git https://github.com/ehuss/mdBook.git --branch update-pulldown-cmark mdbook && \
 	apk del cargo && \
+	mv $HOME/.cargo/bin/mdbook /usr/local/bin/mdbook && \
 	rm -rf $HOME/.cargo
 
 RUN apk add --no-cache git grub grub-bios grub-efi make nasm xorriso
