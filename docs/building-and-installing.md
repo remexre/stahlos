@@ -9,6 +9,7 @@ Building requires:
 -	binutils, or at least a copy of `ld` and `strip` that can handle `elf64-x86-64` binaries
 -	[GRUB](https://www.gnu.org/software/grub/), for `grub-file` and `grub-mkrescue`
 -	[mdbook](https://github.com/rust-lang-nursery/mdBook), to build this documentation
+-	[mtools](https://www.gnu.org/software/mtools/), for `grub-mkrescue`
 -	[nasm](https://nasm.us/)
 -	[xorriso](https://www.gnu.org/software/xorriso/), for `grub-mkrescue`
 
