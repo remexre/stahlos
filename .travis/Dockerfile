@@ -1,11 +1,12 @@
-FROM rust:latest
+FROM alpine:edge
 
-RUN git clone https://github.com/ehuss/mdBook.git --branch update-pulldown-cmark && \
-	cd mdBook && \
-	cargo build --release && \
-	cp target/release/mdbook /usr/local/bin/mdbook && \
-	apt-get update && \
-	apt-get install -y --no-install-recommends grub nasm xorriso && \
-	rm -rf /var/lib/apt/lists/*
+# Get mdbook; until https://github.com/rust-lang-nursery/mdBook/pull/898 is merged, we wanna build
+# from source.
+RUN apk add --no-cache cargo && \
+	cargo install --git https://github.com/ehuss/mdBook.git --branch update-pulldown-cmark mdbook && \
+	apk del cargo && \
+	rm -rf $HOME/.cargo
+
+RUN apk add --no-cache git grub grub-bios grub-efi make nasm xorriso
 VOLUME /code
 WORKDIR /code

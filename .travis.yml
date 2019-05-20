@@ -2,10 +2,20 @@ language: minimal
 os: linux
 services:
 - docker
+cache:
+  bundler: true
+  directories:
+    - $HOME/docker
 
-before_install: docker build -t remexre/stahlos-builder .travis
+before_install:
+- zcat $HOME/docker/stahlos-builder.tgz | docker load
+- docker build -t remexre/stahlos-builder .travis
 
 script: docker run -v "$PWD:/code" --rm remexre/stahlos-builder make ci
+
+before_cache:
+- mkdir -p $HOME/docker
+- docker save remexre/stahlos-builder | gzip > $HOME/docker/stahlos-builder.tgz
 
 deploy:
 - provider: pages

@@ -1,6 +1,8 @@
 StahlOS
 =======
 
+[![Build Status](https://travis-ci.org/remexre/stahlos.svg?branch=master)](https://travis-ci.org/remexre/stahlos)
+
 A hobbyist operating system. See [the docs](https://remexre.xyz/stahlos) for more information.
 
 License
