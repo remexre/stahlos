@@ -15,7 +15,7 @@ script: docker run -v "$PWD:/code" --rm remexre/stahlos-builder make ci
 
 before_cache:
 - mkdir -p $HOME/docker
-- docker save remexre/stahlos-builder | gzip > $HOME/docker/stahlos-builder.tgz
+- docker save remexre/stahlos-builder $(docker history -q remexre/stahlos-builder | grep -v missing) | gzip > $HOME/docker/stahlos-builder.tgz
 
 deploy:
 - provider: pages
