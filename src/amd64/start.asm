@@ -2,6 +2,7 @@ bits 64
 
 extern int_init
 extern int_register_all
+extern interpret
 extern pic8259_init
 extern uart8250_init
 extern start32.end
@@ -34,6 +35,7 @@ start64:
 	call uart8250_init
 
 .loop:
+	call interpret
 	hlt
 	jmp .loop
 
