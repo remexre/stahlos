@@ -1,5 +1,6 @@
 bits 64
 
+extern forth_cold
 extern int_init
 extern int_register_all
 extern interpret
@@ -31,11 +32,10 @@ start64:
 	call int_init ; Set the IDT.
 	sti ; Enable interrupts.
 
-	; Start the serial driver.
-	call uart8250_init
+	call uart8250_init ; Start the serial driver.
+	call forth_cold ; Sets up the Forth system initially.
 
 .loop:
-	call interpret
 	hlt
 	jmp .loop
 

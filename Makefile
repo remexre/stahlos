@@ -10,6 +10,7 @@ ASM_UNITS += amd64/mp
 ASM_UNITS += amd64/devices/pic8259
 ASM_UNITS += amd64/devices/uart8250
 ASM_UNITS += amd64/kernel/interpret
+ASM_UNITS += amd64/kernel/startup
 ASM_UNITS += amd64/kernel/structures
 # ASM_UNITS += kernel/builtins
 # ASM_UNITS += kernel/interpret

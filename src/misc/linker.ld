@@ -10,6 +10,7 @@ SECTIONS {
 	.kernel_data : {
 		*(.data)
 		*(.gdt)
+		*(.forth_code)
 	}
 	.bss : { *(.bss) }
 
@@ -19,4 +20,7 @@ SECTIONS {
 		KEEP(*(.ipb))
 	}
 	ASSERT((. == 2M), "IPB has the wrong size")
+
+	.dictionary : { *(.dictionary) }
+	ASSERT((. == 64M), "Dictionary has the wrong size")
 }

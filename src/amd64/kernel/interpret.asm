@@ -7,15 +7,8 @@ global interpret
 ; Interprets the string whose address is given by r8 and whose length is given
 ; by r9, then jumps to the address in rsi.
 interpret:
-	mov r8, .test
-	mov r9, 5
 	call lex_word
-	xchg bx, bx
-	add r8, rcx
-	call lex_word
-	xchg bx, bx
 	ret
-.test: db " foo ", 0xaa, 0x55, 0x00
 
 ; Lexes out a word from the buffer whose address is given by r8 and whose
 ; length is given by r9. Returns the address of the start of the token in r8,
