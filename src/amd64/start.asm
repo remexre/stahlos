@@ -1,5 +1,6 @@
 bits 64
 
+extern alloc_init
 extern forth_cold
 extern int_init
 extern int_register_all
@@ -23,16 +24,19 @@ start64:
 	mov gs, ax
 	mov ss, ax
 
-	; Create a temporary stack -- since we won't need any more 32-bit code, we
-	; can reuse it as the stack.
-	mov rsp, start32.end
+	; Early on, Forth code will still need a parameter and return stack. We can
+	; reuse the memory given for 32-bit code as these stacks.
+	mov rsp, 0x100100
+	mov rbp, 0x100080
 
 	call pic8259_init ; Remap the PIC.
 	call int_register_all ; Register all the default interrupt handlers.
 	call int_init ; Set the IDT.
 	sti ; Enable interrupts.
 
-	call uart8250_init ; Start the serial driver.
+	call alloc_init ; Set up the allocator.
+	xchg bx, bx
+	; call uart8250_init ; Start the serial driver.
 	call forth_cold ; Sets up the Forth system initially.
 
 .loop:

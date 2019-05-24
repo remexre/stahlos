@@ -64,31 +64,31 @@ int_register:
 int_register_all:
 	mov rdx, de_handler
 	mov rcx, 0 ; Divide-By-Zero
-	call int_register
+	; call int_register
 
 	mov rdx, nmi_handler
 	mov rcx, 2 ; Non-Maskable Interrupt
-	call int_register
+	; call int_register
 
 	mov rdx, bp_handler
 	mov rcx, 3 ; Breakpoint
-	call int_register
+	; call int_register
 
 	mov rdx, ud_handler
 	mov rcx, 6 ; Invalid Opcode
-	call int_register
+	; call int_register
 
 	mov rdx, df_handler
 	mov rcx, 8 ; Double Fault
-	call int_register
+	; call int_register
 
 	mov rdx, gp_handler
 	mov rcx, 13 ; General Protection Fault
-	call int_register
+	; call int_register
 
 	mov rdx, pf_handler
 	mov rcx, 14 ; Page Fault
-	call int_register
+	; call int_register
 
 	ret
 

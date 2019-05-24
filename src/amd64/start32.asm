@@ -1,7 +1,7 @@
 bits 32
 
 extern gdtr
-extern ipb
+extern ipb.mb2
 extern p3
 extern p4
 extern start64
@@ -9,12 +9,12 @@ extern start64
 global start32
 global start32.end
 
-[section .text]
+[section .text32]
 
 ; The entry point to the kernel.
 start32:
 	; Store the address of the Multiboot2 structure.
-	mov [ipb+4], ebx
+	mov [ipb.mb2], ebx
 
 	; Enable PAE.
 	mov eax, cr4

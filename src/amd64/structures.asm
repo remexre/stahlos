@@ -1,10 +1,14 @@
 bits 64
 
+extern forth_last_builtin
+
 global gdtr
 global idt
 global idt.end
 global idtr
 global ipb ; The Important Pointer Block.
+global ipb.free_list
+global ipb.mb2
 global p3 ; aka PDPT
 global p4 ; aka PML4
 
@@ -13,9 +17,14 @@ global p4 ; aka PML4
 ipb:
 	db "IPB"
 	times 5 db 0x00
+.mb2:
 	dq 0 ; Gets filled in with address of multiboot2 information structure.
+.free_list:
+	dq 0 ; Head of free list; see src/amd64/alloc.asm
+	dq forth_last_builtin
 	dq p3
 	dq p4
+	dq ipb
 
 [section .bss]
 

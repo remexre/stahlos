@@ -5,10 +5,12 @@ ASM_UNITS += amd64/multiboot2
 ASM_UNITS += amd64/start32
 ASM_UNITS += amd64/structures
 ASM_UNITS += amd64/start
+ASM_UNITS += amd64/alloc
 ASM_UNITS += amd64/int
-ASM_UNITS += amd64/mp
+ASM_UNITS += amd64/panic
 ASM_UNITS += amd64/devices/pic8259
 ASM_UNITS += amd64/devices/uart8250
+ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/startup
 ASM_UNITS += amd64/kernel/structures
@@ -56,6 +58,8 @@ watch:
 
 disas: out/stahlos-unstripped.elf
 	objdump -M intel -d $< | less
+find-bochs-bps:
+	rg '^[^;]*xchg\s*bx\s*,\s*bx'
 run-qemu: out/stahlos.img
 	qemu-system-x86_64 \
 		-accel kvm \
@@ -64,7 +68,7 @@ run-qemu: out/stahlos.img
 		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
 		-m 64M \
 		-machine q35
-.PHONY: disas run-qemu
+.PHONY: disas find-bochs-bps run-qemu
 
 ci: all
 	chown $(shell stat -c '%u:%g' Makefile) -R tmp out

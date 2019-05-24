@@ -8,15 +8,15 @@ global forth_cold
 
 ; Performs a cold startup of the Forth system.
 forth_cold:
-	xchg bx, bx
+	; xchg bx, bx
 	mov r8, forth_startup
 	mov r9, forth_startup.len
 	call interpret
-	xchg bx, bx
+	; xchg bx, bx
 	mov r8, forth_std
 	mov r9, forth_std.len
 	call interpret
-	xchg bx, bx
+	; xchg bx, bx
 	ret
 
 [section .forth_code]
