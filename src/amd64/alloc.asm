@@ -103,12 +103,23 @@ alloc_init:
 
 ; Takes the address in r8, length in r9. Trashes rdi.
 .add_to_free_list:
+	; If we're literally address 0, skip the first qword there. And write a
+	; canary, while we're at it.
+	test r8, r8
+	jnz .add_to_free_list_2
+
+	mov qword [r8], "NULLNULL"
+	add r8, 8
+	sub r9, 8
+
+.add_to_free_list_2:
 	; If we have fewer than 32 bytes in the allocation, we can't store a free
 	; node!
 	cmp r9, 32
-	ja .add_to_free_list_2
+	ja .add_to_free_list_3
 	ret
-.add_to_free_list_2:
+
+.add_to_free_list_3:
 	xchg bx, bx
 	mov [r8], r9
 	mov rdi, [ipb.free_list]
