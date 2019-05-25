@@ -70,10 +70,10 @@ alloc_init:
 	call .add_to_free_list
 
 .overlap_2:
-	lea r9, [r8+r9]
+	lea r9, [r8+r10]
 	mov r8, 0x200000
 	sub r9, r8
-	jle .overlap_2
+	jle .create_free_list_continue
 	; Intentional fall-through
 
 .no_overlap:
