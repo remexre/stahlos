@@ -115,7 +115,7 @@ alloc_init:
 .add_to_free_list_2:
 	; If we have fewer than 32 bytes in the allocation, we can't store a free
 	; node!
-	cmp r9, 32
+	sub r9, 32
 	ja .add_to_free_list_3
 	ret
 
@@ -124,9 +124,9 @@ alloc_init:
 	mov [r8], r9
 	mov rdi, [ipb.free_list]
 	mov [r8+8], rdi
-	mov [r8+r9-8], r9
-	mov rdi, "FREEFREE"
-	mov qword [r8+r9-16], rdi
+	mov [r8+r9+16], r9
+	mov edi, "FREE"
+	mov qword [r8+r9+24], rdi
 	mov [ipb.free_list], r8
 	ret
 

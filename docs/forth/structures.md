@@ -1,6 +1,39 @@
 Forth Structures
 ================
 
+Allocator Free List
+-------------------
+
+```
+        0 +-----------------+
+          |      Length     |
+        8 +-----------------+
+          |    Next Link    |
+       16 +-----------------+
+          |                 |
+         ... Usable Memory ...
+          |                 |
+16+Length +-----------------+
+          |  Rsvd  |  Flags |
+24+Length +-----------------+
+          |      Length     |
+32+Length +-----------------+
+```
+
+The `Next Link` is `0` at the end of the list.
+
+The flags are:
+
+```
+MSB                             LSB
+00000000 00000000 00000000 0000000F
+```
+
+|   | Name     | Description          |
+|---|----------|----------------------|
+| 0 | Reserved | Should be 0          |
+| F | Free     | 0 = free, 1 = in use |
+
 User Area
 ---------
 
