@@ -39,13 +39,11 @@ User Area
 
 ```
    0 +--------------------+--------------------+--------------------+--------------------+
-     | Dictionary Pointer |        Flags       |   Start of Source  |  Length of Source  |
+     |   Head of Mailbox  |   Tail of Mailbox  |   Start of Source  |  Length of Source  |
   32 +--------------------+--------------------+--------------------+--------------------+
-     |   Head of Mailbox  |   Tail of Mailbox  |                                         |
+     |        Flags       |   Output Process   |                                         |
   64 +--------------------+--------------------+                                         |
-     |                                                                                   |
     ...                                    Reserved                                     ...
-     |                                                                                   |
  224 +--------------------+--------------------+--------------------+--------------------+
      |     Stored RBX     |     Stored RSI     |     Stored RSP     |     Stored RBP     |
  256 +--------------------+--------------------+--------------------+--------------------+

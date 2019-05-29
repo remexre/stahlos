@@ -1,6 +1,10 @@
 bits 64
 
+extern cold_exited
 extern interpret
+
+extern forth_bochs_bp.cfa
+extern forth_exit.cfa
 
 global forth_cold
 
@@ -8,25 +12,23 @@ global forth_cold
 
 ; Performs a cold startup of the Forth system.
 forth_cold:
-	; xchg bx, bx
-	mov r8, forth_startup
-	mov r9, forth_startup.len
-	call interpret
-	; xchg bx, bx
-	mov r8, forth_std
-	mov r9, forth_std.len
-	call interpret
-	; xchg bx, bx
-	ret
+	xchg bx, bx
+	sub rbp, 8
+	mov qword [rbp], .after
+	mov rsi, .pfa
+	lodsq
+	jmp rax
+.after: dq cold_exited
+.pfa:
+	dq forth_bochs_bp.cfa
+	dq forth_exit.cfa
 
 [section .forth_code]
 
-forth_startup:
-	incbin "src/amd64/forth/startup.f"
-.len equ $-forth_startup
-
-forth_std:
+cold_code:
 	incbin "src/amd64/forth/std.f"
-.len equ $-forth_std
+	db 0x0a
+	incbin "src/amd64/forth/startup.f"
+.len equ $-cold_code
 
 ; vi: cc=80 ft=nasm

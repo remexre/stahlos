@@ -1,7 +1,7 @@
 ENTRY(start32)
 OUTPUT_FORMAT(elf64-x86-64)
 
-/* NOTE: It's important that the entire kernel fits between 1 and 2 MiB -- the allocator needs to
+/* NOTE: It's important that the entire kernel fits between 1 and 3 MiB -- the allocator needs to
  * remove this region from the allocatable memory, otherwise eventually we might hand out part of
  * the kernel as allocated memory! */
 
@@ -24,10 +24,10 @@ SECTIONS {
 	}
 	.bss : { *(.bss) }
 
-	. = 2M - 56;
-	.ipb : {
-		/* The "Important Pointer Block" */
-		KEEP(*(.ipb))
-	}
+	. = 2M - 64;
+	.ipb : { KEEP(*(.ipb)) } /* The "Important Pointer Block" */
 	ASSERT((. == 2M), "IPB has the wrong size")
+
+	.ifa : { KEEP(*(.ifa)) }
+	ASSERT((. == 3M), "Initial free area has the wrong size")
 }

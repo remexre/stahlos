@@ -11,6 +11,7 @@ ASM_UNITS += amd64/panic
 ASM_UNITS += amd64/devices/pic8259
 ASM_UNITS += amd64/devices/uart8250
 ASM_UNITS += amd64/kernel/builtins
+ASM_UNITS += amd64/kernel/error_handling
 ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/startup
 ASM_UNITS += amd64/kernel/structures
@@ -25,6 +26,8 @@ FORTH_UNITS += acpi
 # FORTH_UNITS += gpt
 # FORTH_UNITS += mbr
 # FORTH_UNITS += pcie
+
+MISC_UTILS += fnv1a
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
 FORTH_SRCS = $(patsubst %,src/forth/%.f,$(FORTH_UNITS))
@@ -52,9 +55,10 @@ install: out/stahlos.elf $(FORTH_SRCS)
 kernel: out/stahlos.elf
 run: out/stahlos.img
 	bochs -f bochsrc.txt -q
+utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
 	watchexec -cre asm,cfg,inc,ld,md make
-.PHONY: all clean docs help image install kernel run watch
+.PHONY: all clean docs help image install kernel run utils watch
 
 disas: out/stahlos-unstripped.elf
 	objdump -M intel -d $< | less
@@ -83,6 +87,9 @@ out/stahlos.img: out/stahlos.elf src/misc/grub.cfg $(FORTH_SRCS)
 	cp $(FORTH_SRCS) tmp/isodir/boot/mods
 	@mkdir -p $(dir $@)
 	grub-mkrescue -o $@ tmp/isodir
+out/utils/%: tmp/utils/%.o
+	@mkdir -p $(dir $@)
+	$(CC) -o $@ $^
 
 out/stahlos.elf out/stahlos.sym: out/stahlos-unstripped.elf
 	@mkdir -p $(dir $@)
@@ -98,3 +105,6 @@ out/stahlos-unstripped.elf: src/misc/linker.ld $(ASM_OBJS)
 tmp/%.o: src/%.asm
 	@mkdir -p $(dir $@)
 	nasm -felf64 -o $@ $< $(NASMFLAGS)
+tmp/utils/%.o: src/utils/%.c
+	@mkdir -p $(dir $@)
+	$(CC) -c -o $@ $(CFLAGS) $^
