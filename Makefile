@@ -1,4 +1,5 @@
 DESTDIR ?= /media/stahlos
+NASM ?= nasm
 NASMFLAGS += -gdwarf
 
 ASM_UNITS += amd64/multiboot2
@@ -104,7 +105,7 @@ out/stahlos-unstripped.elf: src/misc/linker.ld $(ASM_OBJS)
 
 tmp/%.o: src/%.asm
 	@mkdir -p $(dir $@)
-	nasm -felf64 -o $@ $< $(NASMFLAGS)
+	$(NASM) -felf64 -o $@ $< $(NASMFLAGS)
 tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
