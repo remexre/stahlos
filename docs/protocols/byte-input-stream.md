@@ -8,7 +8,7 @@ global protocol ByteInputStream(role C, role S) {
 	choice at C {
 		ReadBytes(usize) from C to S;
 		choice at S {
-			ReadBytesData(OwnedBytes) from S to C;
+			ReadBytesData(Bytes) from S to C;
 			do ByteInputStream(C, S);
 		} or {
 			ReadEOF() from S to C;

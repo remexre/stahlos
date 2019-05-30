@@ -6,7 +6,7 @@ The ByteOutputStream protocol is an abstraction for reading a stream of input by
 ```scribble
 global protocol ByteOutputStream(role C, role S) {
 	choice at C {
-		WriteBytes(OwnedBytes) from C to S;
+		WriteBytes(Bytes) from C to S;
 		choice at S {
 			WriteBytesDone() from S to C;
 			do ByteOutputStream(C, S);
