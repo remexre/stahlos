@@ -6,11 +6,11 @@ The Debug protocol exists for debugging purposes, as the name would indicate.
 ```scribble
 global protocol Debug(role C, role S) {
 	choice at C {
-		Ping(Bytes) from C to S;
-		Pong(Bytes) from S to C;
+		Ping(bytes) from C to S;
+		Pong(bytes) from S to C;
 		do Debug(C, S);
 	} or {
-		DebugPrint(Bytes) from C to S;
+		DebugPrint(bytes) from C to S;
 		do Debug(C, S);
 	} or {
 		// The client can leave at any time.

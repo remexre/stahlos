@@ -8,7 +8,7 @@ global protocol Terminal(role C, role S) {
 	choice at C {
 		ReadBytes(usize) from C to S;
 		choice at S {
-			ReadBytesData(Bytes) from S to C;
+			ReadBytesData(bytes) from S to C;
 			do Terminal(C, S);
 		} or {
 			ReadEOF() from S to C;
