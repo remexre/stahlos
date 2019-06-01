@@ -1,6 +1,6 @@
 DESTDIR ?= /media/stahlos
 NASM ?= nasm
-NASMFLAGS += -gdwarf
+NASMFLAGS += -gdwarf -Werror
 
 ASM_UNITS += amd64/multiboot2
 ASM_UNITS += amd64/start32
@@ -14,6 +14,7 @@ ASM_UNITS += amd64/devices/uart8250
 ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
 ASM_UNITS += amd64/kernel/interpret
+ASM_UNITS += amd64/kernel/pseudobuiltins
 ASM_UNITS += amd64/kernel/startup
 ASM_UNITS += amd64/kernel/structures
 # ASM_UNITS += kernel/builtins

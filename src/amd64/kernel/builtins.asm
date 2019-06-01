@@ -26,20 +26,21 @@ forth_bochs_bp:
 	db 0x00, 8, "BOCHS-BP"
 .cfa:
 	xchg bx, bx
+	jmp near .cfa
 	NEXT
 
-forth_allot:
+forth_docolon:
 	dd forth_bochs_bp
-	db 0x00, 5, "ALLOT"
+	db 0x00, 9, "(DOCOLON)"
 .cfa:
-	FORTH_POP_CHK 1
-	lock xadd [ipb.here], rbx
-	pop rbx
+	sub rbp, 8
+	mov [rbp], rsi
+	lea rsi, [rax+8]
 	NEXT
 
 forth_exit:
-	dd forth_allot
-	db 0x00, 4, "EXIT"
+	dd forth_docolon
+	db 0x00, 4, "(EXIT)"
 .cfa:
 	mov rsi, [rbp]
 	add rbp, 8
@@ -57,7 +58,7 @@ forth_here:
 	; worry imo.
 	NEXT
 
-; This is a smudged, no-name, no-op word, mainly as a marker.
+; This is a smudged, no-name, no-op word, as a marker and safety guard.
 forth_last_builtin:
 	dd forth_here
 	db 0x02, 0

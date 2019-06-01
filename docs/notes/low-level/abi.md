@@ -16,3 +16,5 @@ The pervasive use of Forth throughout the system makes the ABI less important fo
 The segment registers (`cs`, `ds`, `es`, `fs`, `gs`) should always have the same values, `0x08` for `cs`, `0x10` for the rest.
 
 The User Pointer points to the User Area (see [Forth Structures](../../forth/structures.md#user-area)).
+
+When a call is performed, `rax` must contain the address of the code field of the word being called.

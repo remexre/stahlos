@@ -108,7 +108,8 @@ alloc_init:
 	test r8, r8
 	jnz .add_to_free_list_2
 
-	mov qword [r8], "NULLNULL"
+	mov rdi, "NULLNULL"
+	mov qword [r8], rdi
 	add r8, 8
 	sub r9, 8
 

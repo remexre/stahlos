@@ -1,4 +1,5 @@
 \ The parts of the standard library that are implemented in Forth themselves.
+\ TODO: This is from Forth386; things probably need adjusting for amd64.
 
 \ COMPILE must by CREATEd manually, since ' is an immediate word.
 CREATE COMPILE DOES>ENTER ' ' CFA , ] CFA , EXIT [ IMMEDIATE
