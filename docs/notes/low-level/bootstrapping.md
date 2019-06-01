@@ -11,7 +11,7 @@ Builtins are all code words, and must be (relatively laboriously) ported between
 -	wrap a single instruction, e.g. `!` or `/*`
 -	wrap a variable, e.g. `HERE`
 -	twiddle compiler state, e.g. `[` or `IMMEDIATE`
--	strongly depend on the compiler internals, e.g. `(DOCOLON)`
+-	strongly depend on the compiler internals, e.g. `(EXIT)`
 
 Pseudobuiltins
 --------------

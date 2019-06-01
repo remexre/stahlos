@@ -26,17 +26,19 @@ forth_bochs_bp:
 	db 0x00, 8, "BOCHS-BP"
 .cfa:
 	xchg bx, bx
-	jmp near .cfa
 	NEXT
 
 forth_docolon:
 	dd forth_bochs_bp
-	db 0x00, 9, "(DOCOLON)"
+	db 0x00, 11, "((DOCOLON))"
 .cfa:
-	sub rbp, 8
-	mov [rbp], rsi
-	lea rsi, [rax+8]
-	NEXT
+	jmp near .impl
+.jmp_len equ $ - .cfa
+.pfa:
+	dq forth_literal_impl.cfa
+	dq .impl
+	dq forth_exit.cfa
+.impl:
 
 forth_exit:
 	dd forth_docolon
@@ -51,16 +53,21 @@ forth_here:
 	db 0x00, 4, "HERE"
 .cfa:
 	push rbx
-	xor rbx, rbx
-	lock xadd [ipb.here], rbx ; It /should/ be possible to just do a normal
-	; mov rbx, [ipb.here], per section 8.1.1 of Intel 64 and IA-32
-	; Architectures Developer's Manual: Vol. 3A. However, it's not worth the
-	; worry imo.
+	mov rbx, [ipb.here]
+	NEXT
+
+forth_literal_impl:
+	dq forth_here
+	db 0x00, 9, "(LITERAL)"
+.cfa:
+	push rbx
+	lodsq
+	mov rbx, rax
 	NEXT
 
 ; This is a smudged, no-name, no-op word, as a marker and safety guard.
 forth_last_builtin:
-	dd forth_here
+	dd forth_literal_impl
 	db 0x02, 0
 .cfa:
 	NEXT

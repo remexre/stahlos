@@ -13,6 +13,6 @@ forth_last_pseudobuiltin:
 	dd forth_last_builtin
 	db 0x02, 0
 .cfa:
-	NEXT
+	db "TODO"
 
 ; vi: cc=80 ft=nasm
