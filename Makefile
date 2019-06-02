@@ -15,13 +15,6 @@ ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
 ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/pseudobuiltins
-ASM_UNITS += amd64/kernel/startup
-ASM_UNITS += amd64/kernel/structures
-# ASM_UNITS += kernel/builtins
-# ASM_UNITS += kernel/interpret
-# ASM_UNITS += kernel/parse
-# ASM_UNITS += kernel/startup
-# ASM_UNITS += kernel/utils
 
 FORTH_UNITS += acpi
 # FORTH_UNITS += ata-pio

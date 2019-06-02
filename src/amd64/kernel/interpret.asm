@@ -1,5 +1,7 @@
 bits 64
 
+%include "src/amd64/macros.inc"
+
 global interpret
 
 [section .text]
@@ -29,7 +31,7 @@ interpret:
 	call find_word
 
 .die:
-	xchg bx, bx
+	dbg `hit interpret.die\n`
 	jmp .die
 
 ; Finds the unsmudged word whose name's address is given by r8 and whose name's

@@ -1,5 +1,7 @@
 bits 64
 
+%include "src/amd64/macros.inc"
+
 global pic8259_init
 global pic8259_unmask
 global pic8259_eoi1
@@ -66,7 +68,7 @@ pic8259_unmask:
 
 	ret
 .end_bp:
-	xchg bx, bx
+	dbg `pic8259_unmask.end_bp\n`
 	ret
 
 pic8259_eoi2:

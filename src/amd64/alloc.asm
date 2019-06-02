@@ -1,5 +1,7 @@
 bits 64
 
+%include "src/amd64/macros.inc"
+
 extern ipb.free_list
 extern ipb.mb2
 extern panic
@@ -121,7 +123,7 @@ alloc_init:
 	ret
 
 .add_to_free_list_3:
-	xchg bx, bx
+	dbg `.add_to_free_list_3\n`
 	mov [r8], r9
 	mov rdi, [ipb.free_list]
 	mov [r8+8], rdi

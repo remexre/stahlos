@@ -1,37 +1,37 @@
 bits 64
 
+%include "src/amd64/macros.inc"
+%include "src/amd64/kernel/macros.inc"
+
 extern ipb.here
 extern underflow
 
-global forth_bochs_bp.cfa
-global forth_exit.cfa
+global forth_docolon.impl
 global forth_last_builtin
-
-; Checks if the given number of arguments can be popped. Trashes rcx.
-%macro FORTH_POP_CHK 1
-	lea rcx, [r13+8-(%1*8)]
-	cmp rcx, rsp
-	jbe underflow
-%endmacro
-
-%macro NEXT 0
-	lodsq
-	jmp rax
-%endmacro
 
 [section .forth_builtins]
 
-forth_bochs_bp:
-	dd 0
-	db 0x00, 8, "BOCHS-BP"
-.cfa:
-	xchg bx, bx
-	NEXT
+;;; Architecture-dependent stuff
 
-forth_docolon:
-	dd forth_bochs_bp
-	db 0x00, 11, "((DOCOLON))"
-.cfa:
+defcode bochs_bp, "BOCHS-BP"
+	dbg `BOCHS-BP word\n`
+endcode
+
+defcode outb, "OUTB", 2
+	mov dx, bx
+	pop rax
+	pop rbx
+	out dx, al
+endcode
+
+;;; Forth "deep builtins"
+
+defcode allot, "ALLOT", 1
+	add [ipb.here], rbx
+	pop rbx
+endcode
+
+defcode docolon, "((DOCOLON))"
 	jmp near .impl
 .jmp_len equ $ - .cfa
 .pfa:
@@ -39,37 +39,38 @@ forth_docolon:
 	dq .impl
 	dq forth_exit.cfa
 .impl:
+	sub rbp, 8
+	mov [rbp], rsi
+	lea rsi, [rax+.jmp_len]
+endcode
 
-forth_exit:
-	dd forth_docolon
-	db 0x00, 4, "(EXIT)"
-.cfa:
+defcode exit, "EXIT"
 	mov rsi, [rbp]
 	add rbp, 8
-	NEXT
+endcode
 
-forth_here:
-	dd forth_exit
-	db 0x00, 4, "HERE"
-.cfa:
+defcode here, "HERE"
 	push rbx
 	mov rbx, [ipb.here]
-	NEXT
+endcode
 
-forth_literal_impl:
-	dq forth_here
-	db 0x00, 9, "(LITERAL)"
-.cfa:
+defcode if_impl, "(IF)", 1
+	test rbx, rbx
+	pop rbx
+	lodsq
+	jnz .end
+	jmp rax
+.end:
+endcode
+
+defcode literal_impl, "(LITERAL)"
 	push rbx
 	lodsq
 	mov rbx, rax
-	NEXT
+endcode
 
 ; This is a smudged, no-name, no-op word, as a marker and safety guard.
-forth_last_builtin:
-	dd forth_literal_impl
-	db 0x02, 0
-.cfa:
-	NEXT
+defcode last_builtin, "", 0, 0x02
+endcode
 
 ; vi: cc=80 ft=nasm

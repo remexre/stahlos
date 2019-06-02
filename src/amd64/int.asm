@@ -1,5 +1,7 @@
 bits 64
 
+%include "src/amd64/macros.inc"
+
 extern idt
 extern idt.end
 extern idtr
@@ -57,7 +59,7 @@ int_register:
 	popfq
 	ret
 .end_bp:
-	xchg bx, bx
+	dbg `I don't remember what this BP is for...\n`
 	popfq
 	ret
 
@@ -96,7 +98,7 @@ int_register_all:
 
 ; The Divide-By-Zero handler.
 de_handler:
-	xchg bx, bx
+	dbg `divide by zero!\n`
 	jmp de_handler
 
 ; The Non-Maskable Interrupt handler.
@@ -109,22 +111,22 @@ bp_handler:
 
 ; The Invalid Opcode handler.
 ud_handler:
-	xchg bx, bx
+	dbg `invalid opcode!\n`
 	jmp ud_handler
 
 ; The Double Fault handler.
 df_handler:
-	xchg bx, bx
+	dbg `double fault!\n`
 	jmp df_handler
 
 ; The General Protection Fault handler.
 gp_handler:
-	xchg bx, bx
+	dbg `general protection fault!\n`
 	jmp gp_handler
 
 ; The Page Fault handler.
 pf_handler:
-	xchg bx, bx
+	dbg `page fault!\n`
 	jmp pf_handler
 
 ; vi: cc=80 ft=nasm

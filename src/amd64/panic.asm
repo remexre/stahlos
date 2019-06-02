@@ -1,11 +1,13 @@
 bits 64
 
+%include "src/amd64/macros.inc"
+
 global panic
 
 [section .text]
 
 panic:
-	xchg bx, bx
+	dbg `entered panic\n`
 
 	mov rcx, .strlen
 	mov rsi, .str
