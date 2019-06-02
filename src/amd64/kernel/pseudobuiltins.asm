@@ -5,24 +5,29 @@ bits 64
 
 extern forth_docolon.impl
 extern forth_exit.cfa
-extern forth_here.cfa
 extern forth_last_builtin
 
 global forth_last_pseudobuiltin
-
 
 [section .forth_builtins]
 
 defcolon comma, ","
 	word here
+	lit 8
+	word allot
+	word store
+endcolon
+
+defcolon evaluate, "EVALUATE"
+	; TODO evaluate
+	word bochs_bp
 endcolon
 
 ;;; Testing Words
 ;;; These should be replaced (probably to send messages to some other process).
 
 defcolon emit, "EMIT"
-	word literal_impl
-	dq 0xe9
+	lit 0xe9
 	word outb
 endcolon
 

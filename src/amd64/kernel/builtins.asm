@@ -44,6 +44,10 @@ defcode docolon, "((DOCOLON))"
 	lea rsi, [rax+.jmp_len]
 endcode
 
+defcode dup, "DUP", 1
+	push rbx
+endcode
+
 defcode exit, "EXIT"
 	mov rsi, [rbp]
 	add rbp, 8
@@ -67,6 +71,25 @@ defcode literal_impl, "(LITERAL)"
 	push rbx
 	lodsq
 	mov rbx, rax
+endcode
+
+defcode source, "SOURCE", 0
+	push rbx
+	mov rbx, [r15+16]
+	push rbx
+	mov rbx, [r15+24]
+endcode
+
+defcode store, "!", 2
+	mov rax, [rsp]
+	mov [rbx], rax
+	add rsp, 8
+	pop rbx
+endcode
+
+defcode user_pointer, "USER-POINTER"
+	push rbx
+	mov rbx, r15
 endcode
 
 ; This is a smudged, no-name, no-op word, as a marker and safety guard.

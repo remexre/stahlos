@@ -4,6 +4,7 @@ bits 64
 %include "src/amd64/kernel/macros.inc"
 
 extern cold_exited
+extern ifa
 extern int_init
 extern int_register_all
 extern pic8259_init
@@ -23,12 +24,14 @@ start64:
 	mov gs, ax
 	mov ss, ax
 
-	; Early on, Forth code will still need a parameter and return stack. We can
-	; reuse the memory given for 32-bit code as these stacks.
-	mov rsp, 0x100100
-	mov r13, rsp
-	mov rbp, 0x100080
-	mov r14, rbp
+	; Set the user area pointer to where we will eventually create the init
+	; process, and the parameter and return stacks to within it.
+	mov r15, ifa+((1 << 16)/8 + (1 << 16))
+	lea r14, [r15+512]
+	lea r13, [r15+1024]
+	mov rbp, r14
+	mov rsp, r13
+	mov rbx, "STACKTOP"
 
 	call pic8259_init ; Remap the PIC.
 	call int_register_all ; Register all the default interrupt handlers.
@@ -36,7 +39,7 @@ start64:
 	sti ; Enable interrupts.
 
 	; Start up the Forth system.
-	dbg `\nstarting up forth...\n\n`
+	dbg `starting up forth...\n`
 	sub rbp, 8
 	mov qword [rbp], .after
 	mov rsi, .pfa
@@ -45,11 +48,36 @@ start64:
 .after: dq cold_exited
 .pfa:
 begincolon
-	word here
-	; 64k bits for readiness
-	; 64k qwords for address of user area
-	lit (1 << 16)*9/8
+	; Reserve some space
+	;   64k bits for readiness
+	;   64k qwords for address of user area
+	;   1k bytes for init's user space
+	lit (1 << 16)/8 + (1 << 16) + (1<<10)
 	word allot
+	;   HERE should now be 0x212000
+
+	; Set up the init process
+	;   Write a bit that we're ready to run.
+	lit 1
+	lit ifa
+	word store
+	;   Write the user pointer to the right spot.
+	word user_pointer
+	lit ifa + (1 << 16)/8
+	word store
+	;   Write the source code start.
+	lit cold_code
+	lit ifa + (1 << 16)/8 + (1 << 16) + 16
+	word store
+	;   Write the source code length.
+	lit cold_code.len
+	lit ifa + (1 << 16)/8 + (1 << 16) + 24
+	word store
+
+	; Start running the code!
+	word source
+	word bochs_bp
+	word evaluate
 endcolon
 
 [section .forth_code]
