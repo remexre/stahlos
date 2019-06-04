@@ -65,19 +65,21 @@ begincolon
 	word user_pointer
 	lit ifa + (1 << 16)/8
 	word store
-	;   Write the source code start.
-	lit cold_code
+	;   Write the source code start canary.
+	lit "SRCSTART"
 	lit ifa + (1 << 16)/8 + (1 << 16) + 16
 	word store
-	;   Write the source code length.
-	lit cold_code.len
+	;   Write the source code length canary.
+	lit "SRC__LEN"
 	lit ifa + (1 << 16)/8 + (1 << 16) + 24
 	word store
 
 	; Start running the code!
-	word source
-	word bochs_bp
-	word evaluate
+	lit cold_code
+	lit cold_code.len
+		word depth
+		word dot_s
+	; word evaluate
 endcolon
 
 [section .forth_code]

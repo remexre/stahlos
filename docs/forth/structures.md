@@ -41,8 +41,8 @@ User Area
    0 +--------------------+--------------------+--------------------+--------------------+
      |   Head of Mailbox  |   Tail of Mailbox  |   Start of Source  |  Length of Source  |
   32 +--------------------+--------------------+--------------------+--------------------+
-     |        Flags       |   Output Process   |                                         |
-  64 +--------------------+--------------------+                                         |
+     |     Input Offset   |        Flags       |   Output Process   |                    |
+  64 +--------------------+--------------------+--------------------+                    |
     ...                                    Reserved                                     ...
  224 +--------------------+--------------------+--------------------+--------------------+
      |     Stored RBX     |     Stored RSI     |     Stored RSP     |     Stored RBP     |
@@ -67,15 +67,14 @@ The flags are:
 
 ```
 MSB                                                                 LSB
-00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000CSB
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 000000SB
 ```
 
-|   | Name     | Description                       |
-|---|----------|-----------------------------------|
-| 0 | Reserved | Should be 0                       |
-| B | Base     | 0 = decimal, 1 = hex              |
-| C | Comment  | 0 = normal, 1 = reading a comment |
-| S | State    | 0 = interpret, 1 = compile        |
+|   | Name     | Description                |
+|---|----------|----------------------------|
+| 0 | Reserved | Should be 0                |
+| B | Base     | 0 = decimal, 1 = hex       |
+| S | State    | 0 = interpret, 1 = compile |
 
 Words
 -----

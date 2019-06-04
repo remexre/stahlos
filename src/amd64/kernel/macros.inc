@@ -2,11 +2,11 @@
 %define indef 0 ; 1 = defcode, 2 = defcolon
 
 %macro defcode 4 ; symbol name, name, num args, flags
-%if indef
-%error "defcode in existing definition"
-%else
-%define indef 1
-%endif
+	%if indef
+		%error "defcode in existing definition"
+	%else
+		%define indef 1
+	%endif
 global forth_%1.cfa
 %strlen %%namelen %2
 forth_%1:
@@ -14,36 +14,36 @@ forth_%1:
 %define last_defined_word forth_%1
 	db %4, %%namelen, %2
 .cfa:
-%if %3 <> 0
-	lea rcx, [rsp+8*%3]
-	cmp r13, rcx
-	jb underflow
-%endif
+	%if %3 <> 0
+		lea rcx, [rsp+8*%3]
+		cmp r13, rcx
+		jb underflow
+	%endif
 %endmacro
 
 %macro endcode 0
-%if indef = 1
-%define indef 0
-%else
-%error "endcode outside of defcode"
-%endif
+	%if indef = 1
+		%define indef 0
+	%else
+		%error "endcode outside of defcode"
+	%endif
 	lodsq
 	jmp rax
 %endmacro
 
 %macro defcode 3
-defcode %1, %2, %3, 0x00
+	defcode %1, %2, %3, 0x00
 %endmacro
 %macro defcode 2
-defcode %1, %2, 0
+	defcode %1, %2, 0
 %endmacro
 
 %macro begincolon 0
-%if indef
-%error "defcolon in existing definition"
-%else
-%define indef 2
-%endif
+	%if indef
+		%error "defcolon in existing definition"
+	%else
+		%define indef 2
+	%endif
 %endmacro
 
 %macro defcolon 2
@@ -60,28 +60,32 @@ forth_%1:
 %endmacro
 
 %macro lit 1
-%if indef <> 2
-%error "lit outside of defcolon"
-%endif
-word literal_impl
-dq %1
+	%if indef <> 2
+		%error "lit outside of defcolon"
+	%endif
+	word literal_impl
+	dq %1
 %endmacro
 
 %macro word 1
-%if indef <> 2
-%error "word outside of defcolon"
-%endif
-extern forth_%1.cfa
-dq forth_%1.cfa
+	extern forth_%1.cfa
+	wordl %1
+%endmacro
+
+%macro wordl 1
+	%if indef <> 2
+		%error "word outside of defcolon"
+	%endif
+	dq forth_%1.cfa
 %endmacro
 
 %macro endcolon 0
 	word exit
-%if indef = 2
-%define indef 0
-%else
-%error "endcolon outside of defcolon"
-%endif
+	%if indef = 2
+		%define indef 0
+	%else
+		%error "endcolon outside of defcolon"
+	%endif
 %endmacro
 
 ; vi: cc=80 ft=nasm

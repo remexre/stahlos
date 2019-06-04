@@ -4,6 +4,7 @@ bits 64
 
 global cold_exited
 global underflow
+global underflow_return
 
 [section .text]
 
@@ -14,5 +15,9 @@ cold_exited:
 underflow:
 	dbg `underflow loop\n`
 	jmp underflow
+
+underflow_return:
+	dbg `underflow_return loop\n`
+	jmp underflow_return
 
 ; vi: cc=80 ft=nasm
