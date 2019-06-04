@@ -39,7 +39,6 @@ start64:
 	sti ; Enable interrupts.
 
 	; Start up the Forth system.
-	dbg `starting up forth...\n`
 	sub rbp, 8
 	mov qword [rbp], .after
 	mov rsi, .pfa
@@ -75,9 +74,11 @@ begincolon
 	word store
 
 	; Start running the code!
-	lit cold_code
-	lit cold_code.len
+	; lit cold_code
+	; lit cold_code.len
+		lit 123
 		word depth
+		word dot_s
 		word dot_s
 	; word evaluate
 endcolon

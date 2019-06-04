@@ -27,6 +27,13 @@ endcode
 
 ;;; Forth "deep builtins"
 
+defcode abs, "ABS", 1
+	test rbx, rbx
+	jns .end
+	neg rbx
+.end:
+endcode
+
 defcode add, "+", 2
 	pop rax
 	add rbx, rax
@@ -62,6 +69,15 @@ defcode depth, "DEPTH"
 	mov rbx, r13
 	sub rbx, rsp
 	shr rbx, 3
+	dec rbx
+endcode
+
+defcode div_mod, "/MOD", 2
+	mov rax, [rsp]
+	xor rdx, rdx
+	div rbx
+	mov [rsp], rdx
+	mov rbx, rax
 endcode
 
 defcode docolon, "((DOCOLON))"
@@ -108,6 +124,14 @@ defcode from_r, "R>"
 	push rbx
 	mov rbx, [rbp]
 	add rbp, 8
+endcode
+
+defcode get_base, "GET-BASE"
+	test byte [r15+40], 0x01
+	push rbx
+	mov rbx, 10
+	mov rax, 16
+	cmovnz rbx, rax
 endcode
 
 defcode here, "HERE"

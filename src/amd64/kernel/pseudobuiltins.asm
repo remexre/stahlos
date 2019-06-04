@@ -87,8 +87,38 @@ defcolon dot, "."
 endcolon
 
 defcolon dot_nosp, "."
-	word d_to_s
-	word bochs_bp ; TODO
+	word s_to_d
+	word if_impl
+	dq .number
+	lit '-'
+	wordl emit
+.number:
+	word abs
+	word dup
+	word if_impl
+	dq .zero
+
+.num_loop:
+	word dup
+	word if_impl
+	dq .end
+
+	word get_base
+	word div_mod
+	word swap
+	lit 0x30
+	word add
+	; word bochs_bp
+	wordl emit
+
+	word jump
+	dq .num_loop
+
+.zero:
+	lit '0'
+	wordl emit
+.end:
+	word drop
 endcolon
 
 defcolon dot_s, ".S"
@@ -104,7 +134,7 @@ defcolon dot_s, ".S"
 	; Go to end if n=0
 	word dup
 	word if_impl
-	lit .end
+	dq .end
 
 	word dup
 	word pick
@@ -113,9 +143,11 @@ defcolon dot_s, ".S"
 	lit 1
 	word sub
 	word jump
-	lit .loop
+	dq .loop
 .end:
 	word drop
+	lit `\n`
+	wordl emit
 endcolon
 
 defcolon bl, "BL"
@@ -135,7 +167,7 @@ endcolon
 defcolon type, "TYPE"
 	word dup
 	word if_impl
-	lit .end
+	dq .end
 	word dup2
 	; TODO
 .end:
