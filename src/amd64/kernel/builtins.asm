@@ -114,6 +114,12 @@ defcode equal, "=", 2
 	not rbx
 endcode
 
+defcode execute, "EXECUTE", 1
+	pop rbx
+	mov rax, rbx
+	jmp rax
+endcode
+
 defcode exit, "EXIT"
 	; Check for return underflow.
 	lea rcx, [rbp+8]
@@ -165,6 +171,10 @@ endcode
 
 defcode incr, "1+", 1
 	inc rbx
+endcode
+
+defcode invert, "INVERT", 1
+	not rbx
 endcode
 
 defcode jump, "(JUMP)"
@@ -219,6 +229,10 @@ defcode n_to_str, "N>STR", 1
 	sub rbx, rcx
 endcode
 .buf: times 32 db 0
+
+defcode negate, "NEGATE", 1
+	neg rbx
+endcode
 
 defcode pick, "PICK", 1
 	lea rbx, [rsp+rbx*8]
@@ -276,6 +290,15 @@ defcode to_r, ">R", 1
 	sub rbp, 8
 	mov [rbp], rbx
 	pop rbx
+endcode
+
+defcode u_less, "U<", 2
+	pop rax
+	xor rdx, rdx
+	cmp rax, rbx
+	setnb dl
+	dec rdx
+	mov rbx, rdx
 endcode
 
 defcode user_pointer, "USER-POINTER"

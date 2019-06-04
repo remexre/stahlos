@@ -18,6 +18,11 @@ defcolon comma, ","
 	word store
 endcolon
 
+defcolon drop2, "2DROP"
+	word drop
+	word drop
+endcolon
+
 defcolon dup2, "2DUP"
 	wordl over
 	wordl over
@@ -48,7 +53,7 @@ defcolon evaluate, "EVALUATE"
 
 	; Interpret the source.
 	;wordl interpret ; TODO
-	lit 'p'
+	lit forth_isspace.cfa
 	wordl next_source_pos
 	wordl dot_s
 
@@ -69,44 +74,60 @@ defcolon interpret, "INTERPRET"
 	; TODO
 endcolon
 
+defcolon isspace, "IS-SPACE?"
+	wordl debug
+	lit ' '
+	word u_less
+	wordl debug
+endcolon
+
 defcolon next_source_pos, "NEXT-SOURCE-POS"
 	wordl source
-	word to_in
-	word fetch
-	word sub
-	word swap
+	word add
+	wordl source
+	word drop
 	word to_in
 	word fetch
 	word add
-	word swap
 
 .loop:
-	word dup
+	word dup2
+	wordl not_equal
 	word if_impl
 	dq .end
 
-	word to_r
 	word dup
 	word fetch_char
-	lit 2
-	word pick
-	wordl dot_s ; TODO
-	word equal
-	wordl dot_s ; TODO
-	word drop
 
-	lit 1
-	word add
-	word from_r
-	lit 1
-	word sub
+	lit 3
+	word pick
+
+	wordl debug
+
+	word execute
+	word invert
+	word if_impl
+	dq .end
+
+	word incr
 
 	word jump
 	dq .loop
 
 .end:
-	wordl dot_s
-	word bochs_bp ; TODO
+	
+	word to_r
+	wordl drop2
+	wordl source
+	word drop
+	word from_r
+	word swap
+	word sub
+endcolon
+
+defcolon not_equal, "<>"
+	word equal
+	word invert
 endcolon
 
 defcolon over, "OVER"
@@ -125,6 +146,11 @@ endcolon
 
 ;;; Testing Words
 ;;; These should be replaced (probably to send messages to some other process).
+
+defcolon debug, "DEBUG"
+	wordl dot_s
+	word bochs_bp
+endcolon
 
 defcolon dot, "."
 	wordl dot_nosp

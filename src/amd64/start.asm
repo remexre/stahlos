@@ -76,12 +76,13 @@ begincolon
 	; Start running the code!
 	; lit cold_code
 	; lit cold_code.len
-	lit test_str
-	lit 5
-	word evaluate
+	; word evaluate
+	lit 123
+	lit 123
+	word debug
+	word u_less
+	word debug
 endcolon
-
-test_str: db "nopqr"
 
 [section .forth_code]
 
