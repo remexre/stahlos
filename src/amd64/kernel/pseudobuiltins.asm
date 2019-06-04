@@ -24,26 +24,89 @@ defcolon dup2, "2DUP"
 endcolon
 
 defcolon evaluate, "EVALUATE"
-	; SAVE-INPUT beneath the string to evaluate.
+	; Save the old source.
+	wordl source
+	word to_in
+	word fetch
+	; ( ... input-addr input-len source-addr source-len source-off )
 	word to_r
 	word to_r
-	wordl save_input
-	word from_r
-	word from_r
+	word to_r
+	; ( ... input-addr input-len )
+
+	; Set the new source.
+	word source_length
+	word store
+	word source_buffer
+	word store
+	; ( ... )
 
 	; Reset the input position to 0.
 	lit 0
 	word to_in
 	word store
 
-	;word 
-	; TODO evaluate
-	word bochs_bp
+	; Interpret the source.
+	;wordl interpret ; TODO
+	lit 'p'
+	wordl next_source_pos
+	wordl dot_s
+
+	; Restore the old source.
+	; ( ... )
+	word from_r
+	word source_buffer
+	word store
+	word from_r
+	word source_length
+	word store
+	word from_r
+	word to_in
+	word store
 endcolon
 
-defcolon nip, "NIP"
+defcolon interpret, "INTERPRET"
+	; TODO
+endcolon
+
+defcolon next_source_pos, "NEXT-SOURCE-POS"
+	wordl source
+	word to_in
+	word fetch
+	word sub
 	word swap
+	word to_in
+	word fetch
+	word add
+	word swap
+
+.loop:
+	word dup
+	word if_impl
+	dq .end
+
+	word to_r
+	word dup
+	word fetch_char
+	lit 2
+	word pick
+	wordl dot_s ; TODO
+	word equal
+	wordl dot_s ; TODO
 	word drop
+
+	lit 1
+	word add
+	word from_r
+	lit 1
+	word sub
+
+	word jump
+	dq .loop
+
+.end:
+	wordl dot_s
+	word bochs_bp ; TODO
 endcolon
 
 defcolon over, "OVER"
@@ -53,29 +116,11 @@ defcolon over, "OVER"
 	word swap
 endcolon
 
-defcolon parse_name, "PARSE-NAME"
-	wordl source
-	word to_in
-	word fetch
-	word adjust_string
-	wordl dot_s
-	; lit forth_isspace.cfa
-	; lit forth_isnotspace.cfa
-	; TODO
-endcolon
-
-defcolon save_input, "SAVE-INPUT"
-	wordl source
-	word to_in
-	word fetch
-	lit 3
-endcolon
-
 defcolon source, "SOURCE"
 	word source_buffer
+	word fetch
 	word source_length
 	word fetch
-	lit 2
 endcolon
 
 ;;; Testing Words
@@ -86,39 +131,9 @@ defcolon dot, "."
 	wordl space
 endcolon
 
-defcolon dot_nosp, "."
-	word s_to_d
-	word if_impl
-	dq .number
-	lit '-'
-	wordl emit
-.number:
-	word abs
-	word dup
-	word if_impl
-	dq .zero
-
-.num_loop:
-	word dup
-	word if_impl
-	dq .end
-
-	word get_base
-	word div_mod
-	word swap
-	lit 0x30
-	word add
-	; word bochs_bp
-	wordl emit
-
-	word jump
-	dq .num_loop
-
-.zero:
-	lit '0'
-	wordl emit
-.end:
-	word drop
+defcolon dot_nosp, "N."
+	word n_to_str
+	wordl type
 endcolon
 
 defcolon dot_s, ".S"
@@ -165,11 +180,19 @@ defcolon space, "SPACE"
 endcolon
 
 defcolon type, "TYPE"
+.loop:
 	word dup
 	word if_impl
 	dq .end
-	word dup2
-	; TODO
+
+	word over
+	word fetch_char
+	wordl emit
+
+	lit 1
+	word adjust_string
+	word jump
+	dq .loop
 .end:
 	word drop
 	word drop

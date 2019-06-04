@@ -101,6 +101,19 @@ defcode dup, "DUP", 1
 	push rbx
 endcode
 
+defcode equal, "=", 2
+	pop rax
+	cmp rax, rbx
+	je .eq
+.ne:
+	xor rbx, rbx
+	lodsq
+	jmp rax
+.eq:
+	xor rbx, rbx
+	not rbx
+endcode
+
 defcode exit, "EXIT"
 	; Check for return underflow.
 	lea rcx, [rbp+8]
@@ -113,6 +126,10 @@ endcode
 
 defcode fetch, "@", 1
 	mov rbx, [rbx]
+endcode
+
+defcode fetch_char, "C@", 1
+	movzx rbx, byte [rbx]
 endcode
 
 defcode from_r, "R>"
@@ -161,8 +178,53 @@ defcode literal_impl, "(LITERAL)"
 	mov rbx, rax
 endcode
 
+defcode n_to_str, "N>STR", 1
+	mov rax, rbx ; rax = current val
+
+	xor r8, r8
+	test rax, rax
+	jns .not_neg
+	mov r8b, 1 ; r8b = negative flag
+	neg rax
+
+.not_neg:
+	test byte [r15+40], 0x01
+	mov rbx, 10
+	mov rcx, 16
+	cmovnz rbx, rcx ; rbx = base
+
+	mov rcx, 32 ; rcx = current offset in str
+
+.loop:
+	xor rdx, rdx
+	idiv rbx
+	add dl, '0'
+	mov [rcx+.buf-1], dl
+	dec rcx
+
+	test rax, rax
+	jnz .loop
+
+	test r8b, r8b
+	jz .end
+
+	; Add the '-'
+	mov byte [rcx+.buf-1], '-'
+	dec rcx
+
+.end:
+	lea rbx, [rcx+.buf]
+	push rbx
+	mov rbx, 32
+	sub rbx, rcx
+endcode
+.buf: times 32 db 0
+
 defcode pick, "PICK", 1
-	mov rbx, [rsp+rbx*8]
+	lea rbx, [rsp+rbx*8]
+	cmp r13, rbx
+	jb underflow
+	mov rbx, [rbx]
 endcode
 
 defcode s_to_d, "S>D", 1
