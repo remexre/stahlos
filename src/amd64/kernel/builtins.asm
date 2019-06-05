@@ -103,20 +103,16 @@ endcode
 
 defcode equal, "=", 2
 	pop rax
+	xor rdx, rdx
 	cmp rax, rbx
-	je .eq
-.ne:
-	xor rbx, rbx
-	lodsq
-	jmp rax
-.eq:
-	xor rbx, rbx
-	not rbx
+	setnz dl
+	dec rdx
+	mov rbx, rdx
 endcode
 
 defcode execute, "EXECUTE", 1
-	pop rbx
 	mov rax, rbx
+	pop rbx
 	jmp rax
 endcode
 
@@ -128,6 +124,11 @@ defcode exit, "EXIT"
 
 	mov rsi, [rbp]
 	add rbp, 8
+endcode
+
+defcode false, "FALSE"
+	push rbx
+	xor rbx, rbx
 endcode
 
 defcode fetch, "@", 1
@@ -208,7 +209,7 @@ defcode n_to_str, "N>STR", 1
 .loop:
 	xor rdx, rdx
 	idiv rbx
-	add dl, '0'
+	mov dl, [.chrs+rdx]
 	mov [rcx+.buf-1], dl
 	dec rcx
 
@@ -229,6 +230,7 @@ defcode n_to_str, "N>STR", 1
 	sub rbx, rcx
 endcode
 .buf: times 32 db 0
+.chrs: db "0123456789abcdef"
 
 defcode negate, "NEGATE", 1
 	neg rbx
@@ -239,6 +241,23 @@ defcode pick, "PICK", 1
 	cmp r13, rbx
 	jb underflow
 	mov rbx, [rbx]
+endcode
+
+defcode r_fetch, "R@"
+	; Check for return underflow.
+	lea rcx, [rbp+8]
+	cmp r14, rcx
+	jb underflow_return
+
+	push rbx
+	mov rbx, [rbp]
+endcode
+
+defcode rot, "ROT", 3
+	mov rax, [rsp]
+	mov [rsp], rbx
+	mov rbx, [rsp+8]
+	mov [rsp+8], rax
 endcode
 
 defcode s_to_d, "S>D", 1
@@ -290,6 +309,12 @@ defcode to_r, ">R", 1
 	sub rbp, 8
 	mov [rbp], rbx
 	pop rbx
+endcode
+
+defcode true, "TRUE"
+	push rbx
+	xor rbx, rbx
+	dec rbx
 endcode
 
 defcode u_less, "U<", 2

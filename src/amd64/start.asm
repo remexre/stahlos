@@ -74,14 +74,9 @@ begincolon
 	word store
 
 	; Start running the code!
-	; lit cold_code
-	; lit cold_code.len
-	; word evaluate
-	lit 123
-	lit 123
-	word debug
-	word u_less
-	word debug
+	lit cold_code
+	lit cold_code.len
+	word evaluate
 endcolon
 
 [section .forth_code]

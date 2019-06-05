@@ -57,6 +57,8 @@ defcolon evaluate, "EVALUATE"
 	wordl next_source_pos
 	wordl dot_s
 
+	wordl debug
+
 	; Restore the old source.
 	; ( ... )
 	word from_r
@@ -75,54 +77,17 @@ defcolon interpret, "INTERPRET"
 endcolon
 
 defcolon isspace, "IS-SPACE?"
-	wordl debug
 	lit ' '
+	word incr
+	wordl dot_s
 	word u_less
-	wordl debug
 endcolon
 
 defcolon next_source_pos, "NEXT-SOURCE-POS"
+	; ( xt -- pos )
 	wordl source
-	word add
-	wordl source
-	word drop
-	word to_in
-	word fetch
-	word add
-
-.loop:
-	word dup2
-	wordl not_equal
-	word if_impl
-	dq .end
-
-	word dup
-	word fetch_char
-
-	lit 3
-	word pick
-
-	wordl debug
-
-	word execute
-	word invert
-	word if_impl
-	dq .end
-
-	word incr
-
-	word jump
-	dq .loop
-
-.end:
-	
-	word to_r
-	wordl drop2
-	wordl source
-	word drop
-	word from_r
-	word swap
-	word sub
+	word rot
+	wordl string_find_pred
 endcolon
 
 defcolon not_equal, "<>"
@@ -142,6 +107,41 @@ defcolon source, "SOURCE"
 	word fetch
 	word source_length
 	word fetch
+endcolon
+
+defcolon string_find_pred, "STRING-FIND-PRED"
+	; ( addr len xt -- pos ), pos == len if none found
+	word to_r
+	word over
+	word to_r
+	word add
+	word from_r
+
+.loop:
+	word dup2
+	wordl not_equal
+	word if_impl
+	dq .end
+
+	word dup
+	word fetch_char
+
+	word r_fetch
+	word execute
+	word invert
+	word if_impl
+	dq .end
+
+	word incr
+
+	word jump
+	dq .loop
+
+.end:
+	word swap
+	word from_r
+	wordl drop2
+	wordl debug
 endcolon
 
 ;;; Testing Words
