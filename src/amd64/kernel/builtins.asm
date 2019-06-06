@@ -139,6 +139,10 @@ defcode fetch_char, "C@", 1
 	movzx rbx, byte [rbx]
 endcode
 
+defcode find, "FIND", 2
+	; TODO
+endcode
+
 defcode from_r, "R>"
 	; Check for return underflow.
 	lea rcx, [rbp+8]
@@ -156,6 +160,13 @@ defcode get_base, "GET-BASE"
 	mov rbx, 10
 	mov rax, 16
 	cmovnz rbx, rax
+endcode
+
+defcode get_state, "GET-STATE"
+	push rbx
+	xor rbx, rbx
+	test byte [r15+40], 0x02
+	setnz bl
 endcode
 
 defcode here, "HERE"
@@ -279,7 +290,7 @@ defcode state_compile, "]"
 	or byte [r15+40], 0x02
 endcode
 
-defcode state_interpret, "["
+defcode state_interpret, "[", 0, 0x01
 	and byte [r15+40], 0xfd
 endcode
 
@@ -288,6 +299,37 @@ defcode store, "!", 2
 	mov [rbx], rax
 	add rsp, 8
 	pop rbx
+endcode
+
+defcode streq, "STRING=", 4
+	; ( addr1 len1 addr2 len2 ) mapped to
+	; ( rdx   rcx  rdi   rax  )
+	mov rdi, [rsp]
+	mov rcx, [rsp+8]
+	mov rdx, [rsp+16]
+	mov rax, rbx
+	add rsp, 24
+	xor rbx, rbx
+
+	cmp rax, rcx
+	jne .fail
+
+	xor r8, r8
+.loop:
+	cmp r8, rcx
+	je .success
+
+	mov al, [rdx+r8]
+	mov r9b, [rdi+r8]
+	cmp r9b, al
+	jne .fail
+
+	inc r8
+	jmp .loop
+
+.success:
+	dec rbx
+.fail:
 endcode
 
 defcode sub, "-", 2

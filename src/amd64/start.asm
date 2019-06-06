@@ -74,10 +74,18 @@ begincolon
 	word store
 
 	; Start running the code!
-	lit cold_code
-	lit cold_code.len
+	lit foo
+	lit 0
+	lit foo
+	lit 0
+	word streq
+	word debug
+	; lit cold_code
+	; lit cold_code.len
 	word evaluate
 endcolon
+
+foo: db "foo"
 
 [section .forth_code]
 

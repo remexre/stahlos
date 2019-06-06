@@ -18,6 +18,10 @@ defcolon comma, ","
 	word store
 endcolon
 
+defcolon compile_comma, "COMPILE,"
+	word comma
+endcolon
+
 defcolon drop2, "2DROP"
 	word drop
 	word drop
@@ -33,18 +37,15 @@ defcolon evaluate, "EVALUATE"
 	wordl source
 	word to_in
 	word fetch
-	; ( ... input-addr input-len source-addr source-len source-off )
 	word to_r
 	word to_r
 	word to_r
-	; ( ... input-addr input-len )
 
 	; Set the new source.
 	word source_length
 	word store
 	word source_buffer
 	word store
-	; ( ... )
 
 	; Reset the input position to 0.
 	lit 0
@@ -52,15 +53,9 @@ defcolon evaluate, "EVALUATE"
 	word store
 
 	; Interpret the source.
-	;wordl interpret ; TODO
-	lit forth_isspace.cfa
-	wordl next_source_pos
-	wordl dot_s
-
-	wordl debug
+	wordl interpret
 
 	; Restore the old source.
-	; ( ... )
 	word from_r
 	word source_buffer
 	word store
@@ -73,7 +68,59 @@ defcolon evaluate, "EVALUATE"
 endcolon
 
 defcolon interpret, "INTERPRET"
+.loop:
+	; wordl parse_name
+	word dup
+
+	word if_impl
+	dq .end
+
+	wordl dup2
+	word find
+	word dup
+
+	word if_impl
+	dq .not_found
+
+	word get_state
+	word sub
+	wordl rev_rot
+	wordl dup2
+
+	word if_impl
+	dq .compile
+
+	word execute
+	word jump
+	dq .loop
+
+.compile:
+	wordl compile_comma
+	word jump
+	dq .loop
+
+.not_found:
+	word drop
+	wordl dup2
+	; wordl to_signed_number
+
+	word if_impl
+	dq .undefined
+
+	lit forth_literal_impl.cfa
+	wordl compile_comma
+	word comma
+	wordl drop2
+
+.undefined:
+	wordl debug ; ." Undefined word: " type quit endif
+
+	word jump
+	dq .loop
+
+.end:
 	; TODO
+	wordl debug
 endcolon
 
 defcolon isspace, "IS-SPACE?"
@@ -100,6 +147,11 @@ defcolon over, "OVER"
 	word dup
 	word from_r
 	word swap
+endcolon
+
+defcolon rev_rot, "-ROT"
+	word rot
+	word rot
 endcolon
 
 defcolon source, "SOURCE"
