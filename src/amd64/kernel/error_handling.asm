@@ -3,6 +3,7 @@ bits 64
 %include "src/amd64/macros.inc"
 
 global cold_exited
+global undefined_word
 global underflow
 global underflow_return
 
@@ -11,6 +12,10 @@ global underflow_return
 cold_exited:
 	dbg `cold_exited loop\n`
 	jmp cold_exited
+
+undefined_word:
+	dbg `undefined_word loop\n`
+	jmp undefined_word
 
 underflow:
 	dbg `underflow loop\n`

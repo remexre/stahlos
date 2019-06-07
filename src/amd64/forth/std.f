@@ -1,3 +1,4 @@
+CREATE \
 \ The parts of the standard library that are implemented in Forth themselves.
 \ TODO: This is from Forth386; things probably need adjusting for amd64.
 

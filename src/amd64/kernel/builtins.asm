@@ -39,6 +39,12 @@ defcode add, "+", 2
 	add rbx, rax
 endcode
 
+defcode add_store, "+!", 2
+	pop rax
+	add [rbx], rax
+	pop rbx
+endcode
+
 ; This is just in assembly for convenience (oddly enough). 3 instructions of
 ; assembly versus 7 words (shortest I could find was DUP >R - SWAP R> + SWAP).
 defcode adjust_string, "/STRING", 3
@@ -101,6 +107,13 @@ defcode dup, "DUP", 1
 	push rbx
 endcode
 
+defcode dup_nonzero, "DUP", 1
+	test rbx, rbx
+	jz .exit
+	push rbx
+.exit:
+endcode
+
 defcode equal, "=", 2
 	pop rax
 	xor rdx, rdx
@@ -139,10 +152,6 @@ defcode fetch_char, "C@", 1
 	movzx rbx, byte [rbx]
 endcode
 
-defcode find, "FIND", 2
-	; TODO
-endcode
-
 defcode from_r, "R>"
 	; Check for return underflow.
 	lea rcx, [rbp+8]
@@ -166,7 +175,8 @@ defcode get_state, "GET-STATE"
 	push rbx
 	xor rbx, rbx
 	test byte [r15+40], 0x02
-	setnz bl
+	setz bl
+	dec rbx
 endcode
 
 defcode here, "HERE"
@@ -342,6 +352,18 @@ defcode swap, "SWAP"
 	xchg [rsp], rbx
 endcode
 
+defcode test_flag, "TEST-FLAG", 2
+	pop rdx
+	mov rcx, rbx
+	mov rax, 1
+	shl rax, cl
+	xor rbx, rbx
+	test rax, rdx
+	jz .exit
+	dec rbx
+.exit:
+endcode
+
 defcode to_in, ">IN"
 	push rbx
 	lea rbx, [r15+32]
@@ -357,6 +379,15 @@ defcode true, "TRUE"
 	push rbx
 	xor rbx, rbx
 	dec rbx
+endcode
+
+defcode u_greater, "U>", 2
+	pop rax
+	xor rdx, rdx
+	cmp rax, rbx
+	setb dl
+	dec rdx
+	mov rbx, rdx
 endcode
 
 defcode u_less, "U<", 2

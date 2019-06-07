@@ -3,6 +3,7 @@ bits 64
 %include "src/amd64/kernel/macros.inc"
 %define last_defined_word forth_last_builtin
 
+extern undefined_word
 extern forth_docolon.impl
 extern forth_exit.cfa
 extern forth_last_builtin
@@ -18,9 +19,31 @@ defcolon comma, ","
 	word store
 endcolon
 
+defcolon comment, "\"
+	wordl source_rest
+	lit forth_is_nl.cfa
+	wordl string_find_pred
+	word to_in
+	word add_store
+endcolon
+
 defcolon compile_comma, "COMPILE,"
 	word comma
 endcolon
+
+defcolon count, "COUNT"
+	word dup
+	word incr
+	word swap
+	word fetch_char
+endcolon
+
+defcolon create, "CREATE"
+	lit .str
+	lit 11
+	wordl type
+endcolon
+.str: db "TODO CREATE"
 
 defcolon drop2, "2DROP"
 	word drop
@@ -67,29 +90,91 @@ defcolon evaluate, "EVALUATE"
 	word store
 endcolon
 
+defcolon find, "FIND"
+	wordl find_header
+	wordl header_to_cfa
+endcolon
+
+defcolon find_header, "FIND-HEADER"
+	word user_pointer
+	lit 40
+	word add
+	word to_r
+
+.loop:
+	word from_r
+	word fetch
+	word dup
+	word to_r
+
+	word if_impl
+	dq .end
+
+	wordl dup2
+
+	word r_fetch
+	lit 9
+	wordl count
+
+	wordl dot_s
+
+	word streq
+	word if_impl
+	dq .loop
+
+.end:
+	word drop
+	word drop
+	word from_r
+endcolon
+
+defcolon header_to_cfa, "HEADER>CFA"
+	wordl header_to_name
+	wordl count
+	wordl add
+endcolon
+
+defcolon header_to_name, "HEADER>NAME"
+	lit 9
+	word add
+endcolon
+
 defcolon interpret, "INTERPRET"
 .loop:
-	; wordl parse_name
+	wordl parse_name
 	word dup
 
 	word if_impl
 	dq .end
 
 	wordl dup2
-	word find
+	wordl typeln
+
+	wordl dup2
+	wordl find
+	wordl debug
 	word dup
+
+	word dup
+	wordl dot
+	wordl cr
 
 	word if_impl
 	dq .not_found
 
-	word get_state
-	word sub
 	wordl rev_rot
-	wordl dup2
+	wordl drop2
+
+	word dup
+	wordl is_immediate
+	word get_state
+	wordl debug
+	word sub
 
 	word if_impl
 	dq .compile
 
+	wordl debug
 	word execute
 	word jump
 	dq .loop
@@ -102,7 +187,7 @@ defcolon interpret, "INTERPRET"
 .not_found:
 	word drop
 	wordl dup2
-	; wordl to_signed_number
+	wordl debug ; wordl to_signed_number
 
 	word if_impl
 	dq .undefined
@@ -113,28 +198,37 @@ defcolon interpret, "INTERPRET"
 	wordl drop2
 
 .undefined:
-	wordl debug ; ." Undefined word: " type quit endif
-
+	; TODO: replace with ." Undefined word: " typeln quit endif
 	word jump
-	dq .loop
+	dq undefined_word
 
 .end:
 	; TODO
 	wordl debug
 endcolon
 
-defcolon isspace, "IS-SPACE?"
+defcolon is_immediate, "IMMEDIATE?"
+	lit 8
+	word add
+	word fetch_char
+	lit 0
+	word test_flag
+endcolon
+
+defcolon is_nl, "IS-NL?"
+	lit `\n`
+	word equal
+endcolon
+
+defcolon is_space, "IS-SPACE?"
 	lit ' '
 	word incr
-	wordl dot_s
 	word u_less
 endcolon
 
-defcolon next_source_pos, "NEXT-SOURCE-POS"
-	; ( xt -- pos )
-	wordl source
-	word rot
-	wordl string_find_pred
+defcolon isnt_space, "ISNT-SPACE?"
+	lit ' '
+	word u_greater
 endcolon
 
 defcolon not_equal, "<>"
@@ -149,6 +243,18 @@ defcolon over, "OVER"
 	word swap
 endcolon
 
+defcolon parse_name, "PARSE-NAME"
+	wordl source_skip_spaces
+	wordl source_rest
+	wordl over
+	wordl swap
+	lit forth_is_space.cfa
+	wordl string_find_pred
+	word dup
+	word to_in
+	word add_store
+endcolon
+
 defcolon rev_rot, "-ROT"
 	word rot
 	word rot
@@ -161,16 +267,34 @@ defcolon source, "SOURCE"
 	word fetch
 endcolon
 
+defcolon source_rest, "SOURCE-REST"
+	wordl source
+	word to_in
+	word fetch
+	word adjust_string
+endcolon
+
+defcolon source_skip_spaces, "SOURCE-SKIP-SPACES"
+	wordl source_rest
+	lit forth_isnt_space.cfa
+	wordl string_find_pred
+	word to_in
+	word add_store
+endcolon
+
 defcolon string_find_pred, "STRING-FIND-PRED"
 	; ( addr len xt -- pos ), pos == len if none found
 	word to_r
+	word to_r
+	word dup
+	word from_r
 	word over
 	word to_r
 	word add
 	word from_r
 
 .loop:
-	word dup2
+	wordl dup2
 	wordl not_equal
 	word if_impl
 	dq .end
@@ -192,12 +316,14 @@ defcolon string_find_pred, "STRING-FIND-PRED"
 .end:
 	word swap
 	word from_r
-	wordl drop2
-	wordl debug
+	word drop2
+	word swap
+	word sub
 endcolon
 
 ;;; Testing Words
-;;; These should be replaced (probably to send messages to some other process).
+;;; These should be replaced (probably to send messages to some other process,
+;;; and probably using DEFER/IS).
 
 defcolon debug, "DEBUG"
 	wordl dot_s
@@ -247,6 +373,11 @@ defcolon bl, "BL"
 	lit ' '
 endcolon
 
+defcolon cr, "CR"
+	lit `\n`
+	wordl emit
+endcolon
+
 defcolon emit, "EMIT"
 	lit 0xe9
 	word outb
@@ -274,6 +405,11 @@ defcolon type, "TYPE"
 .end:
 	word drop
 	word drop
+endcolon
+
+defcolon typeln, "TYPELN"
+	wordl type
+	wordl cr
 endcolon
 
 ; This is a smudged, no-name, no-op word, as a marker and safety guard.

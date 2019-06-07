@@ -5,6 +5,7 @@ bits 64
 
 extern cold_exited
 extern ifa
+extern ipb.dict
 extern int_init
 extern int_register_all
 extern pic8259_init
@@ -72,20 +73,20 @@ begincolon
 	lit "SRC__LEN"
 	lit ifa + (1 << 16)/8 + (1 << 16) + 24
 	word store
+	;   Write the dictionary pointer
+	lit ipb.dict
+	word fetch
+	lit ifa + (1 << 16)/8 + (1 << 16) + 40
+	word store
+
+	; Switch to hex, for convenience.
+	word base_hex
 
 	; Start running the code!
-	lit foo
-	lit 0
-	lit foo
-	lit 0
-	word streq
-	word debug
-	; lit cold_code
-	; lit cold_code.len
+	lit cold_code
+	lit cold_code.len
 	word evaluate
 endcolon
-
-foo: db "foo"
 
 [section .forth_code]
 

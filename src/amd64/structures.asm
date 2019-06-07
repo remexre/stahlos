@@ -1,6 +1,6 @@
 bits 64
 
-extern forth_last_builtin
+extern forth_last_pseudobuiltin
 extern ifa
 
 global gdtr
@@ -25,7 +25,7 @@ ipb:
 .free_list:
 	dq 0 ; Head of free list; see src/amd64/alloc.asm
 .dict:
-	dq forth_last_builtin
+	dq forth_last_pseudobuiltin
 .here:
 	dq ifa
 	dq p3

@@ -41,8 +41,8 @@ User Area
    0 +--------------------+--------------------+--------------------+--------------------+
      |   Head of Mailbox  |   Tail of Mailbox  |   Start of Source  |  Length of Source  |
   32 +--------------------+--------------------+--------------------+--------------------+
-     |     Input Offset   |        Flags       |   Output Process   |                    |
-  64 +--------------------+--------------------+--------------------+                    |
+     |     Input Offset   |   Dictionary Head  |        Flags       |   Output Process   |
+  64 +--------------------+--------------------+--------------------+--------------------+
     ...                                    Reserved                                     ...
  224 +--------------------+--------------------+--------------------+--------------------+
      |     Stored RBX     |     Stored RSI     |     Stored RSP     |     Stored RBP     |
@@ -95,11 +95,10 @@ The flags are:
 
 ```
 MSB  LSB
-000000SI
+0000000I
 ```
 
 |   | Name      | Description               |
 |---|-----------|---------------------------|
 | 0 | Reserved  | Should be 0               |
 | I | Immediate | 0 = normal, 1 = immediate |
-| S | Smudge    | 0 = visible, 1 = hidden   |
