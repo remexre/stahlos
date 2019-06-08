@@ -47,14 +47,16 @@ endcolon
 
 defcolon create, "CREATE"
 	wordl parse_name
-	lit .name
-	lit 6
-	wordl typeln
-	wordl debug
-	wordl dup2
+
+	lit .str
+	lit 7
 	wordl type
+	wordl dup2
+	wordl typeln
+
+	wordl debug
 endcolon
-.name:db "create"
+.str: db "create "
 
 defcolon drop2, "2DROP"
 	word drop
@@ -103,7 +105,11 @@ endcolon
 
 defcolon find, "FIND"
 	wordl find_header
+	word dup
+	word if_impl
+	dq .end
 	wordl header_to_cfa
+.end:
 endcolon
 
 defcolon find_header, "FIND-HEADER"
@@ -156,6 +162,10 @@ defcolon interpret, "INTERPRET"
 	word if_impl
 	dq .end
 
+	; DEBUG
+	wordl dup2
+	wordl typeln
+
 	wordl dup2
 	wordl find
 	word dup_nonzero
@@ -175,7 +185,6 @@ defcolon interpret, "INTERPRET"
 	word if_impl
 	dq .compile
 
-	wordl debug
 	word execute
 	word jump
 	dq .loop
@@ -186,7 +195,6 @@ defcolon interpret, "INTERPRET"
 	dq .loop
 
 .not_found:
-	word jump
 	dq undefined_word
 
 .end:
@@ -403,6 +411,8 @@ defcolon typeln, "TYPELN"
 	wordl type
 	wordl cr
 endcolon
+
+padding: db "WT" ; F: if I remove this, no code runs???
 
 ; This is a smudged, no-name, no-op word, as a marker and safety guard.
 defcode last_pseudobuiltin, "", 0, 0x02
