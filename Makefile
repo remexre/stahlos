@@ -6,7 +6,6 @@ ASM_UNITS += amd64/multiboot2
 ASM_UNITS += amd64/start32
 ASM_UNITS += amd64/structures
 ASM_UNITS += amd64/start
-ASM_UNITS += amd64/alloc
 ASM_UNITS += amd64/int
 ASM_UNITS += amd64/panic
 ASM_UNITS += amd64/devices/pic8259

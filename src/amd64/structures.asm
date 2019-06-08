@@ -23,7 +23,7 @@ ipb:
 .mb2:
 	dq 0 ; Gets filled in with address of multiboot2 information structure.
 .free_list:
-	dq 0 ; Head of free list; see src/amd64/alloc.asm
+	dq 0 ; Head of free list for allocators
 .dict:
 	dq forth_last_pseudobuiltin
 .here:
