@@ -3,6 +3,7 @@ bits 64
 %include "src/amd64/macros.inc"
 %include "src/amd64/kernel/macros.inc"
 
+extern ipb
 extern ipb.here
 extern underflow
 extern underflow_return
@@ -58,6 +59,11 @@ defcode allot, "ALLOT", 1
 	pop rbx
 endcode
 
+defcode and, "AND", 2
+	pop rax
+	and rbx, rax
+endcode
+
 defcode base_decimal, "DECIMAL"
 	and byte [r15+40], 0xfe
 endcode
@@ -107,7 +113,7 @@ defcode dup, "DUP", 1
 	push rbx
 endcode
 
-defcode dup_nonzero, "DUP", 1
+defcode dup_nonzero, "?DUP", 1
 	test rbx, rbx
 	jz .exit
 	push rbx
@@ -199,6 +205,11 @@ defcode invert, "INVERT", 1
 	not rbx
 endcode
 
+defcode ipb, "IPB"
+	push rbx
+	mov rbx, ipb
+endcode
+
 defcode jump, "(JUMP)"
 	lodsq
 	mov rsi, rax
@@ -257,6 +268,11 @@ defcode negate, "NEGATE", 1
 	neg rbx
 endcode
 
+defcode or, "OR", 2
+	pop rax
+	or rbx, rax
+endcode
+
 defcode pick, "PICK", 1
 	lea rbx, [rsp+rbx*8]
 	cmp r13, rbx
@@ -305,9 +321,14 @@ defcode state_interpret, "[", 0, 0x01
 endcode
 
 defcode store, "!", 2
-	mov rax, [rsp]
+	pop rax
 	mov [rbx], rax
-	add rsp, 8
+	pop rbx
+endcode
+
+defcode store_char, "C!", 2
+	pop rax
+	mov [rbx], al
 	pop rbx
 endcode
 
@@ -385,7 +406,7 @@ defcode u_greater, "U>", 2
 	pop rax
 	xor rdx, rdx
 	cmp rax, rbx
-	setb dl
+	setbe dl
 	dec rdx
 	mov rbx, rdx
 endcode
@@ -394,7 +415,7 @@ defcode u_less, "U<", 2
 	pop rax
 	xor rdx, rdx
 	cmp rax, rbx
-	setnb dl
+	setae dl
 	dec rdx
 	mov rbx, rdx
 endcode

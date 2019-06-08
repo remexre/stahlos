@@ -54,7 +54,7 @@ begincolon
 	;   1k bytes for init's user space
 	lit (1 << 16)/8 + (1 << 16) + (1<<10)
 	word allot
-	;   HERE should now be 0x212000
+	;   HERE should now be 0x212400
 
 	; Set up the init process
 	;   Write a bit that we're ready to run.

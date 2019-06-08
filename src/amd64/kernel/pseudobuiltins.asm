@@ -19,6 +19,13 @@ defcolon comma, ","
 	word store
 endcolon
 
+defcolon comma_char, "C,"
+	word here
+	lit 1
+	word allot
+	word store_char
+endcolon
+
 defcolon comment, "\"
 	wordl source_rest
 	lit forth_is_nl.cfa
@@ -39,11 +46,15 @@ defcolon count, "COUNT"
 endcolon
 
 defcolon create, "CREATE"
-	lit .str
-	lit 11
+	wordl parse_name
+	lit .name
+	lit 6
+	wordl typeln
+	wordl debug
+	wordl dup2
 	wordl type
 endcolon
-.str: db "TODO CREATE"
+.name:db "create"
 
 defcolon drop2, "2DROP"
 	word drop
@@ -96,8 +107,8 @@ defcolon find, "FIND"
 endcolon
 
 defcolon find_header, "FIND-HEADER"
-	word user_pointer
-	lit 40
+	word ipb
+	lit 24
 	word add
 	word to_r
 
@@ -113,10 +124,8 @@ defcolon find_header, "FIND-HEADER"
 	wordl dup2
 
 	word r_fetch
-	lit 9
+	wordl header_to_name
 	wordl count
-
-	wordl dot_s
 
 	word streq
 	word if_impl
@@ -148,16 +157,8 @@ defcolon interpret, "INTERPRET"
 	dq .end
 
 	wordl dup2
-	wordl typeln
-
-	wordl dup2
 	wordl find
-	wordl debug
-	word dup
-
-	word dup
-	wordl dot
-	wordl cr
+	word dup_nonzero
 
 	word if_impl
 	dq .not_found
@@ -168,8 +169,8 @@ defcolon interpret, "INTERPRET"
 	word dup
 	wordl is_immediate
 	word get_state
-	wordl debug
-	word sub
+	word invert
+	word or
 
 	word if_impl
 	dq .compile
@@ -185,27 +186,18 @@ defcolon interpret, "INTERPRET"
 	dq .loop
 
 .not_found:
-	word drop
-	wordl dup2
-	wordl debug ; wordl to_signed_number
-
-	word if_impl
-	dq .undefined
-
-	lit forth_literal_impl.cfa
-	wordl compile_comma
-	word comma
-	wordl drop2
-
-.undefined:
-	; TODO: replace with ." Undefined word: " typeln quit endif
 	word jump
 	dq undefined_word
 
 .end:
 	; TODO
+	lit .end_str
+	lit .end_str_len
+	wordl typeln
 	wordl debug
 endcolon
+.end_str: db "end of interpret"
+.end_str_len equ $ - .end_str
 
 defcolon is_immediate, "IMMEDIATE?"
 	lit 8
