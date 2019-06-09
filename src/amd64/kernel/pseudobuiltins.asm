@@ -13,13 +13,6 @@ global forth_last_pseudobuiltin
 
 [section .forth_builtins]
 
-defcolon semi, ";;", 0x01
-	lit forth_exit.cfa
-	wordl compile_comma
-	word state_interpret
-	wordl does_enter
-endcolon
-
 defcolon comma, ","
 	word here
 	lit 8
@@ -263,7 +256,7 @@ defcolon interpret, "INTERPRET"
 	word if_impl
 	dq .not_found
 
-	wordl rev_rot
+	word rev_rot
 	wordl drop2
 
 	word dup
@@ -325,7 +318,7 @@ defcolon latest, "LATEST"
 	word fetch
 endcolon
 
-defcolon literal, "LITERAL"
+defcolon literal, "LITERAL", 0x01
 	lit forth_literal_impl.cfa
 	wordl compile_comma
 	wordl compile_comma
@@ -353,11 +346,6 @@ defcolon parse_name, "PARSE-NAME"
 	word dup
 	word to_in
 	word add_store
-endcolon
-
-defcolon rev_rot, "-ROT"
-	word rot
-	word rot
 endcolon
 
 defcolon source, "SOURCE"

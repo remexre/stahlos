@@ -329,6 +329,13 @@ defcode r_fetch, "R@"
 	mov rbx, [rbp]
 endcode
 
+defcode rev_rot, "-ROT", 3
+	mov rax, [rsp+8]
+	mov [rsp+8], rbx
+	mov rbx, [rsp]
+	mov [rsp], rax
+endcode
+
 defcode right_shift, "RSHIFT", 2
 	mov rcx, rbx
 	pop rbx
