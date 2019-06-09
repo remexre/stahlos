@@ -11,18 +11,22 @@ global underflow_return
 
 cold_exited:
 	dbg `cold_exited loop\n`
+	hlt
 	jmp cold_exited
 
 undefined_word:
 	dbg `undefined_word loop\n`
+	hlt
 	jmp undefined_word
 
 underflow:
 	dbg `underflow loop\n`
+	hlt
 	jmp underflow
 
 underflow_return:
 	dbg `underflow_return loop\n`
+	hlt
 	jmp underflow_return
 
 ; vi: cc=80 ft=nasm

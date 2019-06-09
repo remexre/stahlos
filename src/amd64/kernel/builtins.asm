@@ -64,12 +64,18 @@ defcode and, "AND", 2
 	and rbx, rax
 endcode
 
+defcode arith_right_shift, "ARSHIFT", 2
+	mov rcx, rbx
+	pop rbx
+	sar rbx, cl
+endcode
+
 defcode base_decimal, "DECIMAL"
-	and byte [r15+40], 0xfe
+	and byte [r15+48], 0xfe
 endcode
 
 defcode base_hex, "HEX"
-	or byte [r15+40], 0x01
+	or byte [r15+48], 0x01
 endcode
 
 defcode decr, "1-", 1
@@ -103,6 +109,11 @@ defcode docolon, "((DOCOLON))"
 	sub rbp, 8
 	mov [rbp], rsi
 	lea rsi, [rax+.jmp_len]
+endcode
+
+defcode dovar, "((DOVAR))"
+	push rbx
+	lea rbx, [rax+5]
 endcode
 
 defcode drop, "DROP", 1
@@ -158,6 +169,14 @@ defcode fetch_char, "C@", 1
 	movzx rbx, byte [rbx]
 endcode
 
+defcode fetch_dword, "D@", 1
+	mov ebx, [rbx]
+endcode
+
+defcode fetch_word, "W@", 1
+	movzx rbx, word [rbx]
+endcode
+
 defcode from_r, "R>"
 	; Check for return underflow.
 	lea rcx, [rbp+8]
@@ -169,8 +188,22 @@ defcode from_r, "R>"
 	add rbp, 8
 endcode
 
+defcode from_r_2, "R>"
+	; Check for return underflow.
+	lea rcx, [rbp+16]
+	cmp r14, rcx
+	jb underflow_return
+
+	sub rsp, 16
+	mov [rsp+8], rbx
+	mov rax, [rbp+8]
+	mov [rsp], rax
+	mov rbx, [rbp]
+	add rbp, 16
+endcode
+
 defcode get_base, "GET-BASE"
-	test byte [r15+40], 0x01
+	test byte [r15+48], 0x01
 	push rbx
 	mov rbx, 10
 	mov rax, 16
@@ -180,7 +213,7 @@ endcode
 defcode get_state, "GET-STATE"
 	push rbx
 	xor rbx, rbx
-	test byte [r15+40], 0x02
+	test byte [r15+48], 0x02
 	setz bl
 	dec rbx
 endcode
@@ -215,6 +248,12 @@ defcode jump, "(JUMP)"
 	mov rsi, rax
 endcode
 
+defcode left_shift, "LSHIFT", 2
+	mov rcx, rbx
+	pop rbx
+	shl rbx, cl
+endcode
+
 defcode literal_impl, "(LITERAL)"
 	push rbx
 	lodsq
@@ -231,7 +270,7 @@ defcode n_to_str, "N>STR", 1
 	neg rax
 
 .not_neg:
-	test byte [r15+40], 0x01
+	test byte [r15+48], 0x01
 	mov rbx, 10
 	mov rcx, 16
 	cmovnz rbx, rcx ; rbx = base
@@ -290,6 +329,12 @@ defcode r_fetch, "R@"
 	mov rbx, [rbp]
 endcode
 
+defcode right_shift, "RSHIFT", 2
+	mov rcx, rbx
+	pop rbx
+	shr rbx, cl
+endcode
+
 defcode rot, "ROT", 3
 	mov rax, [rsp]
 	mov [rsp], rbx
@@ -313,11 +358,11 @@ defcode source_length, "(SOURCE-LENGTH)"
 endcode
 
 defcode state_compile, "]"
-	or byte [r15+40], 0x02
+	or byte [r15+48], 0x02
 endcode
 
 defcode state_interpret, "[", 0, 0x01
-	and byte [r15+40], 0xfd
+	and byte [r15+48], 0xfd
 endcode
 
 defcode store, "!", 2
@@ -329,6 +374,18 @@ endcode
 defcode store_char, "C!", 2
 	pop rax
 	mov [rbx], al
+	pop rbx
+endcode
+
+defcode store_dword, "D!", 2
+	pop rax
+	mov [rbx], eax
+	pop rbx
+endcode
+
+defcode store_word, "W!", 2
+	pop rax
+	mov [rbx], ax
 	pop rbx
 endcode
 
@@ -396,6 +453,15 @@ defcode to_r, ">R", 1
 	pop rbx
 endcode
 
+defcode to_r_2, "2>R", 2
+	sub rbp, 16
+	mov [rbp], rbx
+	mov rax, [rsp]
+	mov [rbp+8], rax
+	mov rbx, [rsp+8]
+	add rsp, 16
+endcode
+
 defcode true, "TRUE"
 	push rbx
 	xor rbx, rbx
@@ -425,8 +491,8 @@ defcode user_pointer, "USER-POINTER"
 	mov rbx, r15
 endcode
 
-; This is a smudged, no-name, no-op word, as a marker and safety guard.
-defcode last_builtin, "", 0, 0x02
+; This is a no-name no-op word, as a marker and safety guard.
+defcode last_builtin, "", 0
 endcode
 
 ; vi: cc=80 ft=nasm

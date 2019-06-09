@@ -1,12 +1,5 @@
 \ The parts of the standard library that are implemented in Forth themselves.
 
-\ Define function definition.
-CREATE :
-
-EXIT
-
-\ TODO Code below this line still needs auditing.
-
 \ For Rule-Of-Cool, define function definition.
 CREATE : DOES>ENTER ] CREATE SMUDGE DOES>ENTER COMPILE ] EXIT [
 CREATE ; DOES>ENTER

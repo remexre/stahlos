@@ -46,17 +46,21 @@ forth_%1:
 	%endif
 %endmacro
 
-%macro defcolon 2
+%macro defcolon 3
 begincolon
 %strlen %%namelen %2
 global forth_%1.cfa
 forth_%1:
 	dq last_defined_word
 %define last_defined_word forth_%1
-	db 0x00, %%namelen, %2
+	db %3, %%namelen, %2
 .cfa:
 	jmp near forth_docolon.impl
 .pfa:
+%endmacro
+
+%macro defcolon 2
+	defcolon %1, %2, 0x00
 %endmacro
 
 %macro lit 1

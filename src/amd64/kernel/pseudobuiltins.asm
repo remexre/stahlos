@@ -5,6 +5,7 @@ bits 64
 
 extern undefined_word
 extern forth_docolon.impl
+extern forth_dovar.cfa
 extern forth_exit.cfa
 extern forth_last_builtin
 
@@ -26,7 +27,51 @@ defcolon comma_char, "C,"
 	word store_char
 endcolon
 
-defcolon comment, "\"
+defcolon comma_dword, "D,"
+	word here
+	lit 4
+	word allot
+	word store_dword
+endcolon
+
+defcolon comma_str, "S,"
+	word dup
+	wordl comma_char
+
+	word to_r
+	lit 0
+	word to_r
+
+.loop:
+	word from_r_2
+	wordl dup2
+	wordl not_equal
+	wordl if_impl
+	dq .end
+	word incr
+	word to_r_2
+
+	word dup
+	word fetch_char
+	wordl comma_char
+	word incr
+
+	wordl jump
+	dq .loop
+
+.end:
+	wordl drop2
+	wordl drop
+endcolon
+
+defcolon comma_word, "W,"
+	word here
+	lit 2
+	word allot
+	word store_word
+endcolon
+
+defcolon comment, "\", 0x01
 	wordl source_rest
 	lit forth_is_nl.cfa
 	wordl string_find_pred
@@ -54,9 +99,36 @@ defcolon create, "CREATE"
 	wordl dup2
 	wordl typeln
 
-	wordl debug
+	; Next Link
+	word here
+	wordl latest
+	word comma
+	wordl dict_head
+	word store
+
+	; Flags
+	lit 0
+	wordl comma_char
+
+	; Name
+	wordl comma_str
+
+	; Jump to ((DOVAR))
+	lit 0xe9
+	wordl comma_char
+	word here
+	lit forth_dovar.cfa-4
+	word swap
+	word sub
+	wordl comma_dword
 endcolon
 .str: db "create "
+
+defcolon dict_head, "DICT-HEAD"
+	word ipb
+	lit 24
+	word add
+endcolon
 
 defcolon drop2, "2DROP"
 	word drop
@@ -113,9 +185,7 @@ defcolon find, "FIND"
 endcolon
 
 defcolon find_header, "FIND-HEADER"
-	word ipb
-	lit 24
-	word add
+	wordl dict_head
 	word to_r
 
 .loop:
@@ -167,7 +237,7 @@ defcolon interpret, "INTERPRET"
 	wordl typeln
 
 	wordl dup2
-	wordl find
+	wordl find_header
 	word dup_nonzero
 
 	word if_impl
@@ -185,11 +255,16 @@ defcolon interpret, "INTERPRET"
 	word if_impl
 	dq .compile
 
+	wordl header_to_cfa
 	word execute
 	word jump
 	dq .loop
 
 .compile:
+	lit .gonna_compile
+	lit 13
+	wordl typeln
+	wordl header_to_cfa
 	wordl compile_comma
 	word jump
 	dq .loop
@@ -204,6 +279,7 @@ defcolon interpret, "INTERPRET"
 	wordl typeln
 	wordl debug
 endcolon
+.gonna_compile: db "gonna compile"
 .end_str: db "end of interpret"
 .end_str_len equ $ - .end_str
 
@@ -229,6 +305,11 @@ endcolon
 defcolon isnt_space, "ISNT-SPACE?"
 	lit ' '
 	word u_greater
+endcolon
+
+defcolon latest, "LATEST"
+	wordl dict_head
+	word fetch
 endcolon
 
 defcolon not_equal, "<>"
@@ -323,7 +404,7 @@ endcolon
 
 ;;; Testing Words
 ;;; These should be replaced (probably to send messages to some other process,
-;;; and probably using DEFER/IS).
+;;; and probably using DEFER and IS).
 
 defcolon debug, "DEBUG"
 	wordl dot_s
@@ -412,10 +493,8 @@ defcolon typeln, "TYPELN"
 	wordl cr
 endcolon
 
-padding: db "WT" ; F: if I remove this, no code runs???
-
-; This is a smudged, no-name, no-op word, as a marker and safety guard.
-defcode last_pseudobuiltin, "", 0, 0x02
+; This is a no-name no-op word, as a marker and safety guard.
+defcode last_pseudobuiltin, ""
 endcode
 
 ; vi: cc=80 ft=nasm
