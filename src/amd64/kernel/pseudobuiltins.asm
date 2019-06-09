@@ -13,6 +13,13 @@ global forth_last_pseudobuiltin
 
 [section .forth_builtins]
 
+defcolon semi, ";;", 0x01
+	lit forth_exit.cfa
+	wordl compile_comma
+	word state_interpret
+	wordl does_enter
+endcolon
+
 defcolon comma, ","
 	word here
 	lit 8
@@ -93,12 +100,6 @@ endcolon
 defcolon create, "CREATE"
 	wordl parse_name
 
-	lit .str
-	lit 7
-	wordl type
-	wordl dup2
-	wordl typeln
-
 	; Next Link
 	word here
 	wordl latest
@@ -122,12 +123,23 @@ defcolon create, "CREATE"
 	word sub
 	wordl comma_dword
 endcolon
-.str: db "create "
 
 defcolon dict_head, "DICT-HEAD"
 	word ipb
 	lit 24
 	word add
+endcolon
+
+defcolon does_enter, "DOES>ENTER"
+	wordl latest
+	wordl header_to_cfa
+	word incr
+	word dup
+	lit forth_docolon.impl-4
+	word swap
+	word sub
+	word swap
+	wordl store_dword
 endcolon
 
 defcolon drop2, "2DROP"
@@ -224,6 +236,18 @@ defcolon header_to_name, "HEADER>NAME"
 	word add
 endcolon
 
+defcolon immediate, "IMMEDIATE"
+	wordl latest
+	lit 8
+	word add
+	word dup
+	word fetch_char
+	lit 1
+	word or
+	word swap
+	word store_char
+endcolon
+
 defcolon interpret, "INTERPRET"
 .loop:
 	wordl parse_name
@@ -231,10 +255,6 @@ defcolon interpret, "INTERPRET"
 
 	word if_impl
 	dq .end
-
-	; DEBUG
-	wordl dup2
-	wordl typeln
 
 	wordl dup2
 	wordl find_header
@@ -261,27 +281,20 @@ defcolon interpret, "INTERPRET"
 	dq .loop
 
 .compile:
-	lit .gonna_compile
-	lit 13
-	wordl typeln
 	wordl header_to_cfa
 	wordl compile_comma
 	word jump
 	dq .loop
 
 .not_found:
+	wordl dot_s
+	wordl dup2
+	wordl typeln
 	dq undefined_word
 
 .end:
-	; TODO
-	lit .end_str
-	lit .end_str_len
-	wordl typeln
-	wordl debug
+	wordl drop2
 endcolon
-.gonna_compile: db "gonna compile"
-.end_str: db "end of interpret"
-.end_str_len equ $ - .end_str
 
 defcolon is_immediate, "IMMEDIATE?"
 	lit 8
@@ -310,6 +323,12 @@ endcolon
 defcolon latest, "LATEST"
 	wordl dict_head
 	word fetch
+endcolon
+
+defcolon literal, "LITERAL"
+	lit forth_literal_impl.cfa
+	wordl compile_comma
+	wordl compile_comma
 endcolon
 
 defcolon not_equal, "<>"
