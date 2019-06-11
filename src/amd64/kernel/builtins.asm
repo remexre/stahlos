@@ -5,6 +5,7 @@ bits 64
 
 extern ipb
 extern ipb.here
+extern to_number
 extern underflow
 extern underflow_return
 
@@ -307,6 +308,10 @@ defcode negate, "NEGATE", 1
 	neg rbx
 endcode
 
+defcode noop, "NOOP"
+	nop
+endcode
+
 defcode or, "OR", 2
 	pop rax
 	or rbx, rax
@@ -452,6 +457,21 @@ endcode
 defcode to_in, ">IN"
 	push rbx
 	lea rbx, [r15+32]
+endcode
+
+defcode to_number, ">NUMBER", 2
+	; ( addr len -- num 1 | 0 )
+	mov rdx, [rsp]
+	mov rcx, rbx
+	mov rdi, .after
+	mov r12, rsp
+	jmp to_number
+.after:
+	mov rbx, rax
+	test rbx, rbx
+	jnz .end
+	add rsp, 8
+.end:
 endcode
 
 defcode to_r, ">R", 1

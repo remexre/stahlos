@@ -280,8 +280,28 @@ defcolon interpret, "INTERPRET"
 	dq .loop
 
 .not_found:
-	wordl dot_s
 	wordl dup2
+	word to_number
+	word if_impl
+	dq .undefined
+
+	word rev_rot
+	wordl drop2
+
+	word get_state
+	word if_impl
+	dq .loop
+
+	lit forth_literal_impl.cfa
+	wordl compile_comma
+	wordl comma
+
+	word jump
+	dq .loop
+
+.undefined:
+	wordl dup2
+	wordl dot_s
 	wordl typeln
 	dq undefined_word
 

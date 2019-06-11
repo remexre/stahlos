@@ -14,6 +14,7 @@ ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
 ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/pseudobuiltins
+ASM_UNITS += amd64/kernel/to_number
 
 FORTH_UNITS += acpi
 # FORTH_UNITS += ata-pio
@@ -22,6 +23,7 @@ FORTH_UNITS += acpi
 # FORTH_UNITS += pcie
 
 MISC_UTILS += fnv1a
+MISC_UTILS += to_number_tests
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
 FORTH_SRCS = $(patsubst %,src/forth/%.f,$(FORTH_UNITS))
@@ -39,6 +41,7 @@ help:
 	@echo >&2 '  image   - Builds a boot image to out/stahlos.img'
 	@echo >&2 '  install - Installs the kernel and modules to DESTDIR'
 	@echo >&2 '  kernel  - Builds the kernel to out/stahlos.elf'
+	@echo >&2 '  test    - Runs tests'
 	@echo >&2 '  run     - Runs the boot image in Bochs'
 	@echo >&2 '  watch   - Watches source files, recompiling on changes'
 image: out/stahlos.img
@@ -49,10 +52,12 @@ install: out/stahlos.elf $(FORTH_SRCS)
 kernel: out/stahlos.elf
 run: out/stahlos.img
 	bochs -f bochsrc.txt -q
+test: out/utils/to_number_tests
+	out/utils/to_number_tests
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
 	watchexec -cre asm,cfg,inc,ld,md make
-.PHONY: all clean docs help image install kernel run utils watch
+.PHONY: all clean docs help image install kernel run test utils watch
 
 disas: out/stahlos-unstripped.elf
 	objdump -M intel -d $< | less
@@ -68,7 +73,7 @@ run-qemu: out/stahlos.img
 		-machine q35
 .PHONY: disas find-bochs-bps run-qemu
 
-ci: all
+ci: all test
 	chown $(shell stat -c '%u:%g' Makefile) -R tmp out
 .PHONY: ci
 
@@ -102,3 +107,6 @@ tmp/%.o: src/%.asm
 tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
+
+tmp/amd64/start.o: src/amd64/forth/std.f src/amd64/forth/startup.f
+out/utils/to_number_tests: tmp/amd64/kernel/to_number.o
