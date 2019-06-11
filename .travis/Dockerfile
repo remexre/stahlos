@@ -8,6 +8,6 @@ RUN apk add --no-cache cargo && \
 	mv $HOME/.cargo/bin/mdbook /usr/local/bin/mdbook && \
 	rm -rf $HOME/.cargo
 
-RUN apk add --no-cache binutils gcc git grub grub-bios grub-efi libc-dev make mtools nasm xorriso
+RUN apk add --no-cache binutils expect gcc git grub grub-bios grub-efi libc-dev make mtools nasm xorriso
 VOLUME /code
 WORKDIR /code

@@ -1,33 +1,27 @@
 \ The parts of the standard library that are implemented in Forth themselves.
 
 \ Define function definition.
-CREATE ' ] PARSE-NAME FIND-HEADER EXIT [ DOES>ENTER
+CREATE ' ] PARSE-NAME FIND-HEADER HEADER>CFA EXIT [ DOES>ENTER
 CREATE : ] CREATE ] EXIT [ DOES>ENTER
 CREATE ;
-  ' [ HEADER>CFA COMPILE,
+  ' [ COMPILE,
   ] (LITERAL) EXIT COMPILE, DOES>ENTER EXIT [ DOES>ENTER IMMEDIATE
 
-FALSE FALSE >NUMBER .S
+\ Immediate quotation.
+: ['] ' [ ' (LITERAL) ] LITERAL COMPILE, , ; IMMEDIATE
 
 \ Printing debug strings.
 : IS-CLOSE-PAREN $29 = ;
+: IS-CLOSE-QUOTE $22 = ;
 : .( SOURCE-REST OVER SWAP
   ['] IS-CLOSE-PAREN STRING-FIND-PRED
-  DUP >IN +! ;
+  DUP 1+ >IN +! 1 /STRING TYPE ;
+: ." SOURCE-REST OVER SWAP
+  ['] IS-CLOSE-QUOTE STRING-FIND-PRED
+  DUP 1+ >IN +! 1 /STRING TYPE ;
 
-DEBUG
-.( foo)
-DEBUG
+.( foo) CR
 
-\ Some helpers for more complex words.
-\ : POSTPONE [ ' (LITERAL) HEADER>CFA ] LITERAL COMPILE, ' HEADER>CFA COMPILE, ; IMMEDIATE
-
-\ : foo POSTPONE DEBUG ;
-\ foo
-
-: GT1 123 ;
-' GT1 EXECUTE
-
-.( Done!) DEBUG
+." Done!" CR
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

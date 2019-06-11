@@ -1,4 +1,6 @@
 DESTDIR ?= /media/stahlos
+CFLAGS ?= -g
+LDFLAGS ?= -g
 NASM ?= nasm
 NASMFLAGS += -gdwarf -Werror
 
@@ -56,7 +58,7 @@ test: out/utils/to_number_tests
 	out/utils/to_number_tests
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
-	watchexec -cre asm,cfg,inc,ld,md make all test
+	watchexec -cre asm,c,cfg,inc,ld,md $(MAKE) all test
 .PHONY: all clean docs help image install kernel run test utils watch
 
 disas: out/stahlos-unstripped.elf
@@ -88,7 +90,7 @@ out/stahlos.img: out/stahlos.elf src/misc/grub.cfg $(FORTH_SRCS)
 	grub-mkrescue -o $@ tmp/isodir
 out/utils/%: tmp/utils/%.o
 	@mkdir -p $(dir $@)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $(LDFLAGS) $^
 
 out/stahlos.elf out/stahlos.sym: out/stahlos-unstripped.elf
 	@mkdir -p $(dir $@)
@@ -103,7 +105,7 @@ out/stahlos-unstripped.elf: src/misc/linker.ld $(ASM_OBJS)
 
 tmp/%.o: src/%.asm
 	@mkdir -p $(dir $@)
-	$(NASM) -felf64 -o $@ $< $(NASMFLAGS)
+	$(NASM) -felf64 -o $@ $(NASMFLAGS) $<
 tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^

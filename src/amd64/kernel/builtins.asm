@@ -461,13 +461,18 @@ endcode
 
 defcode to_number, ">NUMBER", 2
 	; ( addr len -- num 1 | 0 )
-	mov rdx, [rsp]
+	test byte [r15+48], 0x01
+	mov rdi, 10
+	mov rax, 16
+	cmovnz rdi, rax
+
 	mov rcx, rbx
-	mov rdi, .after
-	mov r12, rsp
-	jmp to_number
-.after:
-	mov rbx, rax
+	mov r8, [rsp]
+	mov r9, rsp
+	call to_number
+
+	movzx rbx, byte [rsp]
+	mov [rsp], rax
 	test rbx, rbx
 	jnz .end
 	add rsp, 8
