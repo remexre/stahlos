@@ -56,7 +56,7 @@ test: out/utils/to_number_tests
 	out/utils/to_number_tests
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
-	watchexec -cre asm,cfg,inc,ld,md make
+	watchexec -cre asm,cfg,inc,ld,md make all test
 .PHONY: all clean docs help image install kernel run test utils watch
 
 disas: out/stahlos-unstripped.elf

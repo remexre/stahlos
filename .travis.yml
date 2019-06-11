@@ -11,7 +11,7 @@ before_install:
 - if [[ -e $HOME/docker/stahlos-builder.tgz ]]; then zcat $HOME/docker/stahlos-builder.tgz | docker load; fi
 - docker build -t remexre/stahlos-builder .travis
 
-script: docker run -v "$PWD:/code" --rm remexre/stahlos-builder make ci
+script: docker run -v "$PWD:/code" --rm remexre/stahlos-builder make clean ci
 
 before_cache:
 - mkdir -p $HOME/docker
