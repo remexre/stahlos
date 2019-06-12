@@ -10,6 +10,26 @@ CREATE ;
 \ Immediate quotation.
 : ['] ' [ ' (LITERAL) ] LITERAL COMPILE, , ; IMMEDIATE
 
+\ Arrays and software stacks.
+: ARRAY ( n "<spaces>name" -- ) CREATE CELLS ALLOT
+  DOES> ( n -- addr ) SWAP CELLS + ;
+: STACK ( n "<spaces>name" -- ) CREATE 0 , DUP , CELLS ALLOT ;
+: PUSH ( n addr -- ) 
+
+\ Conditionals.
+8 STACK (IF-STACK)
+: IF ['] (IF) COMPILE, HERE ; IMMEDIATE
+: ENDIF ( TODO ) ;
+: THEN POSTPONE ENDIF ; IMMEDIATE
+
+\ Deferring, to make output hookable.
+: DEFER CREATE ['] NOOP COMPILE, DOES> @ EXECUTE ;
+: DEFER! CFA>PFA ! ;
+: DEFER@ CFA>PFA @ ;
+: IS GET-STATE IF
+  ELSE
+  ENDIF ;
+
 \ Printing debug strings.
 : IS-CLOSE-PAREN $29 = ;
 : IS-CLOSE-QUOTE $22 = ;

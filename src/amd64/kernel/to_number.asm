@@ -58,7 +58,7 @@ to_number:
 	cmp dl, 'f'
 	ja .fail
 	sub dl, 'a'-10
-	; jmp .loopend
+	; jmp .loopend ; Fall through instead
 
 .loopend:
 	; Check the digit was legal in this base.

@@ -79,6 +79,10 @@ defcode base_hex, "HEX"
 	or byte [r15+48], 0x01
 endcode
 
+defcode cell, "CELLS", 1
+	shl rbx, 3
+endcode
+
 defcode decr, "1-", 1
 	dec rbx
 endcode

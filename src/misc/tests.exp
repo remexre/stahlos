@@ -1,0 +1,14 @@
+set timeout 5
+
+# spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
+spawn cat
+# expect "Booting `StahlOS'"
+
+# expect "Starting tests"
+
+puts "foo"
+send "\0x01c"
+sleep 1
+send "quit"
+puts "bar"
+sleep 60
