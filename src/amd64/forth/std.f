@@ -10,6 +10,10 @@ CREATE ;
 \ Immediate quotation.
 : ['] ' [ ' (LITERAL) ] LITERAL COMPILE, , ; IMMEDIATE
 
+\ Parenthetical comments.
+: IS-CLOSE-PAREN $29 = ;
+: ( SOURCE-REST ['] IS-CLOSE-PAREN STRING-FIND-PRED 1+ >IN +! ; IMMEDIATE
+
 \ Arrays and software stacks.
 : ARRAY ( n "<spaces>name" -- ) CREATE CELLS ALLOT
   DOES> ( n -- addr ) SWAP CELLS + ;
@@ -31,7 +35,6 @@ CREATE ;
   ENDIF ;
 
 \ Printing debug strings.
-: IS-CLOSE-PAREN $29 = ;
 : IS-CLOSE-QUOTE $22 = ;
 : .( SOURCE-REST OVER SWAP
   ['] IS-CLOSE-PAREN STRING-FIND-PRED
