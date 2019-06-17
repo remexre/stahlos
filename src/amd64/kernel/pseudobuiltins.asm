@@ -3,9 +3,9 @@ bits 64
 %include "src/amd64/kernel/macros.inc"
 %define last_defined_word forth_last_builtin
 
+extern no_code_field
 extern undefined_word
 extern forth_docolon.impl
-extern forth_dovar.cfa
 extern forth_exit.cfa
 extern forth_last_builtin
 
@@ -107,11 +107,38 @@ defcolon create, "CREATE"
 	; Name
 	wordl comma_str
 
-	; Jump to ((DOVAR))
+	; Code Field
 	lit 0xe9
 	wordl comma_char
 	word here
-	lit forth_dovar.cfa-4
+	lit no_code_field-4
+	word swap
+	word sub
+	wordl comma_dword
+endcolon
+
+defcolon create_noname, "CREATE-NONAME"
+	; Next Link
+	word here
+	wordl latest
+	word comma
+	wordl dict_head
+	word store
+
+	; Flags
+	lit 0
+	wordl comma_char
+
+	; Name
+	lit 0
+	wordl comma_char
+
+	; Code Field
+	word here
+	lit 0xe9
+	wordl comma_char
+	word here
+	lit no_code_field-4
 	word swap
 	word sub
 	wordl comma_dword
@@ -300,8 +327,8 @@ defcolon interpret, "INTERPRET"
 	dq .loop
 
 .undefined:
-	wordl dup2
 	wordl dot_s
+	wordl dup2
 	wordl typeln
 	dq undefined_word
 
@@ -336,12 +363,6 @@ endcolon
 defcolon latest, "LATEST"
 	wordl dict_head
 	word fetch
-endcolon
-
-defcolon literal, "LITERAL", 0x01
-	lit forth_literal_impl.cfa
-	wordl compile_comma
-	wordl compile_comma
 endcolon
 
 defcolon not_equal, "<>"
@@ -432,11 +453,6 @@ endcolon
 ;;; Testing Words
 ;;; These should be replaced (probably to send messages to some other process,
 ;;; and probably using DEFER and IS).
-
-defcolon debug, "DEBUG"
-	wordl dot_s
-	word bochs_bp
-endcolon
 
 defcolon dot, "."
 	wordl dot_nosp

@@ -20,6 +20,12 @@ defcode bochs_bp, "BOCHS-BP"
 	dbg `BOCHS-BP\n`
 endcode
 
+defcode inb, "INB", 1
+	mov dx, bx
+	in al, dx
+	movzx rbx, al
+endcode
+
 defcode outb, "OUTB", 2
 	mov dx, bx
 	pop rax
@@ -75,12 +81,20 @@ defcode base_decimal, "DECIMAL"
 	and byte [r15+48], 0xfe
 endcode
 
+defcode empty_return_stack, "EMPTY-RETURN-STACK"
+	lea rbp, [r14-8]
+endcode
+
 defcode base_hex, "HEX"
 	or byte [r15+48], 0x01
 endcode
 
 defcode cell, "CELLS", 1
 	shl rbx, 3
+endcode
+
+defcode cell_plus, "CELL+", 1
+	add rbx, 8
 endcode
 
 defcode decr, "1-", 1
@@ -114,6 +128,15 @@ defcode docolon, "((DOCOLON))"
 	sub rbp, 8
 	mov [rbp], rsi
 	lea rsi, [rax+.jmp_len]
+endcode
+
+defcode dodoes, "((DODOES))"
+	mov rcx, [rsp]
+	mov [rsp], rbx
+	lea  rbx, [rax+forth_docolon.jmp_len]
+	sub rbp, 8
+	mov [rbp], rsi
+	mov rsi, rcx
 endcode
 
 defcode dovar, "((DOVAR))"
@@ -265,6 +288,12 @@ defcode literal_impl, "(LITERAL)"
 	mov rbx, rax
 endcode
 
+defcode literal_r_impl, "(LITERAL-R)"
+	lodsq
+	sub rbp, 8
+	mov [rbp], rax
+endcode
+
 defcode n_to_str, "N>STR", 1
 	mov rax, rbx ; rax = current val
 
@@ -356,6 +385,14 @@ defcode rot, "ROT", 3
 	mov [rsp], rbx
 	mov rbx, [rsp+8]
 	mov [rsp+8], rax
+endcode
+
+defcode s_quote_impl, '(S")',
+	push rbx
+	lodsb
+	movzx rbx, al
+	push rsi
+	add rsi, rbx
 endcode
 
 defcode s_to_d, "S>D", 1
@@ -525,6 +562,14 @@ endcode
 defcode user_pointer, "USER-POINTER"
 	push rbx
 	mov rbx, r15
+endcode
+
+defcode zero_equal, "0="
+	xor rdx, rdx
+	test rbx, rbx
+	sete dl
+	dec rdx
+	mov rbx, rdx
 endcode
 
 ; This is a no-name no-op word, as a marker and safety guard.
