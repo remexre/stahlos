@@ -76,9 +76,16 @@ run-qemu: out/stahlos.img
 		-machine q35
 .PHONY: disas find-bochs-bps run-qemu
 
-ci: all test
+ci:
+	docker build -t remexre/stahlos-builder .travis
+	docker run -v "$(shell pwd):/code" --rm remexre/stahlos-builder make clean ci-inner
+ci-clean:
+	docker build -t remexre/stahlos-builder .travis
+	docker run -v "$(shell pwd):/code" --rm remexre/stahlos-builder make clean
+ci-inner: all
 	chown $(shell stat -c '%u:%g' Makefile) -R tmp out
-.PHONY: ci
+	$(MAKE) test
+.PHONY: ci ci-clean ci-inner
 
 out/stahlos.img: out/stahlos.elf src/misc/grub.cfg $(FORTH_SRCS)
 	@grub-file --is-x86-multiboot2 out/stahlos.elf

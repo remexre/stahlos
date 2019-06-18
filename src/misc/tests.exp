@@ -1,14 +1,21 @@
-set timeout 5
+#!/usr/bin/env expect
 
-# spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
-spawn cat
-# expect "Booting `StahlOS'"
+proc timed_out {waiting_for} {
+	puts "Timed out while waiting for ${waiting_for}!"
+	exit 1
+}
 
-# expect "Starting tests"
+log_user 0
+spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
 
-puts "foo"
-send "\0x01c"
-sleep 1
-send "quit"
-puts "bar"
-sleep 60
+expect {
+	"Booting `StahlOS'" {}
+	timeout { timed_out "GRUB" }
+}
+
+expect {
+	eof {}
+	timeout { timed_out "shutdown" }
+}
+
+puts "Expect tests passed!"

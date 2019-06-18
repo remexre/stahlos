@@ -88,7 +88,7 @@ DEFER BP
 : IS-QUOTE $22 = ;
 : .( SOURCE-REST OVER SWAP
   ['] IS-CLOSE-PAREN STRING-FIND-PRED
-  DUP 1+ >IN +! 1 /STRING TYPE ; IMMEDIATE
+  DUP 1+ >IN +! 1 /STRING TYPELN ; IMMEDIATE
 : S" SOURCE-REST OVER SWAP
   ['] IS-QUOTE STRING-FIND-PRED
   DUP 1+ >IN +! 1 /STRING
@@ -99,7 +99,7 @@ DEFER BP
   ; IMMEDIATE
 
 \ Abort and quit.
-DEFER QUIT
+: QUIT EMPTY-RETURN-STACK USER-POINTER $38 + @ EXECUTE ;
 DEFER ABORT
 \ : ABORT-DEFAULT ( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
 \ ' ABORT-DEFAULT IS ABORT
@@ -113,15 +113,14 @@ DEFER ABORT
 \ Character literals.
 : [CHAR] PARSE-NAME ABORT" Missing word" C@ ; IMMEDIATE
 
-: CALLEE ." start of callee" EMPTY-RETURN-STACK ." end of callee" ;
-: TEST ." before callee" CALLEE ." after callee" DEBUG ;
 \ : TEST DECIMAL BEGIN #12345 . AGAIN ;
+: TEST ." TODO" CR ;
 
-.( TEST is ) ' TEST . CR
+.( TEST is ) ' TEST .
 
-.( about to test) CR
+.( about to test)
 TEST BP
 
-." Done!" CR
+.( Done with std.f!)
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

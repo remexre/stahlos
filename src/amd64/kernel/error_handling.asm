@@ -4,6 +4,7 @@ bits 64
 
 global cold_exited
 global init_kill
+global jmp_null
 global no_code_field
 global undefined_word
 global underflow
@@ -22,6 +23,12 @@ init_kill:
 	cli
 	hlt
 	jmp init_kill
+
+jmp_null:
+	dbg `jmp_null loop\n`
+	cli
+	hlt
+	jmp jmp_null
 
 no_code_field:
 	dbg `no_code_field loop\n`

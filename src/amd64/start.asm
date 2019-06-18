@@ -8,6 +8,7 @@ extern ifa
 extern ipb.dict
 extern int_init
 extern int_register_all
+extern jmp_null
 extern pic8259_init
 
 global start64
@@ -38,6 +39,10 @@ start64:
 	call int_register_all ; Register all the default interrupt handlers.
 	call int_init ; Set the IDT.
 	sti ; Enable interrupts.
+
+	; Write a jump to NULL. This makes EXECUTEing an xt of 0 trap.
+	mov byte [0], 0xe9
+	mov dword [1], jmp_null-5
 
 	; Start up the Forth system.
 	sub rbp, 8

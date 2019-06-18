@@ -33,6 +33,13 @@ defcode outb, "OUTB", 2
 	out dx, al
 endcode
 
+defcode outw, "OUTW", 2
+	mov dx, bx
+	pop rax
+	pop rbx
+	out dx, ax
+endcode
+
 ;;; Forth "deep builtins"
 
 defcode abs, "ABS", 1
@@ -216,7 +223,7 @@ defcode from_r, "R>"
 	add rbp, 8
 endcode
 
-defcode from_r_2, "R>"
+defcode from_r_2, "2R>"
 	; Check for return underflow.
 	lea rcx, [rbp+16]
 	cmp r14, rcx
