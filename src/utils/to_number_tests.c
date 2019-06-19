@@ -75,7 +75,7 @@ int main(void) {
 		test_fail(false, "-"), // 40
 		test_fail(false, "#-"),
 
-		test_fail(false, "a"),
+		test_fail(false, "a"), // 42
 		test_ok(true, "a", 0xa),
 		test_ok(true, "AaA", 0xaaa),
 
