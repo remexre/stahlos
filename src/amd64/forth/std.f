@@ -60,19 +60,28 @@ VARIABLE (IF-IDX)
 : ENDIF HERE (IF-POP) ! ; IMMEDIATE
 : THEN POSTPONE ENDIF ; IMMEDIATE
 
-\ Loops.
+\ Break.
 8 ARRAY (BREAK-STACK)
 VARIABLE (BREAK-IDX)
 : (BREAK-PUSH) ( addr -- ) (BREAK-IDX) @ (BREAK-STACK) ! 1 (BREAK-IDX) +! ;
 : (BREAK-POP) ( -- addr ) -1 (BREAK-IDX) +! (BREAK-IDX) @ (BREAK-STACK) @ ;
 : BREAK COMPILING (JUMP) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
-\ : (RESOLVE-BREAKS) ( addr -- )
-\   BEGIN (BREAK-IDX) WHILE HERE (BREAK-POP) ! REPEAT ;
+: (RESOLVE-BREAKS) ( -- )
+  \ We're manually building a BEGIN-WHILE-REPEAT loop, since it's not yet
+  \ definable.
+  [ HERE ]
+  (BREAK-IDX) @ 0= IF (JUMP) [ HERE SWAP 0 , ] THEN
+  HERE (BREAK-POP) ! (JUMP) [ , HERE SWAP ! ] ;
+
+\ Loops.
 8 ARRAY (LOOP-STACK)
 VARIABLE (LOOP-IDX)
 : (LOOP-PUSH) ( addr -- ) (LOOP-IDX) @ (LOOP-STACK) ! 1 (LOOP-IDX) +! ;
 : (LOOP-POP) ( -- addr ) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
-: BEGIN COMPILING (LITERAL-R) HERE 0 , ;
+: BEGIN HERE (LOOP-PUSH) ; IMMEDIATE
+: AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-BREAKS) ; IMMEDIATE
+: WHILE COMPILING (IF) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
+: REPEAT POSTPONE AGAIN ; IMMEDIATE
 
 \ Deferring. Note: since the standard library is shared between all processes,
 \ DEFER must not be used, since the definition will be global.
@@ -122,8 +131,15 @@ $20 CONSTANT BL
 \ Character literals.
 : [CHAR] PARSE-NAME ABORT" Missing word for [CHAR]" C@ ; IMMEDIATE
 
-\ : TEST DECIMAL BEGIN #12345 . AGAIN ;
-\ .( about to test) BP TEST BP
+VARIABLE foo
+: TEST
+  BEGIN
+    foo @ 5 <>
+  WHILE
+    foo @ .
+    1 foo +!
+  REPEAT ;
+.( about to test) DECIMAL TEST
 
 .( Done with std.f!)
 

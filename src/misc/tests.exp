@@ -1,21 +1,31 @@
 #!/usr/bin/env expect
 
-proc timed_out {waiting_for} {
-	puts "Timed out while waiting for ${waiting_for}!"
-	exit 1
+proc wait_for {waiting_for line} {
+	expect {
+		$line {}
+		timeout {
+			puts "Timed out while waiting for ${waiting_for}!"
+			send "\001x"
+			set timeout 1
+			expect {
+				eof { exit 1 }
+				timeout {
+					puts "QEMU didn't quit in time either!"
+					exit 2
+				}
+			}
+		}
+	}
 }
 
 log_user 0
 spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
 
-expect {
-	"Booting `StahlOS'" {}
-	timeout { timed_out "GRUB" }
-}
+wait_for GRUB "Booting `StahlOS'"
+set timeout 1
 
-expect {
-	eof {}
-	timeout { timed_out "shutdown" }
-}
+# Real tests should go here once serial works...
+
+wait_for shutdown eof
 
 puts "Expect tests passed!"
