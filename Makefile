@@ -82,7 +82,7 @@ ci:
 ci-clean:
 	docker build -t remexre/stahlos-builder .travis
 	docker run -v "$(shell pwd):/code" --rm remexre/stahlos-builder make clean
-ci-inner: all
+ci-inner: all utils
 	chown $(shell stat -c '%u:%g' Makefile) -R tmp out
 	$(MAKE) test
 .PHONY: ci ci-clean ci-inner

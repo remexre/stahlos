@@ -145,8 +145,8 @@ defcolon create_noname, "CREATE-NONAME"
 endcolon
 
 defcolon dict_head, "DICT-HEAD"
-	word ipb
-	lit 24
+	word user_pointer
+	lit 40
 	word add
 endcolon
 

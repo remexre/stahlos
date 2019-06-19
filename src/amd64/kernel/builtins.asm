@@ -574,7 +574,7 @@ endcode
 defcode zero_equal, "0="
 	xor rdx, rdx
 	test rbx, rbx
-	sete dl
+	setnz dl
 	dec rdx
 	mov rbx, rdx
 endcode

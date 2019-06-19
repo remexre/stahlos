@@ -18,8 +18,19 @@ CREATE ;
 : LITERAL-R COMPILING (LITERAL-R) , ; IMMEDIATE
 
 \ Parenthetical comments.
-: IS-CLOSE-PAREN $29 = ;
-: ( SOURCE-REST ['] IS-CLOSE-PAREN STRING-FIND-PRED 1+ >IN +! ; IMMEDIATE
+: IS-CLOSE-PAREN? $29 = ;
+: ( SOURCE-REST ['] IS-CLOSE-PAREN? STRING-FIND-PRED 1+ >IN +! ; IMMEDIATE
+
+\ Words that are "deferred" through the user area.
+: ABORT USER-POINTER $38 + @ EXECUTE ;
+: BP USER-POINTER $40 + @ EXECUTE ;
+: EMIT USER-POINTER $48 + @ EXECUTE ;
+: QUIT EMPTY-RETURN-STACK USER-POINTER $50 + @ EXECUTE ;
+
+: IS-ABORT ( addr -- ) USER-POINTER $38 + ! ;
+: IS-BP ( addr -- ) USER-POINTER $40 + ! ;
+: IS-EMIT ( addr -- ) USER-POINTER $48 + ! ;
+: IS-QUIT ( addr -- ) USER-POINTER $50 + ! ;
 
 \ Relative pointer write. This will probably only ever be useful for (re)writing
 \ CALL/JMP target addresses. addr should point to the byte after the 0xe8/0xe9.
@@ -63,7 +74,8 @@ VARIABLE (LOOP-IDX)
 : (LOOP-POP) ( -- addr ) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
 : BEGIN COMPILING (LITERAL-R) HERE 0 , ;
 
-\ Deferring, to make output hookable.
+\ Deferring. Note: since the standard library is shared between all processes,
+\ DEFER must not be used, since the definition will be global.
 : DEFER CREATE COMPILING NOOP DOES> @ EXECUTE ;
 : DEFER! 5 + ! ;
 : DEFER@ 5 + @ ;
@@ -75,22 +87,20 @@ VARIABLE (LOOP-IDX)
   THEN ; IMMEDIATE
 
 \ I/O primitives.
-DEFER EMIT
-:NONAME $e9 OUTB ; IS EMIT
+:NONAME $e9 OUTB ; IS-EMIT
 $20 CONSTANT BL
 : SPACE BL EMIT ;
 
 \ Debugging tools.
-DEFER BP
-' BOCHS-BP IS BP
+' BOCHS-BP IS-BP
 : DEBUG .S BP ;
 
-: IS-QUOTE $22 = ;
+: IS-QUOTE? $22 = ;
 : .( SOURCE-REST OVER SWAP
-  ['] IS-CLOSE-PAREN STRING-FIND-PRED
+  ['] IS-CLOSE-PAREN? STRING-FIND-PRED
   DUP 1+ >IN +! 1 /STRING TYPELN ; IMMEDIATE
 : S" SOURCE-REST OVER SWAP
-  ['] IS-QUOTE STRING-FIND-PRED
+  ['] IS-QUOTE? STRING-FIND-PRED
   DUP 1+ >IN +! 1 /STRING
   GET-STATE IF COMPILING (S") S, ENDIF
   ; IMMEDIATE
@@ -98,13 +108,11 @@ DEFER BP
   GET-STATE IF COMPILING TYPE ELSE TYPE ENDIF
   ; IMMEDIATE
 
-\ Abort and quit.
-: QUIT EMPTY-RETURN-STACK USER-POINTER $38 + @ EXECUTE ;
-: IS-QUIT ( -- addr ) USER-POINTER $38 + ! ;
-DEFER ABORT
+\ Aborting.
 \ : ABORT-DEFAULT ( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
-\ ' ABORT-DEFAULT IS ABORT
+\ ' ABORT-DEFAULT IS-ABORT
 : ABORT"
+  COMPILING 0=
   POSTPONE IF
   POSTPONE S"
   COMPILING TYPELN
@@ -112,15 +120,10 @@ DEFER ABORT
   POSTPONE THEN ; IMMEDIATE
 
 \ Character literals.
-: [CHAR] PARSE-NAME ABORT" Missing word" C@ ; IMMEDIATE
+: [CHAR] PARSE-NAME ABORT" Missing word for [CHAR]" C@ ; IMMEDIATE
 
 \ : TEST DECIMAL BEGIN #12345 . AGAIN ;
-: TEST ." TODO" CR ;
-
-.( TEST is ) ' TEST .
-
-.( about to test)
-TEST BP
+\ .( about to test) BP TEST BP
 
 .( Done with std.f!)
 

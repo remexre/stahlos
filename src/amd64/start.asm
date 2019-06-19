@@ -4,8 +4,8 @@ bits 64
 %include "src/amd64/kernel/macros.inc"
 
 extern cold_exited
+extern forth_last_pseudobuiltin
 extern ifa
-extern ipb.dict
 extern int_init
 extern int_register_all
 extern jmp_null
@@ -79,7 +79,7 @@ begincolon
 	lit ifa + (1 << 16)/8 + (1 << 16) + 24
 	word store
 	;   Write the dictionary pointer
-	lit ipb.dict
+	lit forth_last_pseudobuiltin
 	word fetch
 	lit ifa + (1 << 16)/8 + (1 << 16) + 40
 	word store

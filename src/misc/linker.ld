@@ -24,7 +24,7 @@ SECTIONS {
 	}
 	.bss : { *(.bss) }
 
-	. = 2M - 64;
+	. = 2M - 56;
 	.ipb : { KEEP(*(.ipb)) } /* The "Important Pointer Block" */
 	ASSERT((. == 2M), "IPB has the wrong size")
 

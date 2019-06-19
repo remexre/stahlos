@@ -8,7 +8,6 @@ global idt
 global idt.end
 global idtr
 global ipb ; The Important Pointer Block.
-global ipb.dict
 global ipb.free_list
 global ipb.here
 global ipb.mb2
@@ -24,8 +23,6 @@ ipb:
 	dq 0 ; Gets filled in with address of multiboot2 information structure.
 .free_list:
 	dq 0 ; Head of free list for allocators
-.dict:
-	dq forth_last_pseudobuiltin
 .here:
 	dq ifa
 	dq p3
