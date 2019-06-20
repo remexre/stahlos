@@ -6,7 +6,7 @@ proc wait_for {waiting_for line} {
 		timeout {
 			puts "Timed out while waiting for ${waiting_for}!"
 			send "\001x"
-			set timeout 1
+			set timeout 3
 			expect {
 				eof { exit 1 }
 				timeout {
@@ -22,7 +22,7 @@ log_user 0
 spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
 
 wait_for GRUB "Booting `StahlOS'"
-set timeout 1
+set timeout 3
 
 # Real tests should go here once serial works...
 

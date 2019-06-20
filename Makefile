@@ -56,7 +56,7 @@ run: out/stahlos.img
 	bochs -f bochsrc.txt -q
 test: out/stahlos.img out/utils/to_number_tests
 	out/utils/to_number_tests
-	expect src/misc/tests.exp
+	time expect src/misc/tests.exp
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
 	watchexec -cre asm,c,cfg,inc,ld,md $(MAKE) all test
