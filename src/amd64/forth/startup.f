@@ -11,6 +11,9 @@
 
 \ [CHAR] ) PARSE foo bar baz ) .( end) DEBUG
 
+: TEST 0 5 ?DO ." x " 1 +LOOP CR ;
+." about to test" TEST
+
 .( Done with startup.f!)
 QUIT
 

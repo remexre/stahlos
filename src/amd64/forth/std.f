@@ -83,6 +83,8 @@ VARIABLE (LOOP-IDX)
 : AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-BREAKS) ; IMMEDIATE
 : WHILE COMPILING (IF) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
 : REPEAT POSTPONE AGAIN ; IMMEDIATE
+: ?DO TODO ; IMMEDIATE
+: +LOOP TODO ; IMMEDIATE
 
 \ Deferring. Note: since the standard library is shared between all processes,
 \ DEFER must not be used, since the definition will be global.
@@ -131,16 +133,6 @@ $20 CONSTANT BL
 
 \ Character literals.
 : [CHAR] PARSE-NAME ABORT" Missing word for [CHAR]" C@ ; IMMEDIATE
-
-VARIABLE foo
-: TEST
-  BEGIN
-    foo @ 5 <>
-  WHILE
-    foo @ .
-    1 foo +!
-  REPEAT ;
-.( about to test) DECIMAL TEST
 
 .( Done with std.f!)
 
