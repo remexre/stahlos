@@ -20,3 +20,4 @@ Summary
 		-	[Bootstrapping](notes/low-level/bootstrapping.md)
 		-	[Forth Naming](notes/low-level/forth-naming.md)
 		-	[Multitasking](notes/low-level/multitasking.md)
+	-	[StahlNet](notes/stahlnet.md)
