@@ -3,6 +3,10 @@ CFLAGS ?= -g
 LDFLAGS ?= -g
 NASM ?= nasm
 NASMFLAGS += -gdwarf -Werror
+QEMUFLAGS += -debugcon stdio
+ifneq ($(wildcard /dev/ttyUSB0),)
+	QEMUFLAGS += -serial /dev/ttyUSB0
+endif
 
 ASM_UNITS += amd64/multiboot2
 ASM_UNITS += amd64/start32
@@ -70,10 +74,10 @@ run-qemu: out/stahlos.img
 	qemu-system-x86_64 \
 		-accel kvm \
 		-d cpu_reset -d guest_errors -d int \
-		-debugcon stdio \
 		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
 		-m 64M \
-		-machine q35
+		-machine q35 \
+		$(QEMUFLAGS)
 .PHONY: disas find-bochs-bps run-qemu
 
 ci:

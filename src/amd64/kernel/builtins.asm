@@ -273,11 +273,6 @@ defcode invert, "INVERT", 1
 	not rbx
 endcode
 
-defcode ipb, "IPB"
-	push rbx
-	mov rbx, ipb
-endcode
-
 defcode jump, "(JUMP)"
 	lodsq
 	mov rsi, rax
@@ -394,6 +389,19 @@ defcode rot, "ROT", 3
 	mov [rsp+8], rax
 endcode
 
+defcode rpick, "RPICK", 1
+	lea rbx, [rbp+rbx*8]
+	cmp r14, rbx
+	jb underflow_return
+	mov rbx, [rbx]
+endcode
+
+defcode rpick_addr, "RPICK-ADDR", 1
+	lea rbx, [rbp+rbx*8]
+	cmp r14, rbx
+	jb underflow_return
+endcode
+
 defcode s_quote_impl, '(S")',
 	push rbx
 	lodsb
@@ -486,7 +494,7 @@ defcode sub, "-", 2
 	mov rbx, rax
 endcode
 
-defcode swap, "SWAP"
+defcode swap, "SWAP", 2
 	xchg [rsp], rbx
 endcode
 

@@ -2,6 +2,7 @@ bits 64
 
 extern forth_last_pseudobuiltin
 extern ifa
+extern undefined_word
 
 global gdtr
 global idt
@@ -25,8 +26,8 @@ ipb:
 	dq 0 ; Head of free list for allocators
 .here:
 	dq ifa
-	dq p3
 	dq p4
+	dq undefined_word
 	dq ipb
 
 [section .bss]

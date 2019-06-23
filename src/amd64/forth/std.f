@@ -1,11 +1,17 @@
 \ The parts of the standard library that are implemented in Forth themselves.
 
 \ Define function definition.
-CREATE ' ] PARSE-NAME FIND-HEADER HEADER>CFA EXIT [ DOES>ENTER
+CREATE '
+  ] PARSE-NAME 2DUP FIND-HEADER DUP (IF) [
+  HERE 0 ,
+  ] HEADER>CFA -ROT 2DROP EXIT [
+  DOES>ENTER
+HERE SWAP ! ' DROP COMPILE, ' .S COMPILE, ' TYPELN COMPILE, $1ffff8 @ $28 + @ COMPILE,
 CREATE : ] CREATE ] EXIT [ DOES>ENTER
 CREATE ;
   ' [ COMPILE,
-  ] (LITERAL) EXIT COMPILE, DOES>ENTER EXIT [ DOES>ENTER IMMEDIATE
+  ] (LITERAL) EXIT COMPILE, DOES>ENTER EXIT [
+  DOES>ENTER IMMEDIATE
 : :NONAME CREATE-NONAME ] ;
 
 \ Some compilation helpers. Later, ', ['], COMPILING, and POSTPONE need to be
@@ -83,8 +89,12 @@ VARIABLE (LOOP-IDX)
 : AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-BREAKS) ; IMMEDIATE
 : WHILE COMPILING (IF) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
 : REPEAT POSTPONE AGAIN ; IMMEDIATE
-: ?DO COMPILING 2R> HERE COMPILING (?DO) HERE 0 , (LOOP-PUSH) (LOOP-PUSH) ; IMMEDIATE
-: +LOOP TODO ; IMMEDIATE
+: (?DO) R> DUP CELL+ >R
+  \ 1 RPICK 2 RPICK =
+  .S BP DROP ;
+: (+LOOP) .S BP ABORT ;
+: ?DO COMPILING 2>R HERE (LOOP-PUSH) COMPILING (?DO) HERE 0 , (LOOP-PUSH) ; IMMEDIATE
+: +LOOP COMPILING (+LOOP) (LOOP-POP) , HERE (LOOP-POP) ! ; IMMEDIATE
 
 \ Deferring. Note: since the standard library is shared between all processes,
 \ DEFER must not be used, since the definition will be global.
@@ -121,8 +131,8 @@ $20 CONSTANT BL
   ; IMMEDIATE
 
 \ Aborting.
-\ : ABORT-DEFAULT ( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
-\ ' ABORT-DEFAULT IS-ABORT
+: ABORT-DEFAULT ( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
+' ABORT-DEFAULT IS-ABORT
 : ABORT"
   COMPILING 0=
   POSTPONE IF
@@ -133,6 +143,9 @@ $20 CONSTANT BL
 
 \ Character literals.
 : [CHAR] PARSE-NAME ABORT" Missing word for [CHAR]" C@ ; IMMEDIATE
+
+\ Access to the IPB.
+: IPB ( n -- u ) CELLS $1ffff8 @ + @ ;
 
 .( Done with std.f!)
 

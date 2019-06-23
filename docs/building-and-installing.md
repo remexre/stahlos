@@ -8,6 +8,7 @@ Building requires:
 -	coreutils or equivalent
 -	binutils, or at least a copy of `ld` and `strip` that can handle `elf64-x86-64` binaries
 -	[GRUB](https://www.gnu.org/software/grub/), for `grub-file` and `grub-mkrescue`
+-	[make](https://www.gnu.org/software/make/), to run `make`
 -	[mdbook](https://github.com/rust-lang-nursery/mdBook), to build this documentation
 -	[mtools](https://www.gnu.org/software/mtools/), for `grub-mkrescue`
 -	[nasm](https://nasm.us/)
@@ -16,6 +17,8 @@ Building requires:
 Additionally, for other targets, the following dependencies apply:
 
 -	[Bochs](http://bochs.sourceforge.net/), for the `run` target
+-	a C compiler and headers, for the `test` and `utils` targets
+-	[expect](https://core.tcl-lang.org/expect/index), for the `test` target
 -	`objdump` (from binutils), for the `disas` target
--	[QEMU](https://www.qemu.org/), for the `run-qemu` target
+-	[QEMU](https://www.qemu.org/), for the `run-qemu` and `test` targets
 -	[watchexec](https://github.com/watchexec/watchexec), for the `watch` target

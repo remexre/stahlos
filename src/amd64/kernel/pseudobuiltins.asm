@@ -328,7 +328,6 @@ defcolon interpret, "INTERPRET"
 
 .undefined:
 	wordl dot_s
-	wordl dup2
 	wordl typeln
 	dq undefined_word
 
