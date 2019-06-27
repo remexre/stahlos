@@ -23,7 +23,7 @@ global aes_mode_encrypt
 	pxor %1, xmm12
 	pxor %1, xmm11
 %if %3
-	aesimc %1, %2
+	aesimc %1, %1
 %endif
 %endmacro
 
@@ -37,7 +37,7 @@ global aes_mode_encrypt
 	make_round_keys_helper xmm7,  xmm6, %1, 0x40
 	make_round_keys_helper xmm8,  xmm7, %1, 0x80
 	make_round_keys_helper xmm9,  xmm8, %1, 0x1b
-	make_round_keys_helper xmm10, xmm9, %1, 0x36
+	make_round_keys_helper xmm10, xmm9,  0, 0x36
 %endmacro
 
 ; in - xmm0 as key
@@ -57,17 +57,17 @@ aes_mode_decrypt:
 ; in - xmm0-10 as round keys, xmm11 as ciphertext
 ; out - xmm11 as plaintext, xmm0-10 preserved
 aes_decrypt:
-	pxor xmm11, xmm0
-	aesenc xmm11, xmm1
-	aesenc xmm11, xmm2
-	aesenc xmm11, xmm3
-	aesenc xmm11, xmm4
-	aesenc xmm11, xmm5
-	aesenc xmm11, xmm6
-	aesenc xmm11, xmm7
-	aesenc xmm11, xmm8
-	aesenc xmm11, xmm9
-	aesenclast xmm11, xmm10
+	pxor xmm11, xmm10
+	aesdec xmm11, xmm9
+	aesdec xmm11, xmm8
+	aesdec xmm11, xmm7
+	aesdec xmm11, xmm6
+	aesdec xmm11, xmm5
+	aesdec xmm11, xmm4
+	aesdec xmm11, xmm3
+	aesdec xmm11, xmm2
+	aesdec xmm11, xmm1
+	aesdeclast xmm11, xmm0
 	ret
 
 ; in - xmm0-10 as round keys, xmm11 as plaintext
