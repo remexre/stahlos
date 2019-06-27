@@ -16,6 +16,7 @@ ASM_UNITS += amd64/int
 ASM_UNITS += amd64/panic
 ASM_UNITS += amd64/devices/pic8259
 ASM_UNITS += amd64/devices/uart8250
+ASM_UNITS += amd64/kernel/aes
 ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
 ASM_UNITS += amd64/kernel/interpret
@@ -29,7 +30,7 @@ FORTH_UNITS += acpi
 # FORTH_UNITS += pcie
 
 MISC_UTILS += fnv1a
-MISC_UTILS += to_number_tests
+MISC_UTILS += aes_tests to_number_tests
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
 FORTH_SRCS = $(patsubst %,src/forth/%.f,$(FORTH_UNITS))
@@ -58,7 +59,8 @@ install: out/stahlos.elf $(FORTH_SRCS)
 kernel: out/stahlos.elf
 run: out/stahlos.img
 	bochs -f bochsrc.txt -q
-test: out/stahlos.img out/utils/to_number_tests
+test: out/stahlos.img out/utils/aes_tests out/utils/to_number_tests
+	out/utils/aes_tests
 	out/utils/to_number_tests
 	expect src/misc/tests.exp
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
@@ -123,4 +125,5 @@ tmp/utils/%.o: src/utils/%.c
 	$(CC) -c -o $@ $(CFLAGS) $^
 
 tmp/amd64/start.o: src/amd64/forth/std.f src/amd64/forth/startup.f
+out/utils/aes_tests: tmp/amd64/kernel/aes.o tmp/utils/aes_helpers.o
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o

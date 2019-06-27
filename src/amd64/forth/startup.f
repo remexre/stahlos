@@ -14,7 +14,7 @@
 : TEST 0 5 ?DO ." x " 1 +LOOP CR ;
 ." TEST  is at " ' TEST  . CR
 ." (?DO) is at " ' (?DO) . CR
-." about to test" BP TEST
+." about to test" BP ( TEST ) .( lol nvm)
 
 .( Done with startup.f!)
 QUIT
