@@ -1,6 +1,6 @@
 DESTDIR ?= /media/stahlos
 CFLAGS ?= -g
-LDFLAGS ?= -g
+LDFLAGS ?= -g -static
 NASM ?= nasm
 NASMFLAGS += -gdwarf -Werror
 QEMUFLAGS += -debugcon stdio
