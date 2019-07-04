@@ -207,15 +207,6 @@ defcolon evaluate, "EVALUATE"
 	word store
 endcolon
 
-defcolon find, "FIND"
-	wordl find_header
-	word dup
-	word if_impl
-	dq .end
-	wordl header_to_cfa
-.end:
-endcolon
-
 defcolon find_header, "FIND-HEADER"
 	wordl dict_head
 	word to_r
