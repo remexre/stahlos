@@ -318,8 +318,6 @@ defcolon interpret, "INTERPRET"
 	dq .loop
 
 .undefined:
-	wordl dot_s
-	wordl typeln
 	dq undefined_word
 
 .end:
@@ -438,92 +436,6 @@ defcolon string_find_pred, "STRING-FIND-PRED"
 	word drop2
 	word swap
 	word sub
-endcolon
-
-;;; Testing Words
-;;; These should be replaced (probably to send messages to some other process,
-;;; and probably using DEFER and IS).
-
-defcolon dot, "."
-	wordl dot_nosp
-	wordl space
-endcolon
-
-defcolon dot_nosp, "N."
-	word n_to_str
-	wordl type
-endcolon
-
-defcolon dot_s, ".S"
-	word depth
-	lit '<'
-	wordl emit
-	word dup
-	wordl dot_nosp
-	lit '>'
-	wordl emit
-
-.loop:
-	; Go to end if n=0
-	word dup
-	word if_impl
-	dq .end
-
-	word dup
-	word pick
-	wordl space
-	wordl dot_nosp
-	lit 1
-	word sub
-	word jump_impl
-	dq .loop
-.end:
-	word drop
-	lit `\n`
-	wordl emit
-endcolon
-
-defcolon bl, "BL"
-	lit ' '
-endcolon
-
-defcolon cr, "CR"
-	lit `\n`
-	wordl emit
-endcolon
-
-defcolon emit, "EMIT"
-	lit 0xe9
-	word outb
-endcolon
-
-defcolon space, "SPACE"
-	word bl
-	wordl emit
-endcolon
-
-defcolon type, "TYPE"
-.loop:
-	word dup
-	word if_impl
-	dq .end
-
-	word over
-	word fetch_char
-	wordl emit
-
-	lit 1
-	word adjust_string
-	word jump_impl
-	dq .loop
-.end:
-	word drop
-	word drop
-endcolon
-
-defcolon typeln, "TYPELN"
-	wordl type
-	wordl cr
 endcolon
 
 ; This is a no-name no-op word, as a marker and safety guard.

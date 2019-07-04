@@ -37,7 +37,20 @@ no_code_field:
 	jmp cold_exited
 
 undefined_word:
-	dbg `PANIC: undefined_word loop\n`
+	dbg `PANIC: undefined_word loop: `
+	xor rcx, rcx
+	mov rsi, [rsp]
+.loop:
+	cmp rbx, rcx
+	je .loop_end
+
+	mov al, [rsi+rcx]
+	out 0xe9, al
+	inc rcx
+
+	jmp .loop
+.loop_end:
+	dbg `\n`
 	cli
 	hlt
 	jmp undefined_word
