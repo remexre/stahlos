@@ -81,8 +81,6 @@ int main(void) {
 
 		NULL
 	});
-
-	return 0;
 }
 
 static int do_tests(test_case** tests) {
@@ -94,23 +92,21 @@ static int do_tests(test_case** tests) {
 		bool this_failed = false;
 		size_t len = strlen(test->str);
 
-		printf("test %lu (\"%s\", %s)... ", i, test->str, test->hex ? "hex" : "dec");
-		fflush(stdout);
-
 		bool ok;
 		uint64_t num = to_number(base, 0, 0, len, test->str, &ok);
 
 		if(test->expok && !ok) {
+			printf("test %lu (\"%s\", %s)... ", i, test->str, test->hex ? "hex" : "dec");
 			printf("failed, success expected\n");
 			failing++;
 		} else if(test->expok && num != test->expected) {
+			printf("test %lu (\"%s\", %s)... ", i, test->str, test->hex ? "hex" : "dec");
 			printf("got wrong result; got %ld, expected %ld\n", num, test->expected);
 			failing++;
 		} else if(!test->expok && ok) {
+			printf("test %lu (\"%s\", %s)... ", i, test->str, test->hex ? "hex" : "dec");
 			printf("succeeded (got %ld), failure expected\n", num);
 			failing++;
-		} else {
-			printf("ok\n");
 		}
 
 		if(this_failed)

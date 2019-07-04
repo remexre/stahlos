@@ -95,6 +95,14 @@ VARIABLE (LOOP-IDX)
 : (+LOOP) .S BP ABORT ;
 : ?DO COMPILING 2>R HERE (LOOP-PUSH) COMPILING (?DO) HERE 0 , (LOOP-PUSH) ; IMMEDIATE
 : +LOOP COMPILING (+LOOP) (LOOP-POP) , HERE (LOOP-POP) ! ; IMMEDIATE
+: TIMES COMPILING FALSE COMPILING ?DO ;
+: DO ( TODO ) ABORT ;
+: LOOP ( TODO ) ABORT ;
+
+\ Some stack manipulation words.
+: NIP     ( X1 X2 -- X2          ) SWAP DROP ;
+: TUCK    ( X1 X2 -- X2 X1 X2    ) SWAP OVER ;
+\ : DISCARD ( XU ... X0 U ) TIMES DROP LOOP ;
 
 \ Deferring. Note: since the standard library is shared between all processes,
 \ DEFER must not be used, since the definition will be global.
@@ -143,6 +151,12 @@ $20 CONSTANT BL
 
 \ Character literals.
 : [CHAR] PARSE-NAME ABORT" Missing word for [CHAR]" C@ ; IMMEDIATE
+
+\ Some math words.
+: */ */MOD NIP ;
+: /MOD 1 -ROT */MOD ;
+: / /MOD NIP ;
+: MOD /MOD DROP ;
 
 \ Access to the IPB.
 : IPB ( n -- u ) CELLS $1ffff8 @ + @ ;

@@ -116,14 +116,6 @@ defcode depth, "DEPTH"
 	dec rbx
 endcode
 
-defcode div_mod, "/MOD", 2
-	mov rax, [rsp]
-	xor rdx, rdx
-	div rbx
-	mov [rsp], rdx
-	mov rbx, rax
-endcode
-
 defcode docolon, "((DOCOLON))"
 	jmp near .impl
 .jmp_len equ $ - .cfa
@@ -258,6 +250,10 @@ defcode here, "HERE"
 	mov rbx, [ipb.here]
 endcode
 
+defcode hlt, "HLT"
+	hlt
+endcode
+
 defcode if_impl, "(IF)", 1
 	test rbx, rbx
 	pop rbx
@@ -294,6 +290,15 @@ defcode literal_r_impl, "(LITERAL-R)"
 	lodsq
 	sub rbp, 8
 	mov [rbp], rax
+endcode
+
+defcode mul_div_mod, "*/MOD", 3
+	pop rax
+	pop rdx
+	imul rdx
+	idiv rbx
+	mov rbx, rax
+	push rdx
 endcode
 
 defcode n_to_str, "N>STR", 1

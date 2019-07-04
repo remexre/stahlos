@@ -1,4 +1,4 @@
-: qemu-shutdown $2000 $604 OUTW ;
+: qemu-shutdown $2000 $604 OUTW BEGIN HLT AGAIN ;
 ' qemu-shutdown IS-QUIT
 
 \ Parsing.
@@ -14,7 +14,7 @@
 : TEST 0 5 ?DO ." x " 1 +LOOP CR ;
 ." TEST  is at " ' TEST  . CR
 ." (?DO) is at " ' (?DO) . CR
-." about to test" BP ( TEST ) .( lol nvm)
+\ ." about to test" BP TEST
 
 .( Done with startup.f!)
 QUIT

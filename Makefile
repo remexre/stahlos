@@ -15,7 +15,6 @@ ASM_UNITS += amd64/start
 ASM_UNITS += amd64/int
 ASM_UNITS += amd64/panic
 ASM_UNITS += amd64/devices/pic8259
-ASM_UNITS += amd64/devices/uart8250
 ASM_UNITS += amd64/kernel/aes
 ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
@@ -38,6 +37,8 @@ FORTH_SRCS = $(patsubst %,src/forth/%.f,$(FORTH_UNITS))
 all: kernel image docs
 clean:
 	rm -rf tmp out
+disas: out/stahlos-unstripped.elf
+	objdump -M intel -d $< | less
 docs:
 	mdbook build
 help:
@@ -58,21 +59,6 @@ install: out/stahlos.elf $(FORTH_SRCS)
 	cp out/stahlos.elf $(DESTDIR)/boot/
 kernel: out/stahlos.elf
 run: out/stahlos.img
-	bochs -f bochsrc.txt -q
-test: out/stahlos.img out/utils/aes_tests out/utils/to_number_tests
-	out/utils/aes_tests
-	out/utils/to_number_tests
-	expect src/misc/tests.exp
-utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
-watch:
-	watchexec -cre asm,c,cfg,inc,ld,md $(MAKE) all test
-.PHONY: all clean docs help image install kernel run test utils watch
-
-disas: out/stahlos-unstripped.elf
-	objdump -M intel -d $< | less
-find-bochs-bps:
-	rg '^[^;]*xchg\s*bx\s*,\s*bx'
-run-qemu: out/stahlos.img
 	qemu-system-x86_64 \
 		-accel kvm \
 		-d cpu_reset -d guest_errors -d int \
@@ -80,7 +66,14 @@ run-qemu: out/stahlos.img
 		-m 64M \
 		-machine q35 \
 		$(QEMUFLAGS)
-.PHONY: disas find-bochs-bps run-qemu
+test: out/stahlos.img out/utils/aes_tests out/utils/to_number_tests
+	out/utils/aes_tests
+	out/utils/to_number_tests
+	expect src/misc/tests.exp
+utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
+watch:
+	watchexec -cre asm,c,cfg,inc,ld,md $(MAKE) all test
+.PHONY: all clean disas docs help image install kernel run test utils watch
 
 ci:
 	docker build -t remexre/stahlos-builder .travis

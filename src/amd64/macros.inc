@@ -7,7 +7,6 @@
 	out 0xe9, al
 %assign i i+1
 %endrep
-	xchg bx, bx
 %endmacro
 
 ; vi: cc=80 ft=nasm

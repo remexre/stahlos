@@ -1,5 +1,5 @@
-Building and Installing
-=======================
+Building
+========
 
 To build, run `make`. (To see all targets, `make help`.)
 
@@ -22,3 +22,14 @@ Additionally, for other targets, the following dependencies apply:
 -	`objdump` (from binutils), for the `disas` target
 -	[QEMU](https://www.qemu.org/), for the `run-qemu` and `test` targets
 -	[watchexec](https://github.com/watchexec/watchexec), for the `watch` target
+
+When in doubt, see `.travis/Dockerfile` in the source code -- it contains all the necessary dependencies to build and test StahlOS.
+
+Installing
+==========
+
+`out/stahlos.img` is a disk image containing GRUB, configured to be able to be booted in the ways the `grub-mkrescue` was configured to be able to. (For official releases, this means BIOS boot and UEFI; depending on your system configuration, different methods may be supported.)
+
+To run in QEMU, see the `run-qemu` target of the Makefile.
+
+In theory, it should be possible to run this on a real machine. It requires AESNI.

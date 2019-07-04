@@ -17,6 +17,7 @@ int_init:
 	lidt [idtr]
 	ret
 
+; TODO: Rewrite me in FORTH!
 ; rdx - Address of interrupt handler.
 ; rcx - Interrupt number.
 int_register:
