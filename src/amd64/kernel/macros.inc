@@ -11,6 +11,7 @@ global forth_%1.cfa
 %strlen %%namelen %2
 forth_%1:
 	dq last_defined_word
+	dq 0
 %define last_defined_word forth_%1
 	db %4, %%namelen, %2
 .cfa:
@@ -52,6 +53,7 @@ begincolon
 global forth_%1.cfa
 forth_%1:
 	dq last_defined_word
+	dq 0
 %define last_defined_word forth_%1
 	db %3, %%namelen, %2
 .cfa:

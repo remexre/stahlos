@@ -2,10 +2,8 @@ add-symbol-file out/stahlos.sym 0
 
 break *0
 break bp_handler
-break ud_handler
-break df_handler
-break gp_handler
-break pf_handler
+
+source src/misc/gdb_tools.py
 
 target remote localhost:1234
 

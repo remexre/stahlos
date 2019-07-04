@@ -100,6 +100,10 @@ defcolon create, "CREATE"
 	wordl dict_head
 	word store
 
+	; Documentation
+	lit 0
+	wordl comma
+
 	; Flags
 	lit 0
 	wordl comma_char
@@ -124,6 +128,10 @@ defcolon create_noname, "CREATE-NONAME"
 	word comma
 	wordl dict_head
 	word store
+
+	; Documentation
+	lit 0
+	wordl comma
 
 	; Flags
 	lit 0
@@ -243,13 +251,13 @@ defcolon header_to_cfa, "HEADER>CFA"
 endcolon
 
 defcolon header_to_name, "HEADER>NAME"
-	lit 9
+	lit 17
 	word add
 endcolon
 
 defcolon immediate, "IMMEDIATE"
 	wordl latest
-	lit 8
+	lit 16
 	word add
 	word dup
 	word fetch_char
@@ -325,7 +333,7 @@ defcolon interpret, "INTERPRET"
 endcolon
 
 defcolon is_immediate, "IMMEDIATE?"
-	lit 8
+	lit 16
 	word add
 	word fetch_char
 	lit 0
