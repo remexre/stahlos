@@ -12,18 +12,9 @@
 \ [CHAR] ) PARSE foo bar baz ) .( end) DEBUG
 
 : TEST 0 5
-
-  [ ." before   ?DO = " HERE . CR ]
-  ?DO
-  [ ."  after   ?DO = " HERE . CR ]
-
-  ." In TEST's loop body" CR
-  1
-
-  [ ." before +LOOP = " HERE . CR ]
-  +LOOP
-  [ ."  after +LOOP = " HERE . CR ]
-
+  DO
+  I .S DROP
+  LOOP
   ." Last part of TEST!" CR ;
 
 ." about to TEST" CR
