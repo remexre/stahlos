@@ -75,7 +75,7 @@ int_register_all:
 
 	mov rdx, bp_handler
 	mov rcx, 3 ; Breakpoint
-	; call int_register
+	call int_register
 
 	mov rdx, ud_handler
 	mov rcx, 6 ; Invalid Opcode
@@ -108,6 +108,7 @@ nmi_handler:
 
 ; The Breakpoint handler.
 bp_handler:
+	dbg `breakpoint!\n`
 	iretq
 
 ; The Invalid Opcode handler.

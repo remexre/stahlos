@@ -14,34 +14,6 @@ global forth_last_builtin
 
 [section .forth_builtins]
 
-;;; Architecture-dependent stuff
-
-defcode bochs_bp, "BOCHS-BP"
-	dbg `BOCHS-BP\n`
-endcode
-
-defcode inb, "INB", 1
-	mov dx, bx
-	in al, dx
-	movzx rbx, al
-endcode
-
-defcode outb, "OUTB", 2
-	mov dx, bx
-	pop rax
-	pop rbx
-	out dx, al
-endcode
-
-defcode outw, "OUTW", 2
-	mov dx, bx
-	pop rax
-	pop rbx
-	out dx, ax
-endcode
-
-;;; Forth "deep builtins"
-
 defcode abs, "ABS", 1
 	test rbx, rbx
 	jns .end
@@ -261,15 +233,25 @@ defcode if_impl, "(IF)", 1
 	cmovz rsi, rax
 endcode
 
+defcode inb, "INB", 1
+	mov dx, bx
+	in al, dx
+	movzx rbx, al
+endcode
+
 defcode incr, "1+", 1
 	inc rbx
+endcode
+
+defcode int3, "INT3"
+	int3
 endcode
 
 defcode invert, "INVERT", 1
 	not rbx
 endcode
 
-defcode jump, "(JUMP)"
+defcode jump_impl, "(JUMP)"
 	lodsq
 	mov rsi, rax
 endcode
@@ -355,6 +337,20 @@ endcode
 defcode or, "OR", 2
 	pop rax
 	or rbx, rax
+endcode
+
+defcode outb, "OUTB", 2
+	mov dx, bx
+	pop rax
+	pop rbx
+	out dx, al
+endcode
+
+defcode outw, "OUTW", 2
+	mov dx, bx
+	pop rax
+	pop rbx
+	out dx, ax
 endcode
 
 defcode pick, "PICK", 1

@@ -56,7 +56,7 @@ defcolon comma_str, "S,"
 	wordl comma_char
 	word incr
 
-	wordl jump
+	wordl jump_impl
 	dq .loop
 
 .end:
@@ -297,13 +297,13 @@ defcolon interpret, "INTERPRET"
 
 	wordl header_to_cfa
 	word execute
-	word jump
+	word jump_impl
 	dq .loop
 
 .compile:
 	wordl header_to_cfa
 	wordl compile_comma
-	word jump
+	word jump_impl
 	dq .loop
 
 .not_found:
@@ -323,7 +323,7 @@ defcolon interpret, "INTERPRET"
 	wordl compile_comma
 	wordl comma
 
-	word jump
+	word jump_impl
 	dq .loop
 
 .undefined:
@@ -438,7 +438,7 @@ defcolon string_find_pred, "STRING-FIND-PRED"
 
 	word incr
 
-	word jump
+	word jump_impl
 	dq .loop
 
 .end:
@@ -484,7 +484,7 @@ defcolon dot_s, ".S"
 	wordl dot_nosp
 	lit 1
 	word sub
-	word jump
+	word jump_impl
 	dq .loop
 .end:
 	word drop
@@ -523,7 +523,7 @@ defcolon type, "TYPE"
 
 	lit 1
 	word adjust_string
-	word jump
+	word jump_impl
 	dq .loop
 .end:
 	word drop

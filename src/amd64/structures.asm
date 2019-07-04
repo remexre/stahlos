@@ -25,9 +25,9 @@ ipb:
 .free_list:
 	dq 0 ; Head of free list for allocators
 .here:
-	dq ifa
-	dq p4
-	dq undefined_word
+	dq ifa ; The address returned by HERE and increased by ALLOT.
+	dq p4 ; The current level 4 page table.
+	dq undefined_word ; The hook to call when an undefined word is encountered.
 	dq ipb
 
 [section .bss]

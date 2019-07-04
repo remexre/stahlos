@@ -37,6 +37,16 @@ FORTH_SRCS = $(patsubst %,src/forth/%.f,$(FORTH_UNITS))
 all: kernel image docs
 clean:
 	rm -rf tmp out
+debug: out/stahlos.img out/stahlos.sym
+	qemu-system-x86_64 \
+		-s -S \
+		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
+		-m 64M \
+		-display none \
+		$(QEMUFLAGS) & \
+		sleep 0.5; \
+		gdb -x src/misc/debug.gdb; \
+		kill %1
 disas: out/stahlos-unstripped.elf
 	objdump -M intel -d $< | less
 docs:
@@ -45,12 +55,15 @@ help:
 	@echo >&2 'Targets:'
 	@echo >&2 '  all     - Does kernel, image, and docs'
 	@echo >&2 '  clean   - Removes temporary and output files'
+	@echo >&2 '  debug   - Opens GDB, connected to QEMU, running the boot image'
+	@echo >&2 '  disas   - Disassembles the kernel'
 	@echo >&2 '  docs    - Builds documentation'
 	@echo >&2 '  image   - Builds a boot image to out/stahlos.img'
 	@echo >&2 '  install - Installs the kernel and modules to DESTDIR'
 	@echo >&2 '  kernel  - Builds the kernel to out/stahlos.elf'
-	@echo >&2 '  test    - Runs tests'
 	@echo >&2 '  run     - Runs the boot image in Bochs'
+	@echo >&2 '  test    - Runs tests'
+	@echo >&2 '  utils   - Builds some development utilities to out/utils'
 	@echo >&2 '  watch   - Watches source files, recompiling on changes'
 image: out/stahlos.img
 install: out/stahlos.elf $(FORTH_SRCS)

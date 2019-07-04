@@ -89,13 +89,21 @@ VARIABLE (LOOP-IDX)
 : AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-BREAKS) ; IMMEDIATE
 : WHILE COMPILING (IF) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
 : REPEAT POSTPONE AGAIN ; IMMEDIATE
-: (?DO) R> DUP CELL+ >R
-  \ 1 RPICK 2 RPICK =
-  .S BP DROP ;
-: (+LOOP) .S BP ABORT ;
-: ?DO COMPILING 2>R HERE (LOOP-PUSH) COMPILING (?DO) HERE 0 , (LOOP-PUSH) ; IMMEDIATE
+
+: (?DO)
+  R> DUP @ SWAP CELL+
+  R> R>
+  2DUP = IF
+    3 PICK >R DROP DROP DROP DROP
+  ELSE
+    >R >R >R DROP
+  THEN ;
+: (+LOOP) R> R> R> 3 PICK + >R >R SWAP DROP @ >R ;
+
+: ?DO COMPILING 2>R HERE COMPILING (?DO) HERE 0 , (LOOP-PUSH) (LOOP-PUSH) ; IMMEDIATE
 : +LOOP COMPILING (+LOOP) (LOOP-POP) , HERE (LOOP-POP) ! ; IMMEDIATE
-: TIMES COMPILING FALSE COMPILING ?DO ;
+
+: TIMES COMPILING FALSE POSTPONE ?DO ;
 : DO ( TODO ) ABORT ;
 : LOOP ( TODO ) ABORT ;
 
@@ -105,7 +113,7 @@ VARIABLE (LOOP-IDX)
 \ : DISCARD ( XU ... X0 U ) TIMES DROP LOOP ;
 
 \ Deferring. Note: since the standard library is shared between all processes,
-\ DEFER must not be used, since the definition will be global.
+\ DEFER must not be used here, since the definition will be global.
 : DEFER CREATE COMPILING NOOP DOES> @ EXECUTE ;
 : DEFER! 5 + ! ;
 : DEFER@ 5 + @ ;
@@ -122,9 +130,10 @@ $20 CONSTANT BL
 : SPACE BL EMIT ;
 
 \ Debugging tools.
-' BOCHS-BP IS-BP
+' INT3 IS-BP
 : DEBUG .S BP ;
 
+\ Output.
 : IS-QUOTE? $22 = ;
 : .( SOURCE-REST OVER SWAP
   ['] IS-CLOSE-PAREN? STRING-FIND-PRED

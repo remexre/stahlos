@@ -11,10 +11,24 @@
 
 \ [CHAR] ) PARSE foo bar baz ) .( end) DEBUG
 
-: TEST 0 5 ?DO ." x " 1 +LOOP CR ;
-." TEST  is at " ' TEST  . CR
-." (?DO) is at " ' (?DO) . CR
-\ ." about to test" BP TEST
+: TEST 0 5
+
+  [ ." before   ?DO = " HERE . CR ]
+  ?DO
+  [ ."  after   ?DO = " HERE . CR ]
+
+  ." In TEST's loop body" CR
+  1
+
+  [ ." before +LOOP = " HERE . CR ]
+  +LOOP
+  [ ."  after +LOOP = " HERE . CR ]
+
+  ." Last part of TEST!" CR ;
+
+." about to TEST" CR
+TEST
+." wow, TEST finished!" CR
 
 .( Done with startup.f!)
 QUIT
