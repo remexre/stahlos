@@ -274,6 +274,13 @@ defcode literal_r_impl, "(LITERAL-R)"
 	mov [rbp], rax
 endcode
 
+defcode mul_d, "*D", 2
+	mov rax, [rsp]
+	imul rbx
+	mov [rsp], rdx
+	mov rbx, rax
+endcode
+
 defcode mul_div_mod, "*/MOD", 3
 	pop rax
 	pop rdx
