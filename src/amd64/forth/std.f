@@ -23,25 +23,29 @@ CREATE ;
 : LAST LATEST HEADER>CFA ;
 : LITERAL-R COMPILING (LITERAL-R) , ; IMMEDIATE
 
-\ Parenthetical comments.
+\ Parenthetical and documentation comments.
 : IS-CLOSE-PAREN? $29 = ;
 : ( SOURCE-REST ['] IS-CLOSE-PAREN? STRING-FIND-PRED 1+ >IN +! ; IMMEDIATE
+: ?(
+  SOURCE-REST ['] IS-CLOSE-PAREN? STRING-FIND-PRED
+  SOURCE-REST DROP 2DUP SWAP 1- SWAP C! LATEST 8 + !
+  1+ >IN +! ; IMMEDIATE
 
 \ Words that are "deferred" through the user area.
 : ABORT USER-POINTER $38 + @ EXECUTE ;
 : BP USER-POINTER $40 + @ EXECUTE ;
-: EMIT USER-POINTER $48 + @ EXECUTE ;
+: EMIT ?( char -- ) USER-POINTER $48 + @ EXECUTE ;
 : QUIT EMPTY-RETURN-STACK USER-POINTER $50 + @ EXECUTE ;
 
-: IS-ABORT ( addr -- ) USER-POINTER $38 + ! ;
-: IS-BP ( addr -- ) USER-POINTER $40 + ! ;
-: IS-EMIT ( addr -- ) USER-POINTER $48 + ! ;
-: IS-QUIT ( addr -- ) USER-POINTER $50 + ! ;
+: IS-ABORT ?( addr -- ) USER-POINTER $38 + ! ;
+: IS-BP ?( addr -- ) USER-POINTER $40 + ! ;
+: IS-EMIT ?( addr -- ) USER-POINTER $48 + ! ;
+: IS-QUIT ?( addr -- ) USER-POINTER $50 + ! ;
 
 \ Relative pointer write. This will probably only ever be useful for (re)writing
 \ CALL/JMP target addresses. addr should point to the byte after the 0xe8/0xe9.
-: D!REL ( val addr -- ) SWAP OVER - 4 - SWAP D! ;
-: D,REL ( val -- ) HERE 4 ALLOT D!REL ;
+: D!REL ?( val addr -- ) SWAP OVER - 4 - SWAP D! ;
+: D,REL ?( val -- ) HERE 4 ALLOT D!REL ;
 
 \ DOES>. There might be a better way to define it than this. The inline assembly
 \ in DOES> is something that ideally would be factored out...
@@ -49,18 +53,18 @@ CREATE ;
 : DOES> COMPILING (DOES>) COMPILING EXIT ['] ((DODOES)) $e8 C, D,REL ; IMMEDIATE
 
 \ Constants and variables.
-: CONSTANT ( n -- ) CREATE , DOES> @ ;
-: VARIABLE ( -- ) CREATE 0 , DOES> ;
+: CONSTANT ?( n -- ) CREATE , DOES> @ ;
+: VARIABLE ?( -- ) CREATE 0 , DOES> ;
 
 \ Arrays.
-: ARRAY ( n "<spaces>name" -- ) CREATE CELLS ALLOT
-  DOES> ( n -- addr ) SWAP CELLS + ;
+: ARRAY ?( n "<spaces>name" -- ) CREATE CELLS ALLOT
+  DOES> ?( n -- addr ) SWAP CELLS + ;
 
 \ Conditionals.
 8 ARRAY (IF-STACK)
 VARIABLE (IF-IDX)
-: (IF-PUSH) ( n -- ) (IF-IDX) @ (IF-STACK) ! 1 (IF-IDX) +! ;
-: (IF-POP) ( -- n ) -1 (IF-IDX) +! (IF-IDX) @ (IF-STACK) @ ;
+: (IF-PUSH) ?( n -- ) (IF-IDX) @ (IF-STACK) ! 1 (IF-IDX) +! ;
+: (IF-POP) ?( -- n ) -1 (IF-IDX) +! (IF-IDX) @ (IF-STACK) @ ;
 : IF COMPILING (IF) HERE (IF-PUSH) 0 , ; IMMEDIATE
 : ?IF COMPILING ?DUP POSTPONE IF ; IMMEDIATE
 : ELSE COMPILING (JUMP) HERE 0 , HERE (IF-POP) ! (IF-PUSH) ; IMMEDIATE
@@ -70,10 +74,10 @@ VARIABLE (IF-IDX)
 \ Break.
 8 ARRAY (BREAK-STACK)
 VARIABLE (BREAK-IDX)
-: (BREAK-PUSH) ( addr -- ) (BREAK-IDX) @ (BREAK-STACK) ! 1 (BREAK-IDX) +! ;
-: (BREAK-POP) ( -- addr ) -1 (BREAK-IDX) +! (BREAK-IDX) @ (BREAK-STACK) @ ;
+: (BREAK-PUSH) ?( addr -- ) (BREAK-IDX) @ (BREAK-STACK) ! 1 (BREAK-IDX) +! ;
+: (BREAK-POP) ?( -- addr ) -1 (BREAK-IDX) +! (BREAK-IDX) @ (BREAK-STACK) @ ;
 : BREAK COMPILING (JUMP) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
-: (RESOLVE-BREAKS) ( -- )
+: (RESOLVE-BREAKS) ?( -- )
   \ We're manually building a BEGIN-WHILE-REPEAT loop, since it's not yet
   \ definable.
   [ HERE ]
@@ -83,8 +87,8 @@ VARIABLE (BREAK-IDX)
 \ Loops.
 8 ARRAY (LOOP-STACK)
 VARIABLE (LOOP-IDX)
-: (LOOP-PUSH) ( addr -- ) (LOOP-IDX) @ (LOOP-STACK) ! 1 (LOOP-IDX) +! ;
-: (LOOP-POP) ( -- addr ) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
+: (LOOP-PUSH) ?( addr -- ) (LOOP-IDX) @ (LOOP-STACK) ! 1 (LOOP-IDX) +! ;
+: (LOOP-POP) ?( -- addr ) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
 : BEGIN HERE (LOOP-PUSH) ; IMMEDIATE
 : AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-BREAKS) ; IMMEDIATE
 : WHILE COMPILING (IF) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
@@ -115,7 +119,7 @@ VARIABLE (LOOP-IDX)
 \ Some stack manipulation words.
 : NIP  SWAP DROP ;
 : TUCK SWAP OVER ;
-\ : DISCARD ( XU ... X0 U ) TIMES DROP LOOP ;
+: DISCARD ?( x_k ... x_0 k -- ) TIMES DROP LOOP ;
 
 \ Deferring. Note: since the standard library is shared between all processes,
 \ DEFER must not be used here, since the definition will be global.
@@ -165,7 +169,7 @@ $20 CONSTANT BL
   ; IMMEDIATE
 
 \ Aborting.
-: ABORT-DEFAULT ( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
+: ABORT-DEFAULT ?( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
 ' ABORT-DEFAULT IS-ABORT
 : ABORT"
   COMPILING 0=
@@ -186,7 +190,20 @@ $20 CONSTANT BL
 : MOD /MOD DROP ;
 
 \ Access to the IPB.
-: IPB ( n -- u ) CELLS $1ffff8 @ + @ ;
+: IPB ?( n -- u ) CELLS $1ffff8 @ + @ ;
+
+\ Reading documentation.
+: DOCS ?( "<spaces>name" -- )
+  PARSE-NAME 2DUP DUP ABORT" Missing word for DOCS"
+  FIND-HEADER ?IF
+    8 + @ ?IF
+      -ROT ." Documentation for " TYPE ." : " COUNT TYPELN
+    ELSE
+      ." No docs for word " TYPELN
+    THEN
+  ELSE
+    ." No such word " TYPELN
+  THEN ;
 
 .( Done with std.f!)
 

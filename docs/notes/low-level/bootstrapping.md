@@ -25,7 +25,7 @@ Standard Library
 
 This is currently `src/amd64/forth/std.f`. Words mentioned in the core word set of the Forth 2012 standard are generally defined here. This file should be portable between different architectures that share the same cell size, word layout, etc.
 
-Startup
--------
+Init
+----
 
-This is currently `src/amd64/forth/startup.f`. StahlOS primitives are defined here, as are some helper words. This file should be completely portable between different architectures.
+This is currently `src/amd64/forth/init.f`. This file finishes initializing hardware, and begins loading startup programs (as specified as Multiboot2 modules).

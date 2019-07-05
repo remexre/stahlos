@@ -65,8 +65,8 @@ defcode rpick, "RPICK", 1
 defcode rpick_addr, "RPICK-ADDR", 1
 defcode s_quote_impl, '(S")',
 defcode s_to_d, "S>D", 1
-defcode source_buffer, "(SOURCE-BUFFER)"
-defcode source_length, "(SOURCE-LENGTH)"
+defcode source_buffer, "SOURCE-BUFFER"
+defcode source_length, "SOURCE-LENGTH"
 defcode state_compile, "]"
 defcode state_interpret, "[", 0, 0x01
 defcode store, "!", 2

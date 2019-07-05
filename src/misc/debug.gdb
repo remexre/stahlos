@@ -2,6 +2,7 @@ add-symbol-file out/stahlos.sym 0
 
 break *0
 break bp_handler
+break underflow
 
 source src/misc/gdb_tools.py
 

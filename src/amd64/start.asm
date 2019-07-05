@@ -98,7 +98,7 @@ endcolon
 cold_code:
 	incbin "src/amd64/forth/std.f"
 	db 0x0a
-	incbin "src/amd64/forth/startup.f"
+	incbin "src/amd64/forth/init.f"
 .len equ $-cold_code
 
 ; vi: cc=80 ft=nasm

@@ -130,6 +130,6 @@ tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
 
-tmp/amd64/start.o: src/amd64/forth/std.f src/amd64/forth/startup.f
+tmp/amd64/start.o: src/amd64/forth/std.f src/amd64/forth/init.f
 out/utils/aes_tests: tmp/amd64/kernel/aes.o tmp/utils/aes_helpers.o
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o

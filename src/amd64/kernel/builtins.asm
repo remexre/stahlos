@@ -423,12 +423,12 @@ defcode s_to_d, "S>D", 1
 	sar rbx, 31
 endcode
 
-defcode source_buffer, "(SOURCE-BUFFER)"
+defcode source_buffer, "SOURCE-BUFFER"
 	push rbx
 	lea rbx, [r15+16]
 endcode
 
-defcode source_length, "(SOURCE-LENGTH)"
+defcode source_length, "SOURCE-LENGTH"
 	push rbx
 	lea rbx, [r15+24]
 endcode
