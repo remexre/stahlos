@@ -1,17 +1,26 @@
 %define last_defined_word 0
 %define indef 0 ; 1 = defcode, 2 = defcolon
 
-%macro defcode 4 ; symbol name, name, num args, flags
+%macro defcode 5 ; symbol name, name, num args, flags, docs
 	%if indef
 		%error "defcode in existing definition"
 	%else
 		%define indef 1
 	%endif
+%%docs:
+	%strlen %%doclen %5
+	%if %%doclen <> 0
+		db %%doclen, %5
+	%endif
 global forth_%1.cfa
 %strlen %%namelen %2
 forth_%1:
 	dq last_defined_word
-	dq 0
+	%if %%doclen = 0
+		dq 0
+	%else
+		dq %%docs
+	%endif
 %define last_defined_word forth_%1
 	db %4, %%namelen, %2
 .cfa:
@@ -32,6 +41,9 @@ forth_%1:
 	jmp rax
 %endmacro
 
+%macro defcode 4
+	defcode %1, %2, %3, %4, ""
+%endmacro
 %macro defcode 3
 	defcode %1, %2, %3, 0x00
 %endmacro

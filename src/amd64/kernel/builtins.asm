@@ -14,19 +14,19 @@ global forth_last_builtin
 
 [section .forth_builtins]
 
-defcode abs, "ABS", 1
+defcode abs, "ABS", 1, 0x00, "n -- u"
 	test rbx, rbx
 	jns .end
 	neg rbx
 .end:
 endcode
 
-defcode add, "+", 2
+defcode add, "+", 2, 0x00, "x y -- x+y"
 	pop rax
 	add rbx, rax
 endcode
 
-defcode add_store, "+!", 2
+defcode add_store, "+!", 2, 0x00, "n addr --"
 	pop rax
 	add [rbx], rax
 	pop rbx
@@ -34,53 +34,53 @@ endcode
 
 ; This is just in assembly for convenience (oddly enough). 3 instructions of
 ; assembly versus 7 words (shortest I could find was DUP >R - SWAP R> + SWAP).
-defcode adjust_string, "/STRING", 3
+defcode adjust_string, "/STRING", 3, 0x00, "addr u n -- addr+n u-n"
 	sub [rsp], rbx
 	add [rsp+8], rbx
 	pop rbx
 endcode
 
-defcode allot, "ALLOT", 1
+defcode allot, "ALLOT", 1, 0x00, "n -- "
 	add [ipb.here], rbx
 	pop rbx
 endcode
 
-defcode and, "AND", 2
+defcode and, "AND", 2, 0x00, "x y -- x&y"
 	pop rax
 	and rbx, rax
 endcode
 
-defcode arith_right_shift, "ARSHIFT", 2
+defcode arith_right_shift, "ARSHIFT", 2, 0x00, "x y -- x>>>y"
 	mov rcx, rbx
 	pop rbx
 	sar rbx, cl
 endcode
 
-defcode base_decimal, "DECIMAL"
+defcode base_decimal, "DECIMAL", 0, 0x00, "--"
 	and byte [r15+48], 0xfe
 endcode
 
-defcode empty_return_stack, "EMPTY-RETURN-STACK"
+defcode empty_return_stack, "EMPTY-RETURN-STACK", 0, 0x00, "R: u_k ... u_0 --"
 	lea rbp, [r14-8]
 endcode
 
-defcode base_hex, "HEX"
+defcode base_hex, "HEX", 0, 0x00, "--"
 	or byte [r15+48], 0x01
 endcode
 
-defcode cell, "CELLS", 1
+defcode cell, "CELLS", 1, 0x00, "u -- u"
 	shl rbx, 3
 endcode
 
-defcode cell_plus, "CELL+", 1
+defcode cell_plus, "CELL+", 1, 0x00, "u -- u"
 	add rbx, 8
 endcode
 
-defcode decr, "1-", 1
+defcode decr, "1-", 1, 0x00, "n -- n"
 	dec rbx
 endcode
 
-defcode depth, "DEPTH"
+defcode depth, "DEPTH", 0, 0x00, "u_k ... u_0 -- u_k ... u_0 k"
 	push rbx
 	mov rbx, r13
 	sub rbx, rsp
@@ -115,22 +115,22 @@ defcode dovar, "((DOVAR))"
 	lea rbx, [rax+5]
 endcode
 
-defcode drop, "DROP", 1
+defcode drop, "DROP", 1, 0x00, "x --"
 	pop rbx
 endcode
 
-defcode dup, "DUP", 1
+defcode dup, "DUP", 1, 0x00, "x -- x x"
 	push rbx
 endcode
 
-defcode dup_nonzero, "?DUP", 1
+defcode dup_nonzero, "?DUP", 1, 0x00, "x -- 0 | x x"
 	test rbx, rbx
 	jz .exit
 	push rbx
 .exit:
 endcode
 
-defcode equal, "=", 2
+defcode equal, "=", 2, 0x00, "x y -- flag"
 	pop rax
 	xor rdx, rdx
 	cmp rax, rbx
@@ -155,24 +155,24 @@ defcode exit, "EXIT"
 	add rbp, 8
 endcode
 
-defcode false, "FALSE"
+defcode false, "FALSE", 0, 0x00, "-- 0"
 	push rbx
 	xor rbx, rbx
 endcode
 
-defcode fetch, "@", 1
+defcode fetch, "@", 1, 0x00, "addr -- x"
 	mov rbx, [rbx]
 endcode
 
-defcode fetch_char, "C@", 1
+defcode fetch_char, "C@", 1, 0x00, "addr -- char"
 	movzx rbx, byte [rbx]
 endcode
 
-defcode fetch_dword, "D@", 1
+defcode fetch_dword, "D@", 1, 0x00, "addr -- dword"
 	mov ebx, [rbx]
 endcode
 
-defcode fetch_word, "W@", 1
+defcode fetch_word, "W@", 1, 0x00, "addr -- word"
 	movzx rbx, word [rbx]
 endcode
 
@@ -201,7 +201,7 @@ defcode from_r_2, "2R>"
 	add rbp, 16
 endcode
 
-defcode get_base, "GET-BASE"
+defcode get_base, "GET-BASE", 0, 0x00, "-- base"
 	test byte [r15+48], 0x01
 	push rbx
 	mov rbx, 10
@@ -209,7 +209,7 @@ defcode get_base, "GET-BASE"
 	cmovnz rbx, rax
 endcode
 
-defcode get_state, "GET-STATE"
+defcode get_state, "GET-STATE", 0, 0x00, "-- flag"
 	push rbx
 	xor rbx, rbx
 	test byte [r15+48], 0x02
@@ -217,12 +217,12 @@ defcode get_state, "GET-STATE"
 	dec rbx
 endcode
 
-defcode here, "HERE"
+defcode here, "HERE", 0, 0x00, "-- addr"
 	push rbx
 	mov rbx, [ipb.here]
 endcode
 
-defcode hlt, "HLT"
+defcode hlt, "HLT", 0, 0x00, "--"
 	hlt
 endcode
 
@@ -233,21 +233,21 @@ defcode if_impl, "(IF)", 1
 	cmovz rsi, rax
 endcode
 
-defcode inb, "INB", 1
+defcode inb, "INB", 1, 0x00, "port -- char"
 	mov dx, bx
 	in al, dx
 	movzx rbx, al
 endcode
 
-defcode incr, "1+", 1
+defcode incr, "1+", 1, 0x00, "n -- n+1"
 	inc rbx
 endcode
 
-defcode int3, "INT3"
+defcode int3, "INT3", 0, 0x00, "--"
 	int3
 endcode
 
-defcode invert, "INVERT", 1
+defcode invert, "INVERT", 1, 0x00, "u -- ~u"
 	not rbx
 endcode
 
@@ -256,7 +256,7 @@ defcode jump_impl, "(JUMP)"
 	mov rsi, rax
 endcode
 
-defcode left_shift, "LSHIFT", 2
+defcode left_shift, "LSHIFT", 2, 0x00, "x y -- x<<y"
 	mov rcx, rbx
 	pop rbx
 	shl rbx, cl
@@ -281,7 +281,7 @@ defcode mul_d, "*D", 2
 	mov rbx, rax
 endcode
 
-defcode mul_div_mod, "*/MOD", 3
+defcode mul_div_mod, "*/MOD", 3, 0x00, "x y z -- x*y%z x*y/z"
 	pop rax
 	pop rdx
 	imul rdx
@@ -333,27 +333,27 @@ endcode
 .buf: times 32 db 0
 .chrs: db "0123456789abcdef"
 
-defcode negate, "NEGATE", 1
+defcode negate, "NEGATE", 1, 0x00, "n -- -n"
 	neg rbx
 endcode
 
-defcode noop, "NOOP"
+defcode noop, "NOOP", 0, 0x00, "--"
 	nop
 endcode
 
-defcode or, "OR", 2
+defcode or, "OR", 2, 0x00, "x y -- x|y"
 	pop rax
 	or rbx, rax
 endcode
 
-defcode outb, "OUTB", 2
+defcode outb, "OUTB", 2, 0x00, "char port --"
 	mov dx, bx
 	pop rax
 	pop rbx
 	out dx, al
 endcode
 
-defcode outw, "OUTW", 2
+defcode outw, "OUTW", 2, 0x00, "word port --"
 	mov dx, bx
 	pop rax
 	pop rbx
@@ -377,20 +377,20 @@ defcode r_fetch, "R@"
 	mov rbx, [rbp]
 endcode
 
-defcode rev_rot, "-ROT", 3
+defcode rev_rot, "-ROT", 3, 0x00, "x y z -- z x y"
 	mov rax, [rsp+8]
 	mov [rsp+8], rbx
 	mov rbx, [rsp]
 	mov [rsp], rax
 endcode
 
-defcode right_shift, "RSHIFT", 2
+defcode right_shift, "RSHIFT", 2, 0x00, "x y -- x>>y"
 	mov rcx, rbx
 	pop rbx
 	shr rbx, cl
 endcode
 
-defcode rot, "ROT", 3
+defcode rot, "ROT", 3, 0x00, "x y z -- y z x"
 	mov rax, [rsp]
 	mov [rsp], rbx
 	mov rbx, [rsp+8]
@@ -441,31 +441,31 @@ defcode state_interpret, "[", 0, 0x01
 	and byte [r15+48], 0xfd
 endcode
 
-defcode store, "!", 2
+defcode store, "!", 2, 0x00, "x addr --"
 	pop rax
 	mov [rbx], rax
 	pop rbx
 endcode
 
-defcode store_char, "C!", 2
+defcode store_char, "C!", 2, 0x00, "char addr --"
 	pop rax
 	mov [rbx], al
 	pop rbx
 endcode
 
-defcode store_dword, "D!", 2
+defcode store_dword, "D!", 2, 0x00, "dword addr --"
 	pop rax
 	mov [rbx], eax
 	pop rbx
 endcode
 
-defcode store_word, "W!", 2
+defcode store_word, "W!", 2, 0x00, "word addr --"
 	pop rax
 	mov [rbx], ax
 	pop rbx
 endcode
 
-defcode streq, "STRING=", 4
+defcode streq, "STRING=", 4, 0x00, "addr u addr u -- flag"
 	; ( addr1 len1 addr2 len2 ) mapped to
 	; ( rdx   rcx  rdi   rax  )
 	mov rdi, [rsp]
@@ -496,13 +496,13 @@ defcode streq, "STRING=", 4
 .fail:
 endcode
 
-defcode sub, "-", 2
+defcode sub, "-", 2, 0x00, "x y -- x-y"
 	pop rax
 	sub rax, rbx
 	mov rbx, rax
 endcode
 
-defcode swap, "SWAP", 2
+defcode swap, "SWAP", 2, 0x00, "x y -- y x"
 	xchg [rsp], rbx
 endcode
 
@@ -518,7 +518,7 @@ defcode test_flag, "TEST-FLAG", 2
 .exit:
 endcode
 
-defcode to_in, ">IN"
+defcode to_in, ">IN", 0, 0x00, "-- addr"
 	push rbx
 	lea rbx, [r15+32]
 endcode
