@@ -85,7 +85,7 @@ test: out/stahlos.img out/utils/aes_tests out/utils/to_number_tests
 	expect src/misc/tests.exp
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
-	watchexec -cre asm,c,cfg,f,inc,ld,md $(MAKE) all test
+	watchexec -cre asm,c,cfg,f,inc,ld,md $(MAKE) all docs test
 .PHONY: all clean disas docs help image install kernel run test utils watch
 
 ci:

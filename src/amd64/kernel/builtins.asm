@@ -76,6 +76,19 @@ defcode cell_plus, "CELL+", 1, 0x00, "u -- u"
 	add rbx, 8
 endcode
 
+defcode context_switch, "CONTEXT-SWITCH", 1, 0x00, "addr --"
+	mov [r15+0xe8], rsi
+	mov [r15+0xf0], rsp
+	mov [r15+0xf8], rbp
+	mov r15, rbx
+	mov rsi, [r15+0xe8]
+	mov rsp, [r15+0xf0]
+	mov rbp, [r15+0xf8]
+	lea r13, [r15+0x400]
+	lea r14, [r15+0x200]
+	pop rbx
+endcode
+
 defcode decr, "1-", 1, 0x00, "n -- n"
 	dec rbx
 endcode

@@ -1,4 +1,5 @@
-: qemu-shutdown $2000 $604 OUTW BEGIN HLT AGAIN ;
+: qemu-shutdown ?( --)
+  $2000 $604 OUTW BEGIN HLT AGAIN ;
 ' qemu-shutdown IS-QUIT
 
 .( Done with init.f!)
