@@ -19,6 +19,7 @@ Additionally, for other targets, the following dependencies apply:
 -	[Bochs](http://bochs.sourceforge.net/), for the `run` target
 -	a C compiler and headers, for the `test` and `utils` targets
 -	[expect](https://core.tcl-lang.org/expect/index), for the `test` target
+-	[gdb](https://www.gnu.org/software/gdb/), version 8.3 or higher, for the `debug` target
 -	`objdump` (from binutils), for the `disas` target
 -	[QEMU](https://www.qemu.org/), for the `run-qemu` and `test` targets
 -	[watchexec](https://github.com/watchexec/watchexec), for the `watch` target
