@@ -31,6 +31,11 @@ CREATE ;
   SOURCE-REST DROP 2DUP SWAP 1- SWAP C! LATEST 8 + !
   1+ >IN +! ; IMMEDIATE
 
+\ Simple utils.
+: NIP ?( x y -- y) SWAP DROP ;
+: TUCK ?( x y -- y x y) SWAP OVER ;
+: ALIGN-TO-CELL ?( u -- u) 7 + 7 INVERT AND ;
+
 \ Words that are "deferred" through the user area.
 : ABORT USER-POINTER $38 + @ EXECUTE ;
 : BP USER-POINTER $40 + @ EXECUTE ;
@@ -44,7 +49,7 @@ CREATE ;
 
 \ Relative pointer write. This will probably only ever be useful for (re)writing
 \ CALL/JMP target addresses. addr should point to the byte after the 0xe8/0xe9.
-: D!REL ?( val addr -- ) SWAP OVER - 4 - SWAP D! ;
+: D!REL ?( val addr -- ) TUCK - 4 - SWAP D! ;
 : D,REL ?( val -- ) HERE 4 ALLOT D!REL ;
 
 \ DOES>. There might be a better way to define it than this. The inline assembly
@@ -71,18 +76,18 @@ VARIABLE (IF-IDX)
 : ENDIF HERE (IF-POP) ! ; IMMEDIATE
 : THEN POSTPONE ENDIF ; IMMEDIATE
 
-\ Break.
-8 ARRAY (BREAK-STACK)
-VARIABLE (BREAK-IDX)
-: (BREAK-PUSH) ?( addr -- ) (BREAK-IDX) @ (BREAK-STACK) ! 1 (BREAK-IDX) +! ;
-: (BREAK-POP) ?( -- addr ) -1 (BREAK-IDX) +! (BREAK-IDX) @ (BREAK-STACK) @ ;
-: BREAK COMPILING (JUMP) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
-: (RESOLVE-BREAKS) ?( -- )
+\ Leave.
+8 ARRAY (LEAVE-STACK)
+VARIABLE (LEAVE-IDX)
+: (LEAVE-PUSH) ?( addr -- ) (LEAVE-IDX) @ (LEAVE-STACK) ! 1 (LEAVE-IDX) +! ;
+: (LEAVE-POP) ?( -- addr ) -1 (LEAVE-IDX) +! (LEAVE-IDX) @ (LEAVE-STACK) @ ;
+: LEAVE COMPILING (JUMP) HERE (LEAVE-PUSH) 0 , ; IMMEDIATE
+: (RESOLVE-LEAVES) ?( -- )
   \ We're manually building a BEGIN-WHILE-REPEAT loop, since it's not yet
   \ definable.
   [ HERE ]
-  (BREAK-IDX) @ 0= IF (JUMP) [ HERE SWAP 0 , ] THEN
-  HERE (BREAK-POP) ! (JUMP) [ , HERE SWAP ! ] ;
+  (LEAVE-IDX) @ 0= IF (JUMP) [ HERE SWAP 0 , ] THEN
+  HERE (LEAVE-POP) ! (JUMP) [ , HERE SWAP ! ] ;
 
 \ Loops.
 8 ARRAY (LOOP-STACK)
@@ -90,8 +95,8 @@ VARIABLE (LOOP-IDX)
 : (LOOP-PUSH) ?( addr -- ) (LOOP-IDX) @ (LOOP-STACK) ! 1 (LOOP-IDX) +! ;
 : (LOOP-POP) ?( -- addr ) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
 : BEGIN HERE (LOOP-PUSH) ; IMMEDIATE
-: AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-BREAKS) ; IMMEDIATE
-: WHILE COMPILING (IF) HERE (BREAK-PUSH) 0 , ; IMMEDIATE
+: AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-LEAVES) ; IMMEDIATE
+: WHILE COMPILING (IF) HERE (LEAVE-PUSH) 0 , ; IMMEDIATE
 : REPEAT POSTPONE AGAIN ; IMMEDIATE
 
 : (DO) R> -ROT 2>R 3 CELLS + >R ;
@@ -99,27 +104,26 @@ VARIABLE (LOOP-IDX)
   R> DUP @ SWAP CELL+
   R> R>
   2DUP = IF
-    3 PICK >R DROP DROP DROP DROP
+    INT3 3 PICK >R DROP DROP DROP DROP
   ELSE
     >R >R >R DROP
   THEN ;
-: (+LOOP) R> R> R> 3 PICK + >R >R SWAP DROP @ >R ;
+: (+LOOP) R> R> 2 PICK + >R NIP @ >R ;
 
-: ?DO COMPILING 2>R HERE COMPILING (?DO) HERE 0 , (LOOP-PUSH) (LOOP-PUSH) ; IMMEDIATE
-: DO COMPILING (DO) POSTPONE ?DO ; IMMEDIATE
-: +LOOP COMPILING (+LOOP) (LOOP-POP) , HERE (LOOP-POP) ! ; IMMEDIATE
-: LOOP COMPILING (LITERAL) 1 , POSTPONE +LOOP ; IMMEDIATE
+: ?DO ?( limit base --)
+  COMPILING 2>R HERE COMPILING (?DO) HERE 0 , (LOOP-PUSH) (LOOP-PUSH) ; IMMEDIATE
+: DO ?( limit base --) COMPILING (DO) POSTPONE ?DO ; IMMEDIATE
+: +LOOP ?( n --)
+  COMPILING (+LOOP)
+  (LOOP-POP) , HERE (LOOP-POP) ! (RESOLVE-LEAVES)
+  COMPILING INT3 COMPILING RDROP COMPILING RDROP ; IMMEDIATE
+: LOOP ?( --) COMPILING (LITERAL) 1 , POSTPONE +LOOP ; IMMEDIATE
 
-: TIMES COMPILING FALSE COMPILING SWAP POSTPONE ?DO ; IMMEDIATE
+: TIMES COMPILING FALSE POSTPONE ?DO ; IMMEDIATE
 
-: I 2 RPICK ;
-: J 4 RPICK ;
-: K 6 RPICK ;
-
-\ Some stack manipulation words.
-: NIP  SWAP DROP ;
-: TUCK SWAP OVER ;
-: DISCARD ?( x_k ... x_0 k -- ) TIMES DROP LOOP ;
+: I 1 RPICK ;
+: J 3 RPICK ;
+: K 5 RPICK ;
 
 \ Deferring. Note: since the standard library is shared between all processes,
 \ DEFER must not be used here, since the definition will be global.
@@ -135,7 +139,7 @@ VARIABLE (LOOP-IDX)
 
 \ I/O primitives.
 :NONAME $e9 OUTB ; IS-EMIT
-: TYPE TIMES DUP I + C@ EMIT LOOP DROP ;
+: TYPE INT3 TIMES DUP I + C@ EMIT LOOP DROP ;
 $0a CONSTANT NL
 $20 CONSTANT BL
 : CR    NL EMIT ;
@@ -168,8 +172,12 @@ $20 CONSTANT BL
   GET-STATE IF COMPILING TYPE ELSE TYPE ENDIF
   ; IMMEDIATE
 
+\ More utils.
+: CSTR>STR ?( addr -- addr len) DUP BEGIN DUP C@ WHILE 1+ REPEAT OVER - ;
+: DISCARD ?( x_k ... x_0 k -- ) TIMES DROP LOOP ;
+
 \ Aborting.
-: ABORT-DEFAULT ?( k*n -- ) BEGIN DEPTH WHILE DROP REPEAT QUIT ;
+: ABORT-DEFAULT ?( k*n -- ) DEPTH DISCARD QUIT ;
 ' ABORT-DEFAULT IS-ABORT
 : ABORT"
   COMPILING 0=
@@ -193,11 +201,11 @@ $20 CONSTANT BL
 : IPB ?( n -- u ) CELLS $1ffff8 @ + @ ;
 
 \ Reading documentation.
-: DOCS ?( "<spaces>name" -- )
-  PARSE-NAME 2DUP DUP ABORT" Missing word for DOCS"
+: ? ?( "<spaces>name" -- )
+  PARSE-NAME 2DUP DUP ABORT" Missing word for ?"
   FIND-HEADER ?IF
     8 + @ ?IF
-      -ROT ." Documentation for " TYPE ." : " COUNT TYPELN
+      -ROT ." Documentation for " TYPE ." : (" COUNT TYPE ." )" CR
     ELSE
       ." No docs for word " TYPELN
     THEN

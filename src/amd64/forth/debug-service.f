@@ -13,6 +13,6 @@ $ffffffffffffffff constant message-pong
   endcase
   again ;
 
-: spawn-debug-service ['] debug-service-main spawn ;
+: spawn-debug-service 0 ['] debug-service-main spawn ;
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

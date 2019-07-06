@@ -152,7 +152,7 @@ defcode equal, "=", 2, 0x00, "x y -- flag"
 	mov rbx, rdx
 endcode
 
-defcode execute, "EXECUTE", 1
+defcode execute, "EXECUTE", 1, 0x00, "i*x xt -- j*x"
 	mov rax, rbx
 	pop rbx
 	jmp rax
@@ -378,6 +378,14 @@ defcode pick, "PICK", 1
 	cmp r13, rbx
 	jb underflow
 	mov rbx, [rbx]
+endcode
+
+defcode r_drop, "RDROP", 0, 0x00, "R: x --"
+	; Check for return underflow.
+	lea rcx, [rbp+8]
+	cmp r14, rcx
+	jb underflow_return
+	add rbp, 8
 endcode
 
 defcode r_fetch, "R@"

@@ -69,6 +69,40 @@ def hd(args, frame, stack, read):
 
 
 @command
+def nf(args, frame, stack, read):  # next forth
+    stop = False
+    while True:
+        gdb.execute('stepi')
+        frame = gdb.selected_frame()
+        rip = frame.read_register('rip')
+        if stop:
+            break
+        if read(rip, 2) == b'\xff\xe0':
+            stop = True
+    if '+' in str(rip) or '<' not in str(rip):
+        gdb.execute('disas {},+64'.format(int(rip)))
+    else:
+        gdb.execute('disas')
+
+
+@command
+def rstack(args, frame, stack, read):
+    assert len(args) == 0
+
+    rbp = int(frame.read_register('rbp'))
+    r14 = int(frame.read_register('r14'))
+
+    rstack = []
+    for i in range((r14 - rbp) // 8):
+        addr = rbp + 8 * i
+        rstack.append(read(addr, 8, 'Q')[0])
+    out = '<{}>'.format(len(rstack))
+    while len(rstack) != 0:
+        out += ' {:x}'.format(rstack.pop())
+    print(out)
+
+
+@command
 def stack(args, frame, stack, read):
     assert len(args) == 0
     out = '<{}>'.format(len(stack))
