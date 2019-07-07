@@ -68,7 +68,7 @@ mb2 D@ mb2 + CONSTANT mb2-end ?( The multiboot2 info structure's end address)
 
 traverse-mb2 .S
 
-.( Done with init.f!)
+.( Done with init.fs!)
 QUIT
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

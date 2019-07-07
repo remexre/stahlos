@@ -223,6 +223,6 @@ $20 CONSTANT BL
   THEN ;
 
 CREATE (STD-MARKER)
-.( Done with std.f!)
+.( Done with std.fs!)
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :
