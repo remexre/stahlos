@@ -69,7 +69,7 @@ def hd(args, frame, stack, read):
 
 
 @command
-def nf(args, frame, stack, read):  # next forth
+def fn(args, frame, stack, read):  # forth next
     stop = False
     while True:
         gdb.execute('stepi')

@@ -43,6 +43,7 @@ debug: out/stahlos.img out/stahlos.sym
 		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
 		-m 64M \
 		-display none \
+		-no-reboot \
 		$(QEMUFLAGS) & \
 		sleep 0.5; \
 		gdb -x src/misc/debug.gdb; \
