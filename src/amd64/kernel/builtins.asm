@@ -230,6 +230,15 @@ defcode get_state, "GET-STATE", 0, 0x00, "-- flag"
 	dec rbx
 endcode
 
+defcode greater, ">", 2, 0x00, "n1 n2 -- n1>n2"
+	pop rax
+	xor rdx, rdx
+	cmp rax, rbx
+	setle dl
+	dec rdx
+	mov rbx, rdx
+endcode
+
 defcode here, "HERE", 0, 0x00, "-- addr"
 	push rbx
 	mov rbx, [ipb.here]
@@ -273,6 +282,15 @@ defcode left_shift, "LSHIFT", 2, 0x00, "x y -- x<<y"
 	mov rcx, rbx
 	pop rbx
 	shl rbx, cl
+endcode
+
+defcode less, "<", 2, 0x00, "n1 n2 -- n1<n2"
+	pop rax
+	xor rdx, rdx
+	cmp rax, rbx
+	setge dl
+	dec rdx
+	mov rbx, rdx
 endcode
 
 defcode literal_impl, "(LITERAL)"

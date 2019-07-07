@@ -75,7 +75,6 @@ kernel: out/stahlos.elf
 run: out/stahlos.img
 	qemu-system-x86_64 \
 		-accel kvm \
-		-d cpu_reset -d guest_errors -d int \
 		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
 		-m 64M \
 		-machine q35 \

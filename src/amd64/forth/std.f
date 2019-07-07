@@ -32,10 +32,18 @@ CREATE ;
   1+ >IN +! ; IMMEDIATE
 
 \ Simple utils.
+: 2SWAP >R -ROT R> -ROT ;
 : NIP ?( x y -- y) SWAP DROP ;
 : TUCK ?( x y -- y x y) SWAP OVER ;
 : ALIGN-TO-CELL ?( u -- u) 7 + 7 INVERT AND ;
 : RETURN ?( --) RDROP ;
+: WITHIN ?( x l u -- l<=x&&x<u) OVER - >R - R> U< ;
+
+\ Comparisons.
+: <= > INVERT ;
+: >= < INVERT ;
+: U<= U> INVERT ;
+: U>= U< INVERT ;
 
 \ Words that are "deferred" through the user area.
 : ABORT USER-POINTER $38 + @ EXECUTE ;

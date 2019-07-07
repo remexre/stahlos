@@ -12,7 +12,7 @@ SECTIONS {
 		*(.text32)
 	}
 
-	. = 1M + 0x100;
+	/*. = 1M + 0x100;*/
 	.kernel : {
 		*(.text)
 		*(.forth_builtins)
