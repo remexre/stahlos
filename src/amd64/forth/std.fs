@@ -32,7 +32,8 @@ CREATE ;
   1+ >IN +! ; IMMEDIATE
 
 \ Simple utils.
-: 2SWAP >R -ROT R> -ROT ;
+: 2SWAP ?( x y z w -- z w x y) >R -ROT R> -ROT ;
+: 2OVER ?( x y z w -- x y z w x y) 2>R 2DUP 2R> 2SWAP ;
 : NIP ?( x y -- y) SWAP DROP ;
 : TUCK ?( x y -- y x y) SWAP OVER ;
 : ALIGN-TO-CELL ?( u -- u) 7 + 7 INVERT AND ;
@@ -46,15 +47,15 @@ CREATE ;
 : U>= U< INVERT ;
 
 \ Words that are "deferred" through the user area.
-: ABORT USER-POINTER $38 + @ EXECUTE ;
-: BP USER-POINTER $40 + @ EXECUTE ;
-: EMIT ?( char -- ) USER-POINTER $48 + @ EXECUTE ;
-: QUIT EMPTY-RETURN-STACK USER-POINTER $50 + @ EXECUTE ;
+: ABORT USER-POINTER $40 + @ EXECUTE ;
+: BP USER-POINTER $48 + @ EXECUTE ;
+: EMIT ?( char -- ) USER-POINTER $50 + @ EXECUTE ;
+: QUIT EMPTY-RETURN-STACK USER-POINTER $58 + @ EXECUTE ;
 
-: IS-ABORT ?( addr -- ) USER-POINTER $38 + ! ;
-: IS-BP ?( addr -- ) USER-POINTER $40 + ! ;
-: IS-EMIT ?( addr -- ) USER-POINTER $48 + ! ;
-: IS-QUIT ?( addr -- ) USER-POINTER $50 + ! ;
+: IS-ABORT ?( addr -- ) USER-POINTER $40 + ! ;
+: IS-BP ?( addr -- ) USER-POINTER $48 + ! ;
+: IS-EMIT ?( addr -- ) USER-POINTER $50 + ! ;
+: IS-QUIT ?( addr -- ) USER-POINTER $58 + ! ;
 
 \ Relative pointer write. This will probably only ever be useful for (re)writing
 \ CALL/JMP target addresses. addr should point to the byte after the 0xe8/0xe9.

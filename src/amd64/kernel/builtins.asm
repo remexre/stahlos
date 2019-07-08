@@ -3,6 +3,7 @@ bits 64
 %include "src/amd64/macros.inc"
 %include "src/amd64/kernel/macros.inc"
 
+extern allot_overflow
 extern ipb
 extern ipb.here
 extern to_number
@@ -41,7 +42,11 @@ defcode adjust_string, "/STRING", 3, 0x00, "addr u n -- addr+n u-n"
 endcode
 
 defcode allot, "ALLOT", 1, 0x00, "n -- "
-	add [ipb.here], rbx
+	mov rax, rbx
+	xadd [ipb.here], rax
+	add rbx, rax
+	cmp rbx, 0x300000
+	jae allot_overflow
 	pop rbx
 endcode
 
@@ -57,7 +62,7 @@ defcode arith_right_shift, "ARSHIFT", 2, 0x00, "x y -- x>>>y"
 endcode
 
 defcode base_decimal, "DECIMAL", 0, 0x00, "--"
-	and byte [r15+48], 0xfe
+	and byte [r15+0x28], 0xfe
 endcode
 
 defcode empty_return_stack, "EMPTY-RETURN-STACK", 0, 0x00, "R: u_k ... u_0 --"
@@ -65,7 +70,7 @@ defcode empty_return_stack, "EMPTY-RETURN-STACK", 0, 0x00, "R: u_k ... u_0 --"
 endcode
 
 defcode base_hex, "HEX", 0, 0x00, "--"
-	or byte [r15+48], 0x01
+	or byte [r15+0x28], 0x01
 endcode
 
 defcode cell, "CELLS", 1, 0x00, "u -- u"
@@ -215,7 +220,7 @@ defcode from_r_2, "2R>"
 endcode
 
 defcode get_base, "GET-BASE", 0, 0x00, "-- base"
-	test byte [r15+48], 0x01
+	test byte [r15+0x28], 0x01
 	push rbx
 	mov rbx, 10
 	mov rax, 16
@@ -225,7 +230,7 @@ endcode
 defcode get_state, "GET-STATE", 0, 0x00, "-- flag"
 	push rbx
 	xor rbx, rbx
-	test byte [r15+48], 0x02
+	test byte [r15+0x28], 0x02
 	setz bl
 	dec rbx
 endcode
@@ -331,7 +336,7 @@ defcode n_to_str, "N>STR", 1
 	neg rax
 
 .not_neg:
-	test byte [r15+48], 0x01
+	test byte [r15+0x28], 0x01
 	mov rbx, 10
 	mov rcx, 16
 	cmovnz rbx, rcx ; rbx = base
@@ -464,20 +469,20 @@ endcode
 
 defcode source_buffer, "SOURCE-BUFFER"
 	push rbx
-	lea rbx, [r15+16]
+	lea rbx, [r15+0x08]
 endcode
 
 defcode source_length, "SOURCE-LENGTH"
 	push rbx
-	lea rbx, [r15+24]
+	lea rbx, [r15+0x10]
 endcode
 
 defcode state_compile, "]"
-	or byte [r15+48], 0x02
+	or byte [r15+0x28], 0x02
 endcode
 
 defcode state_interpret, "[", 0, 0x01
-	and byte [r15+48], 0xfd
+	and byte [r15+0x28], 0xfd
 endcode
 
 defcode store, "!", 2, 0x00, "x addr --"
@@ -559,12 +564,12 @@ endcode
 
 defcode to_in, ">IN", 0, 0x00, "-- addr"
 	push rbx
-	lea rbx, [r15+32]
+	lea rbx, [r15+0x18]
 endcode
 
 defcode to_number, ">NUMBER", 2
 	; ( addr len -- num 1 | 0 )
-	test byte [r15+48], 0x01
+	test byte [r15+0x28], 0x01
 	mov rdi, 10
 	mov rax, 16
 	cmovnz rdi, rax

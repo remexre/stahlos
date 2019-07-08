@@ -39,11 +39,11 @@ User Area
 
 ```
    0 +--------------------+--------------------+--------------------+--------------------+
-     |   Head of Mailbox  |   Tail of Mailbox  |   Start of Source  |  Length of Source  |
+     |     Process ID     |   Start of Source  |  Length of Source  |     Input Offset   |
   32 +--------------------+--------------------+--------------------+--------------------+
-     |     Input Offset   |   Dictionary Head  |        Flags       |      ABORT xt      |
+	 |   Dictionary Head  |        Flags       |   Head of Mailbox  |   Tail of Mailbox  |
   64 +--------------------+--------------------+--------------------+--------------------+
-     |        BP xt       |       EMIT xt      |       QUIT xt      |      Reserved      |
+	 |      ABORT xt      |        BP xt       |       EMIT xt      |       QUIT xt      |
   96 +--------------------+--------------------+--------------------+--------------------+
     ...                                    Reserved                                     ...
  224 +--------------------+--------------------+--------------------+--------------------+

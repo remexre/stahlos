@@ -70,18 +70,30 @@ begincolon
 	word user_pointer
 	lit ifa + (1 << 16)/8
 	word store
+	;   Write the PID.
+	lit 0
+	lit ifa + (1 << 16)/8 + (1 << 16) + 0x00
+	word store
 	;   Write the source code start canary.
 	lit "SRCSTART"
-	lit ifa + (1 << 16)/8 + (1 << 16) + 16
+	lit ifa + (1 << 16)/8 + (1 << 16) + 0x08
 	word store
 	;   Write the source code length canary.
 	lit "SRC__LEN"
-	lit ifa + (1 << 16)/8 + (1 << 16) + 24
+	lit ifa + (1 << 16)/8 + (1 << 16) + 0x10
 	word store
-	;   Write the dictionary pointer
+	;   Write the source code offset canary.
+	lit "SRC__>IN"
+	lit ifa + (1 << 16)/8 + (1 << 16) + 0x18
+	word store
+	;   Write the dictionary pointer.
 	lit forth_last_pseudobuiltin
 	word fetch
-	lit ifa + (1 << 16)/8 + (1 << 16) + 40
+	lit ifa + (1 << 16)/8 + (1 << 16) + 0x20
+	word store
+	;   Write the flags.
+	lit 0
+	lit ifa + (1 << 16)/8 + (1 << 16) + 0x28
 	word store
 
 	; Switch to hex, for convenience.

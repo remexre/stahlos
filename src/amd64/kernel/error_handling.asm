@@ -2,15 +2,24 @@ bits 64
 
 %include "src/amd64/macros.inc"
 
+global allot_overflow
 global cold_exited
 global init_kill
 global jmp_null
 global no_code_field
+global overflow
+global overflow_return
 global undefined_word
 global underflow
 global underflow_return
 
 [section .text]
+
+allot_overflow:
+	dbg `PANIC: allot_overflow loop\n`
+	cli
+	hlt
+	jmp allot_overflow
 
 cold_exited:
 	dbg `PANIC: cold_exited loop\n`
@@ -35,6 +44,18 @@ no_code_field:
 	cli
 	hlt
 	jmp cold_exited
+
+overflow:
+	dbg `PANIC: overflow loop\n`
+	cli
+	hlt
+	jmp overflow
+
+overflow_return:
+	dbg `PANIC: overflow_return loop\n`
+	cli
+	hlt
+	jmp overflow_return
 
 undefined_word:
 	dbg `PANIC: undefined_word loop: `

@@ -154,7 +154,7 @@ endcolon
 
 defcolon dict_head, "DICT-HEAD"
 	word user_pointer
-	lit 40
+	lit 0x20
 	word add
 endcolon
 
