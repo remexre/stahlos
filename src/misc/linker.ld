@@ -1,9 +1,10 @@
 ENTRY(start32)
 OUTPUT_FORMAT(elf64-x86-64)
 
-/* NOTE: It's important that the entire kernel fits between 1 and 3 MiB -- the allocator needs to
- * remove this region from the allocatable memory, otherwise eventually we might hand out part of
- * the kernel as allocated memory by accident! */
+/* NOTE: It's important that the entire kernel fits between 1 and 3 MiB -- the
+ * allocator needs to remove this region from the allocatable memory, otherwise
+ * eventually we might hand out part of the kernel as allocated memory by
+ * accident! */
 
 SECTIONS {
 	. = 1M;
@@ -12,7 +13,6 @@ SECTIONS {
 		*(.text32)
 	}
 
-	/*. = 1M + 0x100;*/
 	.kernel : {
 		*(.text)
 		*(.forth_builtins)

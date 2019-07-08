@@ -75,7 +75,7 @@ CREATE ;
   DOES> ?( n -- addr ) SWAP CELLS + ;
 
 \ Conditionals.
-8 ARRAY (IF-STACK)
+$10 ARRAY (IF-STACK)
 VARIABLE (IF-IDX)
 : (IF-PUSH) ?( n -- ) (IF-IDX) @ (IF-STACK) ! 1 (IF-IDX) +! ;
 : (IF-POP) ?( -- n ) -1 (IF-IDX) +! (IF-IDX) @ (IF-STACK) @ ;
@@ -183,7 +183,8 @@ $20 CONSTANT BL
 
 \ More utils.
 : CSTR>STR ?( addr -- addr len) DUP BEGIN DUP C@ WHILE 1+ REPEAT OVER - ;
-: DISCARD ?( x_k ... x_0 k -- ) TIMES DROP LOOP ;
+: DISCARD ?( x_k ... x_0 k --) TIMES DROP LOOP ;
+: WORDS ?( --) LATEST BEGIN DUP WHILE DUP HEADER>NAME COUNT TYPE SPACE @ REPEAT CR ;
 
 \ Aborting.
 : ABORT-DEFAULT ?( k*n -- ) DEPTH DISCARD QUIT ;

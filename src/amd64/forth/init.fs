@@ -2,6 +2,7 @@
   $2000 $604 OUTW BEGIN HLT AGAIN ;
 ' qemu-shutdown IS-QUIT
 
+\ This is guaranteed by the linker script.
 $100000 CONSTANT kernel-start
 $300000 CONSTANT kernel-end
 
@@ -27,7 +28,8 @@ mb2 D@ mb2 + CONSTANT mb2-end ?( The multiboot2 info structure's end address)
 : intersects-mb2 ?( l h -- flag)
   2DUP mb2 -ROT WITHIN -ROT mb2-end 1- -ROT WITHIN OR ;
 
-: try-add-free-list-link SWAP ." TODO 0x" . ." - 0x" . CR ;
+: add-free-list-link
+  SWAP ." TODO 0x" . ." - 0x" . CR ;
 
 : free-list-range-big-enough SWAP - $20 > ;
 
@@ -43,7 +45,7 @@ mb2 D@ mb2 + CONSTANT mb2-end ?( The multiboot2 info structure's end address)
         handle-possibly-intersecting-mmap-chunk
         handle-possibly-intersecting-mmap-chunk
       ELSE
-        try-add-free-list-link
+        add-free-list-link
       THEN
     THEN
   ELSE
