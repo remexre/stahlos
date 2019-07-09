@@ -49,18 +49,18 @@ CREATE ;
 \ Words that are "deferred" through the user area.
 : ABORT USER-POINTER $40 + @ EXECUTE ;
 : BP USER-POINTER $48 + @ EXECUTE ;
-: EMIT ?( char -- ) USER-POINTER $50 + @ EXECUTE ;
+: EMIT ?( char --) USER-POINTER $50 + @ EXECUTE ;
 : QUIT EMPTY-RETURN-STACK USER-POINTER $58 + @ EXECUTE ;
 
-: IS-ABORT ?( addr -- ) USER-POINTER $40 + ! ;
-: IS-BP ?( addr -- ) USER-POINTER $48 + ! ;
-: IS-EMIT ?( addr -- ) USER-POINTER $50 + ! ;
-: IS-QUIT ?( addr -- ) USER-POINTER $58 + ! ;
+: IS-ABORT ?( addr --) USER-POINTER $40 + ! ;
+: IS-BP ?( addr --) USER-POINTER $48 + ! ;
+: IS-EMIT ?( addr --) USER-POINTER $50 + ! ;
+: IS-QUIT ?( addr --) USER-POINTER $58 + ! ;
 
 \ Relative pointer write. This will probably only ever be useful for (re)writing
 \ CALL/JMP target addresses. addr should point to the byte after the 0xe8/0xe9.
-: D!REL ?( val addr -- ) TUCK - 4 - SWAP D! ;
-: D,REL ?( val -- ) HERE 4 ALLOT D!REL ;
+: D!REL ?( val addr --) TUCK - 4 - SWAP D! ;
+: D,REL ?( val --) HERE 4 ALLOT D!REL ;
 
 \ DOES>. There might be a better way to define it than this. The inline assembly
 \ in DOES> is something that ideally would be factored out...
@@ -68,18 +68,18 @@ CREATE ;
 : DOES> COMPILING (DOES>) COMPILING EXIT ['] ((DODOES)) $e8 C, D,REL ; IMMEDIATE
 
 \ Constants and variables.
-: CONSTANT ?( n -- ) CREATE , DOES> @ ;
-: VARIABLE ?( -- ) CREATE 0 , DOES> ;
+: CONSTANT ?( n --) CREATE , DOES> @ ;
+: VARIABLE ?( --) CREATE 0 , DOES> ;
 
 \ Arrays.
-: ARRAY ?( n "<spaces>name" -- ) CREATE CELLS ALLOT
-  DOES> ?( n -- addr ) SWAP CELLS + ;
+: ARRAY ?( n "<spaces>name" --) CREATE CELLS ALLOT
+  DOES> ?( n -- addr) SWAP CELLS + ;
 
 \ Conditionals.
 $10 ARRAY (IF-STACK)
 VARIABLE (IF-IDX)
-: (IF-PUSH) ?( n -- ) (IF-IDX) @ (IF-STACK) ! 1 (IF-IDX) +! ;
-: (IF-POP) ?( -- n ) -1 (IF-IDX) +! (IF-IDX) @ (IF-STACK) @ ;
+: (IF-PUSH) ?( n --) (IF-IDX) @ (IF-STACK) ! 1 (IF-IDX) +! ;
+: (IF-POP) ?( -- n) -1 (IF-IDX) +! (IF-IDX) @ (IF-STACK) @ ;
 : IF COMPILING (IF) HERE (IF-PUSH) 0 , ; IMMEDIATE
 : ?IF COMPILING ?DUP POSTPONE IF ; IMMEDIATE
 : ELSE COMPILING (JUMP) HERE 0 , HERE (IF-POP) ! (IF-PUSH) ; IMMEDIATE
@@ -89,10 +89,10 @@ VARIABLE (IF-IDX)
 \ Leave.
 8 ARRAY (LEAVE-STACK)
 VARIABLE (LEAVE-IDX)
-: (LEAVE-PUSH) ?( addr -- ) (LEAVE-IDX) @ (LEAVE-STACK) ! 1 (LEAVE-IDX) +! ;
-: (LEAVE-POP) ?( -- addr ) -1 (LEAVE-IDX) +! (LEAVE-IDX) @ (LEAVE-STACK) @ ;
+: (LEAVE-PUSH) ?( addr --) (LEAVE-IDX) @ (LEAVE-STACK) ! 1 (LEAVE-IDX) +! ;
+: (LEAVE-POP) ?( -- addr) -1 (LEAVE-IDX) +! (LEAVE-IDX) @ (LEAVE-STACK) @ ;
 : LEAVE COMPILING (JUMP) HERE (LEAVE-PUSH) 0 , ; IMMEDIATE
-: (RESOLVE-LEAVES) ?( -- )
+: (RESOLVE-LEAVES) ?( --)
   \ We're manually building a BEGIN-WHILE-REPEAT loop, since it's not yet
   \ definable.
   [ HERE ]
@@ -102,8 +102,8 @@ VARIABLE (LEAVE-IDX)
 \ Loops.
 8 ARRAY (LOOP-STACK)
 VARIABLE (LOOP-IDX)
-: (LOOP-PUSH) ?( addr -- ) (LOOP-IDX) @ (LOOP-STACK) ! 1 (LOOP-IDX) +! ;
-: (LOOP-POP) ?( -- addr ) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
+: (LOOP-PUSH) ?( addr --) (LOOP-IDX) @ (LOOP-STACK) ! 1 (LOOP-IDX) +! ;
+: (LOOP-POP) ?( -- addr) -1 (LOOP-IDX) +! (LOOP-IDX) @ (LOOP-STACK) @ ;
 : BEGIN HERE (LOOP-PUSH) ; IMMEDIATE
 : AGAIN COMPILING (JUMP) (LOOP-POP) , (RESOLVE-LEAVES) ; IMMEDIATE
 : WHILE COMPILING (IF) HERE (LEAVE-PUSH) 0 , ; IMMEDIATE
@@ -163,6 +163,8 @@ $20 CONSTANT BL
   TIMES
   SPACE DEPTH I - 1- PICK N.
   LOOP CR ;
+: D. GET-BASE SWAP DECIMAL . $10 = IF HEX ELSE DECIMAL THEN ;
+: H. GET-BASE SWAP HEX     . $10 = IF HEX ELSE DECIMAL THEN ;
 
 \ Debugging tools.
 ' INT3 IS-BP
@@ -188,7 +190,7 @@ $20 CONSTANT BL
 : WORDS ?( --) LATEST BEGIN DUP WHILE DUP HEADER>NAME COUNT TYPE SPACE @ REPEAT CR ;
 
 \ Aborting.
-: ABORT-DEFAULT ?( k*n -- ) DEPTH DISCARD QUIT ;
+: ABORT-DEFAULT ?( k*n --) DEPTH DISCARD QUIT ;
 ' ABORT-DEFAULT IS-ABORT
 : ABORT"
   COMPILING 0=
@@ -209,10 +211,12 @@ $20 CONSTANT BL
 : MOD /MOD DROP ;
 
 \ Access to the IPB.
-: IPB ?( n -- u ) CELLS $1ffff8 @ + @ ;
+$1ffff8 @ CONSTANT IPB-START ?( start address of the IPB)
+: IPB-ADDR ?( n -- addr) CELLS IPB-START + ;
+: IPB ?( n -- u) IPB-ADDR @ ;
 
 \ Reading documentation.
-: ? ?( "<spaces>name" -- )
+: ? ?( "<spaces>name" --)
   PARSE-NAME 2DUP DUP ABORT" Missing word for ?"
   FIND-HEADER ?IF
     8 + @ ?IF
@@ -223,6 +227,9 @@ $20 CONSTANT BL
   ELSE
     ." No such word " TYPELN
   THEN ;
+
+\ Allocator.
+: FREE-BYTES ?( -- u) 0 2 IPB BEGIN DUP WHILE DUP @ ROT + SWAP CELL+ @ REPEAT DROP ;
 
 CREATE (STD-MARKER)
 .( Done with std.fs!)

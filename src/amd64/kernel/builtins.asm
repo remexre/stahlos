@@ -77,6 +77,10 @@ defcode cell, "CELLS", 1, 0x00, "u -- u"
 	shl rbx, 3
 endcode
 
+defcode cell_minus, "CELL-", 1, 0x00, "u -- u"
+	sub rbx, 8
+endcode
+
 defcode cell_plus, "CELL+", 1, 0x00, "u -- u"
 	add rbx, 8
 endcode
