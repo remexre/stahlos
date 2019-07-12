@@ -1,6 +1,8 @@
 import gdb
+import shutil
 import string
 import struct
+import subprocess
 
 
 def command(func):  # decorator
@@ -49,6 +51,12 @@ def hd(args, frame, stack, read):
     ROWS = 8
 
     bs = read(addr, ROWS * 16, '{}s'.format(ROWS * 16))[0]
+
+    if shutil.which('hexyl') is not None:
+        p = subprocess.run('hexyl', input=bs)
+        if p.returncode == 0:
+            return
+
     out = ''
     for row in range(ROWS):
         out += '{:08x}  '.format(int(addr) + row * 16)

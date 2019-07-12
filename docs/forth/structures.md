@@ -1,38 +1,34 @@
 Forth Structures
 ================
 
-Allocator Free List
--------------------
+Words
+-----
 
 ```
-        0 +-----------------+
-          |      Length     |
-        8 +-----------------+
-          |    Next Link    |
-       16 +-----------------+
-          |                 |
-         ... Usable Memory ...
-          |                 |
-16+Length +-----------------+
-          |  Rsvd  |  Flags |
-24+Length +-----------------+
-          |      Length     |
-32+Length +-----------------+
+     0 +-------------------------------+  ---+
+       |           Next Link           |     |
+     8 +-------------------------------+     |
+       |         Documentation         |     +-- Header
+    16 +-------+-------+---------------+     |
+       | Flags |  Len  |     Name     ...    |
+24+Len +-------+-------+---------------+  ---+
+       |              CFA             ...
+       +-------------------------------+
+       |              PFA             ...
+       +-------------------------------+
 ```
-
-The `Next Link` is `0` at the end of the list.
 
 The flags are:
 
 ```
-MSB                             LSB
-00000000 00000000 00000000 0000000F
+MSB  LSB
+0000000I
 ```
 
-|   | Name     | Description          |
-|---|----------|----------------------|
-| 0 | Reserved | Should be 0          |
-| F | Free     | 0 = free, 1 = in use |
+|   | Name      | Description               |
+|---|-----------|---------------------------|
+| 0 | Reserved  | Should be 0               |
+| I | Immediate | 0 = normal, 1 = immediate |
 
 User Area
 ---------
@@ -77,32 +73,3 @@ MSB                                                                 LSB
 | 0 | Reserved | Should be 0                |
 | B | Base     | 0 = decimal, 1 = hex       |
 | S | State    | 0 = interpret, 1 = compile |
-
-Words
------
-
-```
-     0 +-------------------------------+  ---+
-       |           Next Link           |     |
-     8 +-------------------------------+     |
-       |         Documentation         |     +-- Header
-    16 +-------+-------+---------------+     |
-       | Flags |  Len  |     Name     ...    |
-24+Len +-------+-------+---------------+  ---+
-       |              CFA             ...
-       +-------------------------------+
-       |              PFA             ...
-       +-------------------------------+
-```
-
-The flags are:
-
-```
-MSB  LSB
-0000000I
-```
-
-|   | Name      | Description               |
-|---|-----------|---------------------------|
-| 0 | Reserved  | Should be 0               |
-| I | Immediate | 0 = normal, 1 = immediate |

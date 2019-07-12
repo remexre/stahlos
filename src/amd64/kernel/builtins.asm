@@ -65,10 +65,6 @@ defcode base_decimal, "DECIMAL", 0, 0x00, "--"
 	and byte [r15+0x28], 0xfe
 endcode
 
-defcode empty_return_stack, "EMPTY-RETURN-STACK", 0, 0x00, "R: u_k ... u_0 --"
-	lea rbp, [r14-8]
-endcode
-
 defcode base_hex, "HEX", 0, 0x00, "--"
 	or byte [r15+0x28], 0x01
 endcode
@@ -152,6 +148,10 @@ defcode dup_nonzero, "?DUP", 1, 0x00, "x -- 0 | x x"
 .exit:
 endcode
 
+defcode empty_return_stack, "EMPTY-RETURN-STACK", 0, 0x00, "R: u_k ... u_0 --"
+	lea rbp, [r14-8]
+endcode
+
 defcode equal, "=", 2, 0x00, "x y -- flag"
 	pop rax
 	xor rdx, rdx
@@ -159,6 +159,14 @@ defcode equal, "=", 2, 0x00, "x y -- flag"
 	setnz dl
 	dec rdx
 	mov rbx, rdx
+endcode
+
+defcode erase, "ERASE", 2, 0x00, "addr len --"
+	pop rdi
+	mov rcx, rbx
+	xor al, al
+	rep stosb
+	pop rbx
 endcode
 
 defcode execute, "EXECUTE", 1, 0x00, "i*x xt -- j*x"
@@ -407,6 +415,13 @@ defcode pick, "PICK", 1
 	mov rbx, [rbx]
 endcode
 
+defcode r_depth, "RDEPTH"
+	push rbx
+	mov rbx, r14
+	sub rbx, rbp
+	shr rbx, 3
+endcode
+
 defcode r_drop, "RDROP", 0, 0x00, "R: x --"
 	; Check for return underflow.
 	lea rcx, [rbp+8]
@@ -445,7 +460,7 @@ defcode rot, "ROT", 3, 0x00, "x y z -- y z x"
 	mov [rsp+8], rax
 endcode
 
-defcode rpick, "RPICK", 1
+defcode rpick, "RPICK", 1, 0x00, "u -- R_u"
 	lea rbx, [rbp+rbx*8]
 	cmp r14, rbx
 	jb underflow_return

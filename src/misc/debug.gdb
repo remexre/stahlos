@@ -4,9 +4,9 @@ break *0
 break bp_handler
 break underflow
 
-source src/misc/gdb_tools.py
-
 target remote localhost:1234
+
+source src/misc/gdb_tools.py
 
 define l
 	layout asm

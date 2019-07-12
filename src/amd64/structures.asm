@@ -23,7 +23,7 @@ ipb:
 .mb2:
 	dq 0 ; Gets filled in with address of multiboot2 information structure.
 .free_list:
-	dq 0 ; Head of free list for allocators
+	dq 0 ; Head of free list for allocators.
 .here:
 	dq ifa ; The address returned by HERE and increased by ALLOT.
 	dq p4 ; The current level 4 page table.

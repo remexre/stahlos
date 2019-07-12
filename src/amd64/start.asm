@@ -110,7 +110,10 @@ endcolon
 cold_code:
 	incbin "src/amd64/forth/std.fs"
 	db 0x0a
-	incbin "src/amd64/forth/init.fs"
+	incbin "src/amd64/forth/init/mb2.fs"
+	incbin "src/amd64/forth/init/mem.fs"
+	incbin "src/amd64/forth/init/paging.fs"
+	incbin "src/amd64/forth/init/main.fs"
 .len equ $-cold_code
 
 ; vi: cc=80 ft=nasm

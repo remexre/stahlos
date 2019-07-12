@@ -34,9 +34,14 @@ CREATE ;
 \ Simple utils.
 : 2SWAP ?( x y z w -- z w x y) >R -ROT R> -ROT ;
 : 2OVER ?( x y z w -- x y z w x y) 2>R 2DUP 2R> 2SWAP ;
+: POW2 ?( u -- u) 1 SWAP LSHIFT ;
+: ALIGN ?( u b -- u) POW2 1- DUP ROT + SWAP INVERT AND ;
+: ALIGN-DOWN-TO-POW2 ?( u b -- u) POW2 1- INVERT AND ;
+: ALIGN-UP-TO-POW2 ?( u b -- u) POW2 1- DUP ROT + SWAP INVERT AND ;
+: ALIGNED ?( u -- u) 3 ALIGN-UP-TO-POW2 ;
+: ALIGN-HERE-TO-POW2 ?( b --) HERE SWAP ALIGN-UP-TO-POW2 HERE - ALLOT ;
 : NIP ?( x y -- y) SWAP DROP ;
 : TUCK ?( x y -- y x y) SWAP OVER ;
-: ALIGN-TO-CELL ?( u -- u) 7 + 7 INVERT AND ;
 : RETURN ?( --) RDROP ;
 : WITHIN ?( x l u -- l<=x&&x<u) OVER - >R - R> U< ;
 
@@ -47,15 +52,20 @@ CREATE ;
 : U>= U< INVERT ;
 
 \ Words that are "deferred" through the user area.
-: ABORT USER-POINTER $40 + @ EXECUTE ;
-: BP USER-POINTER $48 + @ EXECUTE ;
-: EMIT ?( char --) USER-POINTER $50 + @ EXECUTE ;
-: QUIT EMPTY-RETURN-STACK USER-POINTER $58 + @ EXECUTE ;
+: GET-ABORT USER-POINTER $40 + @ ;
+: GET-BP USER-POINTER $48 + @ ;
+: GET-EMIT USER-POINTER $50 + @ ;
+: GET-QUIT USER-POINTER $58 + @ ;
 
 : IS-ABORT ?( addr --) USER-POINTER $40 + ! ;
 : IS-BP ?( addr --) USER-POINTER $48 + ! ;
 : IS-EMIT ?( addr --) USER-POINTER $50 + ! ;
 : IS-QUIT ?( addr --) USER-POINTER $58 + ! ;
+
+: ABORT GET-ABORT EXECUTE ;
+: BP ?( --) GET-BP EXECUTE ;
+: EMIT ?( char --) GET-EMIT EXECUTE ;
+: QUIT EMPTY-RETURN-STACK GET-QUIT EXECUTE ;
 
 \ Relative pointer write. This will probably only ever be useful for (re)writing
 \ CALL/JMP target addresses. addr should point to the byte after the 0xe8/0xe9.
@@ -227,9 +237,6 @@ $1ffff8 @ CONSTANT IPB-START ?( start address of the IPB)
   ELSE
     ." No such word " TYPELN
   THEN ;
-
-\ Allocator.
-: FREE-BYTES ?( -- u) 0 2 IPB BEGIN DUP WHILE DUP @ ROT + SWAP CELL+ @ REPEAT DROP ;
 
 CREATE (STD-MARKER)
 .( Done with std.fs!)
