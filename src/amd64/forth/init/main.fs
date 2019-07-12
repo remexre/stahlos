@@ -7,7 +7,6 @@ make-free-page-list
 page-pages-to-himem
 
 .( Done with init!)
-:NONAME BEGIN HLT AGAIN ; EXECUTE
 QUIT
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :
