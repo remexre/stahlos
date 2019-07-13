@@ -69,7 +69,12 @@ defcode base_hex, "HEX", 0, 0x00, "--"
 	or byte [r15+0x28], 0x01
 endcode
 
-defcode cell, "CELLS", 1, 0x00, "u -- u"
+defcode cell, "CELL", 0, 0x00, "-- u"
+	push rbx
+	mov rbx, 8
+endcode
+
+defcode cells, "CELLS", 1, 0x00, "u -- u"
 	shl rbx, 3
 endcode
 

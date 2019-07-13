@@ -5,7 +5,18 @@ traverse-mb2
 mb2-module-check
 make-free-page-list
 page-pages-to-himem
-." Paged " MAX-PAGED-HIMEM-ADDR @ MIN-PAGED-HIMEM-ADDR @ - #20 RSHIFT D. ." MiB" CR
+
+: MiB #20 RSHIFT D. ." MiB" ;
+." Paged " TOTAL-PAGED-HIMEM MiB CR
+
+CELL ' MARK-CHILD ALLOCATE-TRACING CONSTANT test-alloc
+test-alloc test-alloc !
+test-alloc MARK-CHILD
+
+." Free mem: " FREE-HIMEM MiB CR
+." Used mem: " USED-HIMEM MiB CR
+
+DEBUG
 
 .( Done with init!)
 QUIT

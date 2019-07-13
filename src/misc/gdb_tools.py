@@ -40,6 +40,7 @@ def command(func):  # decorator
             func(args, frame, stack, read)
 
     DecoratedCommand()
+    return func
 
 
 @command
@@ -52,6 +53,7 @@ def hd(args, frame, stack, read):
 
     bs = read(addr, ROWS * 16, '{}s'.format(ROWS * 16))[0]
 
+    print('Dumping from 0x{:016x}\n'.format(int(addr)))
     if shutil.which('hexyl') is not None:
         p = subprocess.run('hexyl', input=bs)
         if p.returncode == 0:
@@ -74,6 +76,15 @@ def hd(args, frame, stack, read):
             out += ch if ch in PRINTABLE else '.'
         out += '\n'
     print(out)
+
+
+@command
+def hhd(args, frame, stack, read):
+    assert len(args) == 1
+    addr = gdb.parse_and_eval(args[0]).cast(gdb.lookup_type('void').pointer())
+    addr += 0xffff800000000000
+    args = [str(addr)]
+    hd(args, frame, stack, read)
 
 
 @command
