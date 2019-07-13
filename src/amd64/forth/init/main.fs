@@ -5,6 +5,7 @@ traverse-mb2
 mb2-module-check
 make-free-page-list
 page-pages-to-himem
+." Paged " MAX-PAGED-HIMEM-ADDR @ MIN-PAGED-HIMEM-ADDR @ - #20 RSHIFT D. ." MiB" CR
 
 .( Done with init!)
 QUIT

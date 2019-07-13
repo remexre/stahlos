@@ -3,9 +3,6 @@ VARIABLE p3-index
 VARIABLE p2-index
 VARIABLE p1-index
 
-VARIABLE min-paged-addr
-VARIABLE max-paged-addr
-
 \ Used as a cheap continuation. (Really, it's more like setjmp/longjmp...)
 VARIABLE out-of-pages-depth
 VARIABLE out-of-pages-rdepth
@@ -58,7 +55,6 @@ VARIABLE out-of-pages-rdepth
   $200 p3-index !
   $200 p2-index !
   $200 p1-index !
-  $ffff800000000000 DUP min-paged-addr ! max-paged-addr !
 
   DEPTH out-of-pages-depth !
   RDEPTH out-of-pages-rdepth !
@@ -66,8 +62,9 @@ VARIABLE out-of-pages-rdepth
   BEGIN
     next-free-page DUP
   WHILE
+    DUP page-size ERASE
     addr>pte next-p1-entry !
-    page-size max-paged-addr +!
+    page-size MAX-PAGED-HIMEM-ADDR +!
   REPEAT ;
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :
