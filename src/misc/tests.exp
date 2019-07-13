@@ -19,7 +19,7 @@ proc wait_for {waiting_for line} {
 }
 
 log_user 0
-spawn qemu-system-x86_64 -accel kvm -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
+spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
 
 wait_for GRUB "Booting `StahlOS'"
 set timeout 10
