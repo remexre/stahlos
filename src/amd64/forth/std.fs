@@ -218,6 +218,11 @@ $20 CONSTANT BL
   COMPILING ABORT
   POSTPONE THEN ; IMMEDIATE
 
+\ Modules.
+: MODULE ?( --) 0 LATEST ;
+: END-MODULE( ?( --)
+  SOURCE-REST ['] IS-CLOSE-PAREN? STRING-FIND-PRED .S 1+ >IN +! ;
+
 \ Character literals.
 : [CHAR] PARSE-NAME ABORT" Missing word for [CHAR]" C@ ; IMMEDIATE
 
