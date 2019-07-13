@@ -257,19 +257,24 @@ $ffff800000000000 HIMEM-NEXT-FREE-ADDR !
 
 : ALLOCATE-TRACING ?( l xt -- addr)
   HIMEM-NEXT-FREE-ADDR @
-  ROT DUP #24 + HIMEM-NEXT-FREE-ADDR +!
+  ROT DUP #24 + ALIGNED HIMEM-NEXT-FREE-ADDR +!
   OVER ! CELL+
   DUP -ROT ! CELL+
   DUP 0 ! CELL+ ;
 : ALLOCATE ?( l -- addr) ['] DROP ALLOCATE-TRACING ;
 
 : MARK-CHILD ?( addr --)
+  DUP 0>= IF ." Found non-GC word 0x" H. ." when marking!" CR RETURN THEN
   DUP CELL- DUP @ 1 AND 0=
   IF
     1 OVER @ OR OVER ! CELL- @ EXECUTE
   ELSE
     2DROP
   THEN ;
+
+\ Context switching.
+: PROCESS-POINTER-FOR ?( n -- addr) CELLS $202000 + ;
+: PID ?( -- n) PROCESS-POINTER @ ;
 
 CREATE (STD-MARKER)
 .( Done with std.fs!)

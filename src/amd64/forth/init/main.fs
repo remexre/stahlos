@@ -15,6 +15,7 @@ test-alloc MARK-CHILD
 
 ." Free mem: " FREE-HIMEM MiB CR
 ." Used mem: " USED-HIMEM MiB CR
+." PID: 0x" PID H. CR
 
 DEBUG
 

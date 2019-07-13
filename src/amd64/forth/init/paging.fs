@@ -27,30 +27,29 @@ VARIABLE out-of-pages-rdepth
 : p1 ?( n -- addr) CELLS p2-entry @ pte>addr + ;
 : p1-entry ?( -- addr) p1-index @ p1 ;
 
-: next-free-page ?( -- addr)
+: try-get-free-page ?( -- addr)
   free-page-list @ DUP IF DUP @ free-page-list ! THEN ;
-: must-next-free-page ?( -- addr)
-  next-free-page DUP 0= IF out-of-pages THEN ;
-: must-get-zeroed-page ?( -- addr) must-next-free-page DUP page-size ERASE ;
+: get-free-page ?( -- addr)
+  try-get-free-page DUP 0= IF out-of-pages THEN ;
+: addr>pte ?( addr -- u) 3 OR ;
+: get-zeroed-pte ?( -- addr) get-free-page DUP page-size ERASE addr>pte ;
 
 : next-p4-entry ?( -- addr)
   1 p4-index +! p4-index @ $200 < ABORT" Out of address space!?!" p4-entry ;
 
-: new-p3 ?( --) must-get-zeroed-page 3 OR next-p4-entry ! 0 p3-index ! ;
+: new-p3 ?( --) get-zeroed-pte next-p4-entry ! 0 p3-index ! ;
 : next-p3-entry ?( -- addr)
   1 p3-index +! p3-index @ $200 >= IF new-p3 THEN p3-entry ;
 
-: new-p2 ?( --) must-get-zeroed-page 3 OR next-p3-entry ! 0 p2-index ! ;
+: new-p2 ?( --) get-zeroed-pte next-p3-entry ! 0 p2-index ! ;
 : next-p2-entry ?( -- addr)
   1 p2-index +! p2-index @ $200 >= IF new-p2 THEN p2-entry ;
 
-: new-p1 ?( --) must-get-zeroed-page 3 OR next-p2-entry ! 0 p1-index ! ;
+: new-p1 ?( --) get-zeroed-pte next-p2-entry ! 0 p1-index ! ;
 : next-p1-entry ?( -- addr)
   1 p1-index +! p1-index @ $200 >= IF new-p1 THEN p1-entry ;
 
 : page-page-to-himem ?( addr --) DROP ;
-
-: addr>pte ?( addr -- u) 3 OR ;
 
 : page-pages-to-himem ?( --) 
   $ff p4-index !
@@ -62,7 +61,7 @@ VARIABLE out-of-pages-rdepth
   RDEPTH out-of-pages-rdepth !
 
   BEGIN
-    next-free-page DUP
+    try-get-free-page DUP
   WHILE
     DUP page-size ERASE
     addr>pte next-p1-entry !

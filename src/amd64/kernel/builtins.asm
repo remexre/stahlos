@@ -655,10 +655,50 @@ defcode process_pointer, "PROCESS-POINTER"
 	mov rbx, r15
 endcode
 
-defcode zero_equal, "0="
+defcode zero_ge, "0>=", 1
+	xor rdx, rdx
+	cmp rbx, 0
+	setl dl
+	dec rdx
+	mov rbx, rdx
+endcode
+
+defcode zero_gt, "0>", 1
+	xor rdx, rdx
+	cmp rbx, 0
+	setle dl
+	dec rdx
+	mov rbx, rdx
+endcode
+
+defcode zero_le, "0<=", 1
+	xor rdx, rdx
+	cmp rbx, 0
+	setg dl
+	dec rdx
+	mov rbx, rdx
+endcode
+
+defcode zero_lt, "0<", 1
+	xor rdx, rdx
+	cmp rbx, 0
+	setge dl
+	dec rdx
+	mov rbx, rdx
+endcode
+
+defcode zero_equal, "0=", 1
 	xor rdx, rdx
 	test rbx, rbx
 	setnz dl
+	dec rdx
+	mov rbx, rdx
+endcode
+
+defcode zero_ne, "0<>", 1
+	xor rdx, rdx
+	test rbx, rbx
+	setz dl
 	dec rdx
 	mov rbx, rdx
 endcode
