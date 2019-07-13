@@ -19,5 +19,6 @@ Summary
 		-	[ABI](notes/low-level/abi.md)
 		-	[Bootstrapping](notes/low-level/bootstrapping.md)
 		-	[Forth Naming](notes/low-level/forth-naming.md)
+		-	[Garbage Collector](notes/low-level/garbage-collector.md)
 		-	[Multitasking](notes/low-level/multitasking.md)
 	-	[StahlNet](notes/stahlnet.md)

@@ -153,7 +153,7 @@ defcolon create_noname, "CREATE-NONAME"
 endcolon
 
 defcolon dict_head, "DICT-HEAD"
-	word user_pointer
+	word process_pointer
 	lit 0x20
 	word add
 endcolon

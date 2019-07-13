@@ -650,7 +650,7 @@ defcode u_less, "U<", 2
 	mov rbx, rdx
 endcode
 
-defcode user_pointer, "USER-POINTER"
+defcode process_pointer, "PROCESS-POINTER"
 	push rbx
 	mov rbx, r15
 endcode

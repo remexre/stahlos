@@ -30,8 +30,8 @@ MSB  LSB
 | 0 | Reserved  | Should be 0               |
 | I | Immediate | 0 = normal, 1 = immediate |
 
-User Area
----------
+Process Area
+------------
 
 ```
    0 +--------------------+--------------------+--------------------+--------------------+

@@ -51,16 +51,16 @@ CREATE ;
 : U<= U> INVERT ;
 : U>= U< INVERT ;
 
-\ Words that are "deferred" through the user area.
-: GET-ABORT USER-POINTER $40 + @ ;
-: GET-BP USER-POINTER $48 + @ ;
-: GET-EMIT USER-POINTER $50 + @ ;
-: GET-QUIT USER-POINTER $58 + @ ;
+\ Words that are "deferred" through the process area.
+: GET-ABORT PROCESS-POINTER $40 + @ ;
+: GET-BP PROCESS-POINTER $48 + @ ;
+: GET-EMIT PROCESS-POINTER $50 + @ ;
+: GET-QUIT PROCESS-POINTER $58 + @ ;
 
-: IS-ABORT ?( addr --) USER-POINTER $40 + ! ;
-: IS-BP ?( addr --) USER-POINTER $48 + ! ;
-: IS-EMIT ?( addr --) USER-POINTER $50 + ! ;
-: IS-QUIT ?( addr --) USER-POINTER $58 + ! ;
+: IS-ABORT ?( addr --) PROCESS-POINTER $40 + ! ;
+: IS-BP ?( addr --) PROCESS-POINTER $48 + ! ;
+: IS-EMIT ?( addr --) PROCESS-POINTER $50 + ! ;
+: IS-QUIT ?( addr --) PROCESS-POINTER $58 + ! ;
 
 : ABORT GET-ABORT EXECUTE ;
 : BP ?( --) GET-BP EXECUTE ;

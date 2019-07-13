@@ -31,7 +31,7 @@ start64:
 	or rax, 1<<16
 	mov cr0, rax
 
-	; Set the user area pointer to where we will eventually create the init
+	; Set the process area pointer to where we will eventually create the init
 	; process, and the parameter and return stacks to within it.
 	mov r15, ifa+((1 << 16)/8 + (1 << 16))
 	lea r14, [r15+512]
@@ -60,8 +60,8 @@ start64:
 begincolon
 	; Reserve some space
 	;   64k bits for readiness
-	;   64k qwords for address of user area
-	;   1k bytes for init's user space
+	;   64k qwords for address of process area
+	;   1k bytes for init's process space
 	lit (1 << 16)/8 + (1 << 16) + (1<<10)
 	word allot
 	;   HERE should now be 0x212400
@@ -71,8 +71,8 @@ begincolon
 	lit 1
 	lit ifa
 	word store
-	;   Write the user pointer to the right spot.
-	word user_pointer
+	;   Write the process pointer to the right spot.
+	word process_pointer
 	lit ifa + (1 << 16)/8
 	word store
 	;   Write the PID.
