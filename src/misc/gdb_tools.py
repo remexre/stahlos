@@ -45,11 +45,11 @@ def command(func):  # decorator
 
 @command
 def hd(args, frame, stack, read):
-    assert len(args) == 1
+    assert len(args) == 1 or len(args) == 2
     addr = gdb.parse_and_eval(args[0]).cast(gdb.lookup_type('void').pointer())
 
     PRINTABLE = string.ascii_letters + string.punctuation + string.digits + ' '
-    ROWS = 8
+    ROWS = 8 if len(args) == 1 else int(gdb.parse_and_eval(args[1]))
 
     bs = read(addr, ROWS * 16, '{}s'.format(ROWS * 16))[0]
 

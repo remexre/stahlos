@@ -13,6 +13,18 @@ global forth_last_pseudobuiltin
 
 [section .forth_builtins]
 
+defcolon align, "ALIGN"
+	word here
+	lit 7
+	word add
+	lit 7
+	word invert
+	word and
+	word here
+	word sub
+	word allot
+endcolon
+
 defcolon comma, ","
 	word here
 	lit 8

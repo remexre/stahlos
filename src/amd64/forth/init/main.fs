@@ -17,14 +17,7 @@ test-alloc MARK-CHILD
 ." Used mem: " USED-HIMEM MiB CR
 ." PID: 0x" PID H. CR
 
-: baz + ;
-MODULE
-: foo 1 ;
-: bar 2 ;
-: baz 3 ;
-END-MODULE( foo bar )
-
-foo bar baz DEBUG
+DEBUG
 
 .( Done with init!)
 QUIT
