@@ -22,7 +22,7 @@ log_user 0
 spawn qemu-system-x86_64 -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
 
 wait_for GRUB "Booting `StahlOS'"
-set timeout 3
+set timeout 10
 
 # Real tests should go here once serial works...
 
