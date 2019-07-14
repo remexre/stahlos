@@ -327,6 +327,20 @@ defcode literal_r_impl, "(LITERAL-R)"
 	mov [rbp], rax
 endcode
 
+defcode max, "MAX", 2, 0x00, "n n -- n"
+	pop rax
+	cmp rbx, rax
+	cmovg rax, rbx
+	mov rbx, rax
+endcode
+
+defcode min, "MIN", 2, 0x00, "n n -- n"
+	pop rax
+	cmp rbx, rax
+	cmovl rax, rbx
+	mov rbx, rax
+endcode
+
 defcode mul_d, "*D", 2
 	mov rax, [rsp]
 	imul rbx
@@ -648,6 +662,20 @@ defcode u_less, "U<", 2
 	setae dl
 	dec rdx
 	mov rbx, rdx
+endcode
+
+defcode u_max, "UMAX", 2, 0x00, "u u -- u"
+	pop rax
+	cmp rbx, rax
+	cmova rax, rbx
+	mov rbx, rax
+endcode
+
+defcode u_min, "UMIN", 2, 0x00, "u u -- u"
+	pop rax
+	cmp rbx, rax
+	cmovb rax, rbx
+	mov rbx, rax
 endcode
 
 defcode process_pointer, "PROCESS-POINTER"

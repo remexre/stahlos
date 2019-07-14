@@ -1,3 +1,5 @@
+MODULE
+
 VARIABLE p4-index
 VARIABLE p3-index
 VARIABLE p2-index
@@ -49,9 +51,7 @@ VARIABLE out-of-pages-rdepth
 : next-p1-entry ?( -- addr)
   1 p1-index +! p1-index @ $200 >= IF new-p1 THEN p1-entry ;
 
-: page-page-to-himem ?( addr --) DROP ;
-
-: page-pages-to-himem ?( --) 
+: setup-himem ?( --) 
   $ff p4-index !
   $200 p3-index !
   $200 p2-index !
@@ -67,5 +67,7 @@ VARIABLE out-of-pages-rdepth
     addr>pte next-p1-entry !
     page-size MAX-PAGED-HIMEM-ADDR-VALUE +!
   REPEAT DROP ;
+
+END-MODULE( setup-himem )
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

@@ -1,23 +1,17 @@
-: qemu-shutdown ?( --) $2000 $604 OUTW BEGIN HLT AGAIN ;
-' qemu-shutdown IS-QUIT
+MODULE
+  : qemu-shutdown ?( --) $2000 $604 OUTW BEGIN HLT AGAIN ;
+  ' qemu-shutdown IS-QUIT
+END-MODULE()
 
 traverse-mb2
-mb2-module-check
+
+\ Check that (any) modules were defined.
+modules-start @ modules-end @ U<
+  ABORT" No multiboot2 modules found, add some with module2!" ;
+
 make-free-page-list
-page-pages-to-himem
-
-: MiB #20 RSHIFT D. ." MiB" ;
-." Paged " TOTAL-PAGED-HIMEM MiB CR
-
-CELL ' MARK-CHILD ALLOCATE-TRACING CONSTANT test-alloc
-test-alloc test-alloc !
-test-alloc MARK-CHILD
-
-." Free mem: " FREE-HIMEM MiB CR
-." Used mem: " USED-HIMEM MiB CR
-." PID: 0x" PID H. CR
-
-DEBUG
+setup-himem
+spawn-mb2-modules
 
 .( Done with init!)
 QUIT

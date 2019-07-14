@@ -1,6 +1,8 @@
-1 IPB CONSTANT mb2 ?( The multiboot2 info structure's address)
-mb2 8 + CONSTANT mb2-tags ?( The address multiboot2 tags start at)
-mb2 D@ mb2 + CONSTANT mb2-end ?( The multiboot2 info structure's end address)
+MODULE
+
+1 IPB CONSTANT mb2-start ?( The multiboot2 info structure's address)
+mb2-start 8 + CONSTANT mb2-tags ?( The address multiboot2 tags start at)
+mb2-start D@ mb2-start + CONSTANT mb2-end ?( The multiboot2 info structure's end address)
 
 : mb2-tag-size 4 + D@ ALIGNED ;
 : mb2-tag-type D@ ;
@@ -14,17 +16,17 @@ mb2 D@ mb2 + CONSTANT mb2-end ?( The multiboot2 info structure's end address)
 
 VARIABLE mb2-command-line-tag-addr
 VARIABLE mb2-bootloader-name-tag-addr
-VARIABLE mb2-module-tag-addr
 VARIABLE mb2-mmap-tag-addr
 VARIABLE mb2-rsdp-v1-tag-addr
 VARIABLE mb2-rsdp-v2-tag-addr
 
+VARIABLE modules-start
+-1 modules-start !
+VARIABLE modules-end
+
 : handle-mb2-module-tag
-  mb2-module-tag-addr @ IF
-    ." Warning: Only the first Multiboot2 module will be loaded" CR
-  ELSE
-    mb2-module-tag-addr !
-  THEN ;
+  DUP 8 + D@ modules-start @ UMIN modules-start !
+    #12 + D@ modules-end   @ UMAX modules-end   ! ;
 
 : handle-mb2-tag
   DUP mb2-tag-type
@@ -37,5 +39,17 @@ VARIABLE mb2-rsdp-v2-tag-addr
   2DROP THEN THEN THEN THEN THEN THEN ;
 
 : traverse-mb2 mb2-end mb2-tags ?DO I handle-mb2-tag I mb2-tag-size +LOOP ;
+
+: spawn-mb2-modules mb2-end mb2-tags
+  ?DO
+    I mb2-tag-type mb2-type-module = IF
+      I 8 + D@ DUP I #12 + D@ SWAP -
+      DICT-HEAD @ -ROT EVALUATE DICT-HEAD !
+    THEN
+    I mb2-tag-size
+  +LOOP ;
+
+END-MODULE( mb2-start mb2-end modules-start modules-end mb2-mmap-tag-addr
+  spawn-mb2-modules traverse-mb2 )
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

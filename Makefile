@@ -22,11 +22,8 @@ ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/pseudobuiltins
 ASM_UNITS += amd64/kernel/to_number
 
-FORTH_UNITS += acpi
-# FORTH_UNITS += ata-pio
-# FORTH_UNITS += gpt
-# FORTH_UNITS += mbr
-# FORTH_UNITS += pcie
+FORTH_UNITS += serial
+FORTH_UNITS += startup
 
 QEMU_MEM = 64M
 

@@ -1,13 +1,11 @@
+MODULE
+
 #12 CONSTANT page-bits
 page-bits POW2 CONSTANT page-size
 
 \ This is guaranteed by the linker script.
 $100000 CONSTANT kernel-start
 $300000 CONSTANT kernel-end
-
-: mb2-module-check mb2-module-tag-addr @ ABORT" No Multiboot2 module present!" ;
-: module-start mb2-module-tag-addr 8 + D@ ;
-: module-end mb2-module-tag-addr #12 + D@ ;
 
 1 CONSTANT mmap-entry-type-available
 : mmap-entry-base-addr @ ;
@@ -21,9 +19,9 @@ $300000 CONSTANT kernel-end
 : intersects-kernel ?( l h -- flag)
   2DUP kernel-start -ROT WITHIN -ROT kernel-end 1- -ROT WITHIN OR ;
 : intersects-mb2 ?( l h -- flag)
-  2DUP mb2 -ROT WITHIN -ROT mb2-end 1- -ROT WITHIN OR ;
+  2DUP mb2-start -ROT WITHIN -ROT mb2-end 1- -ROT WITHIN OR ;
 : intersects-module ?( l h -- flag)
-  2DUP module-start -ROT WITHIN -ROT module-end 1- -ROT WITHIN OR ;
+  2DUP modules-start @ -ROT WITHIN -ROT modules-end @ 1- -ROT WITHIN OR ;
 : intersects-null ?( l h -- flag)
   2DUP 0 -ROT WITHIN -ROT page-size 1- -ROT WITHIN OR ;
 
@@ -52,16 +50,22 @@ VARIABLE free-pages-size
       handle-possibly-intersecting-mmap-chunk
     ELSE
       2DUP intersects-mb2 IF
-        >R mb2 mb2-end R> 2SWAP
+        >R mb2-start mb2-end R> 2SWAP
         handle-possibly-intersecting-mmap-chunk
         handle-possibly-intersecting-mmap-chunk
       ELSE
-        2DUP intersects-null IF
-          >R 0 page-size R> 2SWAP
+        2DUP intersects-module IF
+          >R modules-start @ modules-end @ R> 2SWAP
           handle-possibly-intersecting-mmap-chunk
           handle-possibly-intersecting-mmap-chunk
         ELSE
-          add-range-to-free-page-list
+          2DUP intersects-null IF
+            >R 0 page-size R> 2SWAP
+            handle-possibly-intersecting-mmap-chunk
+            handle-possibly-intersecting-mmap-chunk
+          ELSE
+            add-range-to-free-page-list
+          THEN
         THEN
       THEN
     THEN
@@ -80,5 +84,7 @@ VARIABLE free-pages-size
   mb2-mmap-tag-addr @
   DUP DUP mmap-sizeof-entry ROT mmap-end-addr ROT mmap-start-addr
   ?DO DUP I handle-mmap-entry +LOOP DROP ;
+
+END-MODULE( free-page-list make-free-page-list page-size )
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :
