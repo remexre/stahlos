@@ -6,10 +6,6 @@ The Debug protocol exists for debugging purposes, as the name would indicate.
 ```scribble
 global protocol Debug(role C, role S) {
 	choice at C {
-		Ping(bytes) from C to S;
-		Pong(bytes) from S to C;
-		do Debug(C, S);
-	} or {
 		DebugPrint(bytes) from C to S;
 		do Debug(C, S);
 	} or {
@@ -20,14 +16,6 @@ global protocol Debug(role C, role S) {
 
 Messages
 --------
-
-### Ping
-
-The body of a Ping message is sent back in the corresponding Pong message.
-
-### Pong
-
-The body of a Pong message is taken from the corresponding Ping message.
 
 ### DebugPrint
 

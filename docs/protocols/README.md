@@ -13,8 +13,8 @@ The following messages are currently specified:
 | Message                                                | Type Code            |
 |--------------------------------------------------------|----------------------|
 | [DebugPrint](debug.md#debugprint)                      | `0x66c379ab0b7196ef` |
-| [Ping](debug.md#ping)                                  | `0x0000000000000000` |
-| [Pong](debug.md#pong)                                  | `0xffffffffffffffff` |
+| [Ping](heartbeat.md#ping)                              | `0x0000000000000000` |
+| [Pong](heartbeat.md#pong)                              | `0xffffffffffffffff` |
 | [ReadBytesData](byte-input-stream.md#readbytesdata)    | `0x9d373588abfc316c` |
 | [ReadBytes](byte-input-stream.md#readbytes)            | `0x453fbbee6bd6a904` |
 | [ReadEOF](byte-input-stream.md#readeof)                | `0x66822efd36030ee1` |
