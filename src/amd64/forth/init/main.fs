@@ -1,17 +1,20 @@
-MODULE
-  : qemu-shutdown ?( --) $2000 $604 OUTW BEGIN HLT AGAIN ;
-  ' qemu-shutdown IS-QUIT
-END-MODULE()
+: qemu-shutdown ?( --) $2000 $604 OUTW BEGIN HLT AGAIN ;
+' qemu-shutdown IS-QUIT
 
 traverse-mb2
-
-\ Check that (any) modules were defined.
-modules-start @ modules-end @ U<
-  ABORT" No multiboot2 modules found, add some with module2!" ;
-
+check-modules
 make-free-page-list
 setup-himem
-spawn-mb2-modules
+\ spawn-mb2-modules
+
+: cmos ?( u --) DUP ." 0x" H. $70 OUTB $71 INB ." - " D. CR ;
+0 cmos
+2 cmos
+4 cmos
+6 cmos
+7 cmos
+8 cmos
+9 cmos
 
 .( Done with init!)
 QUIT

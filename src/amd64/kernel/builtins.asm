@@ -306,6 +306,12 @@ defcode left_shift, "LSHIFT", 2, 0x00, "x y -- x<<y"
 	shl rbx, cl
 endcode
 
+defcode left_rotate, "LROT", 2, 0x00, "x y -- x<<<y"
+	mov rcx, rbx
+	pop rbx
+	rol rbx, cl
+endcode
+
 defcode less, "<", 2, 0x00, "n1 n2 -- n1<n2"
 	pop rax
 	xor rdx, rdx
@@ -457,6 +463,13 @@ defcode r_fetch, "R@"
 
 	push rbx
 	mov rbx, [rbp]
+endcode
+
+defcode rdrand, "RDRAND", 0, 0x00, "-- u"
+	push rbx
+.loop:
+	rdrand rbx
+	jnc .loop
 endcode
 
 defcode rev_rot, "-ROT", 3, 0x00, "x y z -- z x y"
@@ -678,9 +691,27 @@ defcode u_min, "UMIN", 2, 0x00, "u u -- u"
 	mov rbx, rax
 endcode
 
+defcode udiv, "U/", 2, 0x00, "x y -- x/y"
+	xor rdx, rdx
+	pop rax
+	div rbx
+	mov rbx, rax
+endcode
+
+defcode umul, "U*", 2, 0x00, "x y -- x*y"
+	pop rax
+	mul rbx
+	mov rbx, rax
+endcode
+
 defcode process_pointer, "PROCESS-POINTER"
 	push rbx
 	mov rbx, r15
+endcode
+
+defcode xor, "XOR", 2, 0x00, "x y -- x^y"
+	pop rax
+	xor rbx, rax
 endcode
 
 defcode zero_ge, "0>=", 1

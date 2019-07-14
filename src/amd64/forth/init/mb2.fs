@@ -40,16 +40,11 @@ VARIABLE modules-end
 
 : traverse-mb2 mb2-end mb2-tags ?DO I handle-mb2-tag I mb2-tag-size +LOOP ;
 
-: spawn-mb2-modules mb2-end mb2-tags
-  ?DO
-    I mb2-tag-type mb2-type-module = IF
-      I 8 + D@ DUP I #12 + D@ SWAP -
-      DICT-HEAD @ -ROT EVALUATE DICT-HEAD !
-    THEN
-    I mb2-tag-size
-  +LOOP ;
+: check-modules
+  modules-start @ modules-end @ U<
+  ABORT" No multiboot2 modules found, add some with module2!" ;
 
 END-MODULE( mb2-start mb2-end modules-start modules-end mb2-mmap-tag-addr
-  spawn-mb2-modules traverse-mb2 )
+  check-modules traverse-mb2 mb2-tags mb2-tag-size mb2-tag-type mb2-type-module )
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

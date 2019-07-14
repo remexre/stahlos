@@ -118,6 +118,7 @@ cold_code:
 	incbin "src/amd64/forth/init/mb2.fs"
 	incbin "src/amd64/forth/init/mem.fs"
 	incbin "src/amd64/forth/init/paging.fs"
+	incbin "src/amd64/forth/init/spawn.fs"
 	incbin "src/amd64/forth/init/main.fs"
 .len equ $-cold_code
 

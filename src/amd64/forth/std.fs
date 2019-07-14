@@ -260,7 +260,24 @@ $1ffff8 @ CONSTANT IPB-START ?( start address of the IPB)
     ." No such word " TYPELN
   THEN ;
 
+\ Random number generation.
+MODULE
+  4 ARRAY st
+  : ^= ?( addr u --) @ OVER @ XOR SWAP ! ;
+  : result ?( -- u) 1 st @ 5 U* 7 LROT 9 U* ;
+  : NCRAND ?( -- u)
+    result
+    1 st @ 17 LSHIFT
+    2 st 0 st @ ^=
+    3 st 1 st @ ^=
+    1 st 2 st @ ^=
+    0 st 3 st @ ^=
+    2 st SWAP ^=
+    3 st @ 45 LSHIFT 3 st ! ;
+END-MODULE( NCRAND )
+
 \ Allocation. There's no FREE word, since we (eventually will) garbage collect.
+\ TODO: Rework this for Cheney's algorithm.
 $ffff800000000000 CONSTANT MIN-PAGED-HIMEM-ADDR
 $ffff800000000000 CONSTANT MAX-PAGED-HIMEM-ADDR
 VARIABLE HIMEM-NEXT-FREE-ADDR
@@ -275,7 +292,10 @@ $ffff800000000000 HIMEM-NEXT-FREE-ADDR !
   OVER ! CELL+
   DUP -ROT ! CELL+
   DUP 0 ! CELL+ ;
+: ALLOCATE-TRACING-ZEROED ?( l xt -- addr)
+  SWAP DUP ROT ALLOCATE-TRACING DUP -ROT ERASE ;
 : ALLOCATE ?( l -- addr) ['] DROP ALLOCATE-TRACING ;
+: ALLOCATE-ZEROED ?( l -- addr) DUP ALLOCATE DUP -ROT ERASE ;
 
 : MARK-CHILD ?( addr --)
   DUP 0>= IF ." Found non-GC word 0x" H. ." when marking!" CR RETURN THEN
@@ -286,11 +306,32 @@ $ffff800000000000 HIMEM-NEXT-FREE-ADDR !
     2DROP
   THEN ;
 
-\ Context switching.
+\ Spawning.
+MODULE
+  : GC-PROCESS-AREA ?( addr --) TODO DROP ;
+  : ALLOCATE-PROCESS-AREA ?( -- addr)
+    $400 ['] GC-PROCESS-AREA ALLOCATE-TRACING-ZEROED ;
+  : MAKE-PROCESS-AREA ?( pid -- addr)
+    ALLOCATE-PROCESS-AREA
+    DUP -ROT ! DEBUG ;
+
+  : SPAWN ?( u_k ... u_1 k xt --)
+    INT3 RDRAND DUP MAKE-PROCESS-AREA DEBUG
+    DROP DISCARD ;
+END-MODULE( SPAWN )
+
+\ Context switching and the scheduler.
 : PROCESS-POINTER-FOR ?( n -- addr) CELLS $202000 + ;
 : PID ?( -- n) PROCESS-POINTER @ ;
 
-CREATE (STD-MARKER)
-.( Done with std.fs!)
+\ Message passing.
+MODULE
+  : RECV-MESSAGE TODO ;
+  : SEND-MESSAGE TODO ;
+END-MODULE()
 
+\ Clearing the slate for spawned children.
+: RESET-TO-STD [ LATEST ] LITERAL DICT-HEAD ! ;
+
+.( Done with std.fs!)
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

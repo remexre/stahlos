@@ -22,6 +22,7 @@ ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/pseudobuiltins
 ASM_UNITS += amd64/kernel/to_number
 
+FORTH_UNITS += debug-service
 FORTH_UNITS += serial
 FORTH_UNITS += startup
 
@@ -132,6 +133,7 @@ tmp/amd64/start.o: src/amd64/forth/std.fs \
 	src/amd64/forth/init/main.fs \
 	src/amd64/forth/init/mb2.fs \
 	src/amd64/forth/init/mem.fs \
-	src/amd64/forth/init/paging.fs
+	src/amd64/forth/init/paging.fs \
+	src/amd64/forth/init/spawn.fs
 out/utils/aes_tests: tmp/amd64/kernel/aes.o tmp/utils/aes_helpers.o
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o
