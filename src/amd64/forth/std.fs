@@ -260,22 +260,6 @@ $1ffff8 @ CONSTANT IPB-START ?( start address of the IPB)
     ." No such word " TYPELN
   THEN ;
 
-\ Random number generation.
-MODULE
-  4 ARRAY st
-  : ^= ?( addr u --) @ OVER @ XOR SWAP ! ;
-  : result ?( -- u) 1 st @ 5 U* 7 LROT 9 U* ;
-  : NCRAND ?( -- u)
-    result
-    1 st @ 17 LSHIFT
-    2 st 0 st @ ^=
-    3 st 1 st @ ^=
-    1 st 2 st @ ^=
-    0 st 3 st @ ^=
-    2 st SWAP ^=
-    3 st @ 45 LSHIFT 3 st ! ;
-END-MODULE( NCRAND )
-
 \ Allocation. There's no FREE word, since we (eventually will) garbage collect.
 \ TODO: Rework this for Cheney's algorithm.
 $ffff800000000000 CONSTANT MIN-PAGED-HIMEM-ADDR
@@ -316,7 +300,7 @@ MODULE
     DUP -ROT ! DEBUG ;
 
   : SPAWN ?( u_k ... u_1 k xt --)
-    INT3 RDRAND DUP MAKE-PROCESS-AREA DEBUG
+    ( RDRAND ) DUP MAKE-PROCESS-AREA DEBUG
     DROP DISCARD ;
 END-MODULE( SPAWN )
 

@@ -7,14 +7,7 @@ make-free-page-list
 setup-himem
 \ spawn-mb2-modules
 
-: cmos ?( u --) DUP ." 0x" H. $70 OUTB $71 INB ." - " D. CR ;
-0 cmos
-2 cmos
-4 cmos
-6 cmos
-7 cmos
-8 cmos
-9 cmos
+\ TRY-RDSEED DEBUG
 
 .( Done with init!)
 QUIT

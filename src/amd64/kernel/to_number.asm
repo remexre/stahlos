@@ -13,7 +13,7 @@ global to_number
 ; addr = r8
 ; number is in rax as a qword. success flag is written to [r9] as a byte (0/1).
 to_number:
-	xor rax, rax
+	xor eax, eax
 
 	test rcx, rcx
 	jz .fail
@@ -26,7 +26,7 @@ to_number:
 	je .base_hex
 
 .test_for_negative:
-	xor r10, r10
+	xor r10d, r10d
 	mov dl, [r8]
 	cmp dl, '-'
 	je .negative

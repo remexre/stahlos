@@ -39,7 +39,7 @@ interpret:
 ; exists. Trashes rdx, r10.
 find_word:
 	mov r9, [r15]
-	xor r10, r10
+	xor r10d, r10d
 .word_loop:
 	mov r10w, [r9+8]
 	test r10w, 0x0200
@@ -48,7 +48,7 @@ find_word:
 	cmp cl, r10b
 	jne .continue
 
-	xor r10, r10
+	xor r10d, r10d
 .char_loop:
 	cmp r10, rcx
 	je .end
@@ -89,7 +89,7 @@ lex_word:
 	jmp .skip_spaces_loop
 
 .find_end_of_word:
-	xor rcx, rcx
+	xor ecx, ecx
 
 	; Increment rcx and decrement r9 until is_space returns true or r9 is zero.
 .find_end_of_word_loop:
@@ -105,7 +105,7 @@ lex_word:
 	jmp .find_end_of_word_loop
 
 .no_remaining_words:
-	xor rcx, rcx
+	xor ecx, ecx
 
 .end:
 	sub r9, rcx

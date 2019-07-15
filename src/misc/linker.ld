@@ -15,6 +15,7 @@ SECTIONS {
 
 	.kernel : {
 		*(.text)
+		*(.rodata)
 		*(.forth_builtins)
 	}
 	.kernel_data : {

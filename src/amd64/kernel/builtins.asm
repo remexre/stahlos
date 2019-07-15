@@ -3,6 +3,10 @@ bits 64
 %include "src/amd64/macros.inc"
 %include "src/amd64/kernel/macros.inc"
 
+extern aes_decrypt
+extern aes_encrypt
+extern aes_mode_decrypt
+extern aes_mode_encrypt
 extern allot_overflow
 extern ipb
 extern ipb.here
@@ -159,7 +163,7 @@ endcode
 
 defcode equal, "=", 2, 0x00, "x y -- flag"
 	pop rax
-	xor rdx, rdx
+	xor edx, edx
 	cmp rax, rbx
 	setnz dl
 	dec rdx
@@ -192,7 +196,7 @@ endcode
 
 defcode false, "FALSE", 0, 0x00, "-- 0"
 	push rbx
-	xor rbx, rbx
+	xor ebx, ebx
 endcode
 
 defcode fetch, "@", 1, 0x00, "addr -- x"
@@ -246,7 +250,7 @@ endcode
 
 defcode get_state, "GET-STATE", 0, 0x00, "-- flag"
 	push rbx
-	xor rbx, rbx
+	xor ebx, ebx
 	test byte [r15+0x28], 0x02
 	setz bl
 	dec rbx
@@ -254,7 +258,7 @@ endcode
 
 defcode greater, ">", 2, 0x00, "n1 n2 -- n1>n2"
 	pop rax
-	xor rdx, rdx
+	xor edx, edx
 	cmp rax, rbx
 	setle dl
 	dec rdx
@@ -314,7 +318,7 @@ endcode
 
 defcode less, "<", 2, 0x00, "n1 n2 -- n1<n2"
 	pop rax
-	xor rdx, rdx
+	xor edx, edx
 	cmp rax, rbx
 	setge dl
 	dec rdx
@@ -366,7 +370,7 @@ endcode
 defcode n_to_str, "N>STR", 1
 	mov rax, rbx ; rax = current val
 
-	xor r8, r8
+	xor r8d, r8d
 	test rax, rax
 	jns .not_neg
 	mov r8b, 1 ; r8b = negative flag
@@ -381,7 +385,7 @@ defcode n_to_str, "N>STR", 1
 	mov rcx, 32 ; rcx = current offset in str
 
 .loop:
-	xor rdx, rdx
+	xor edx, edx
 	idiv rbx
 	mov dl, [.chrs+rdx]
 	mov [rcx+.buf-1], dl
@@ -465,11 +469,12 @@ defcode r_fetch, "R@"
 	mov rbx, [rbp]
 endcode
 
-defcode rdrand, "RDRAND", 0, 0x00, "-- u"
+defcode rdtsc, "RDTSC", 0, 0x00, "-- u"
 	push rbx
-.loop:
-	rdrand rbx
-	jnc .loop
+	rdtsc
+	mov rbx, rdx
+	shl rbx, 32
+	or rbx, rax
 endcode
 
 defcode rev_rot, "-ROT", 3, 0x00, "x y z -- z x y"
@@ -568,12 +573,12 @@ defcode streq, "STRING=", 4, 0x00, "addr u addr u -- flag"
 	mov rdx, [rsp+16]
 	mov rax, rbx
 	add rsp, 24
-	xor rbx, rbx
+	xor ebx, ebx
 
 	cmp rax, rcx
 	jne .fail
 
-	xor r8, r8
+	xor r8d, r8d
 .loop:
 	cmp r8, rcx
 	je .success
@@ -606,7 +611,7 @@ defcode test_flag, "TEST-FLAG", 2
 	mov rcx, rbx
 	mov rax, 1
 	shl rax, cl
-	xor rbx, rbx
+	xor ebx, ebx
 	test rax, rdx
 	jz .exit
 	dec rbx
@@ -655,13 +660,39 @@ endcode
 
 defcode true, "TRUE"
 	push rbx
-	xor rbx, rbx
+	xor ebx, ebx
 	dec rbx
+endcode
+
+defcode try_rdseed, "TRY-RDSEED", 0, 0x00, "-- u flag"
+	push rbx
+	push rbx
+	mov eax, 7
+	xor ecx, ecx
+	cpuid
+	test ebx, (1<<18)
+	jz .fail
+	mov rcx, 10
+.loop:
+	rdseed rax
+	jc .ok
+	dec rcx
+	jz .fail
+	jmp .loop
+.ok:
+	mov [rsp], rax
+	xor ebx, ebx
+	dec rbx
+	lodsq
+	jmp rax
+.fail:
+	xor ebx, ebx
+	mov [rsp], rbx
 endcode
 
 defcode u_greater, "U>", 2
 	pop rax
-	xor rdx, rdx
+	xor edx, edx
 	cmp rax, rbx
 	setbe dl
 	dec rdx
@@ -670,7 +701,7 @@ endcode
 
 defcode u_less, "U<", 2
 	pop rax
-	xor rdx, rdx
+	xor edx, edx
 	cmp rax, rbx
 	setae dl
 	dec rdx
@@ -692,7 +723,7 @@ defcode u_min, "UMIN", 2, 0x00, "u u -- u"
 endcode
 
 defcode udiv, "U/", 2, 0x00, "x y -- x/y"
-	xor rdx, rdx
+	xor edx, edx
 	pop rax
 	div rbx
 	mov rbx, rax
@@ -715,7 +746,7 @@ defcode xor, "XOR", 2, 0x00, "x y -- x^y"
 endcode
 
 defcode zero_ge, "0>=", 1
-	xor rdx, rdx
+	xor edx, edx
 	cmp rbx, 0
 	setl dl
 	dec rdx
@@ -723,7 +754,7 @@ defcode zero_ge, "0>=", 1
 endcode
 
 defcode zero_gt, "0>", 1
-	xor rdx, rdx
+	xor edx, edx
 	cmp rbx, 0
 	setle dl
 	dec rdx
@@ -731,7 +762,7 @@ defcode zero_gt, "0>", 1
 endcode
 
 defcode zero_le, "0<=", 1
-	xor rdx, rdx
+	xor edx, edx
 	cmp rbx, 0
 	setg dl
 	dec rdx
@@ -739,7 +770,7 @@ defcode zero_le, "0<=", 1
 endcode
 
 defcode zero_lt, "0<", 1
-	xor rdx, rdx
+	xor edx, edx
 	cmp rbx, 0
 	setge dl
 	dec rdx
@@ -747,7 +778,7 @@ defcode zero_lt, "0<", 1
 endcode
 
 defcode zero_equal, "0=", 1
-	xor rdx, rdx
+	xor edx, edx
 	test rbx, rbx
 	setnz dl
 	dec rdx
@@ -755,7 +786,7 @@ defcode zero_equal, "0=", 1
 endcode
 
 defcode zero_ne, "0<>", 1
-	xor rdx, rdx
+	xor edx, edx
 	test rbx, rbx
 	setz dl
 	dec rdx

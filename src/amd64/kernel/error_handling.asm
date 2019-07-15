@@ -59,7 +59,7 @@ overflow_return:
 
 undefined_word:
 	dbg `PANIC: undefined_word loop: `
-	xor rcx, rcx
+	xor ecx, ecx
 	mov rsi, [rsp]
 .loop:
 	cmp rbx, rcx

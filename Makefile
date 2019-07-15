@@ -14,8 +14,8 @@ ASM_UNITS += amd64/structures
 ASM_UNITS += amd64/start
 ASM_UNITS += amd64/int
 ASM_UNITS += amd64/panic
+ASM_UNITS += amd64/chacha20
 ASM_UNITS += amd64/devices/pic8259
-ASM_UNITS += amd64/kernel/aes
 ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
 ASM_UNITS += amd64/kernel/interpret
@@ -29,7 +29,7 @@ FORTH_UNITS += startup
 QEMU_MEM = 64M
 
 MISC_UTILS += fnv1a
-MISC_UTILS += aes_tests to_number_tests
+MISC_UTILS += chacha20_tests to_number_tests
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
 FORTH_SRCS = $(patsubst %,src/forth/%.fs,$(FORTH_UNITS))
@@ -40,6 +40,7 @@ clean:
 debug: out/stahlos.img out/stahlos.sym
 	qemu-system-x86_64 \
 		-s -S \
+		-cpu max \
 		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
 		-m $(QEMU_MEM) \
 		-display none \
@@ -74,12 +75,13 @@ kernel: out/stahlos.elf
 run: out/stahlos.img
 	qemu-system-x86_64 \
 		-accel kvm \
+		-cpu host \
 		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
 		-m $(QEMU_MEM) \
 		-machine q35 \
 		$(QEMUFLAGS)
-test: out/stahlos.img out/utils/aes_tests out/utils/to_number_tests
-	out/utils/aes_tests
+test: out/stahlos.img out/utils/chacha20_tests out/utils/to_number_tests
+	out/utils/chacha20_tests
 	out/utils/to_number_tests
 	expect src/misc/tests.exp
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
@@ -135,5 +137,5 @@ tmp/amd64/start.o: src/amd64/forth/std.fs \
 	src/amd64/forth/init/mem.fs \
 	src/amd64/forth/init/paging.fs \
 	src/amd64/forth/init/spawn.fs
-out/utils/aes_tests: tmp/amd64/kernel/aes.o tmp/utils/aes_helpers.o
+out/utils/chacha20_tests: tmp/amd64/kernel/chacha20.o tmp/utils/chacha20_helpers.o
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o
