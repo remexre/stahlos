@@ -1,5 +1,5 @@
 DESTDIR ?= /media/stahlos
-CFLAGS ?= -g
+CFLAGS ?= -g -Wall -Werror
 LDFLAGS ?= -g -static
 NASM ?= nasm
 NASMFLAGS += -gdwarf -Werror
@@ -137,5 +137,6 @@ tmp/amd64/start.o: src/amd64/forth/std.fs \
 	src/amd64/forth/init/mem.fs \
 	src/amd64/forth/init/paging.fs \
 	src/amd64/forth/init/spawn.fs
-out/utils/chacha20_tests: tmp/amd64/kernel/chacha20.o tmp/utils/chacha20_helpers.o
+out/utils/chacha20_tests: tmp/utils/chacha20_helpers.o
+tmp/utils/chacha20_helpers.o: src/amd64/chacha20.asm
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o
