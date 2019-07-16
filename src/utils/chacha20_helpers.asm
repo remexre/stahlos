@@ -6,6 +6,7 @@ global rotate_left_7
 global quarter_round
 global two_rounds
 global twenty_rounds
+global twenty_rounds_no_add
 
 extern memcpy
 
@@ -53,42 +54,49 @@ quarter_round:
 	mov [rcx], eax
 	ret
 
-two_rounds:
+twenty_rounds_no_add:
 	movdqa xmm5, [chacha20_mask8]
 	movdqa xmm6, [chacha20_mask16]
-	push rdi
-	mov rsi, rdi
-	mov rdi, twenty_rounds_tmp
-	mov rdx, 64
-	call memcpy
-	movdqa xmm0, [twenty_rounds_tmp]
-	movdqa xmm1, [twenty_rounds_tmp+16]
-	movdqa xmm2, [twenty_rounds_tmp+32]
-	movdqa xmm3, [twenty_rounds_tmp+48]
-	chacha20_two_rounds xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6
-	movdqa [twenty_rounds_tmp],    xmm0
-	movdqa [twenty_rounds_tmp+16], xmm1
-	movdqa [twenty_rounds_tmp+32], xmm2
-	movdqa [twenty_rounds_tmp+48], xmm3
-	pop rdi
-	mov rsi, twenty_rounds_tmp
-	mov rdx, 64
-	call memcpy
+
+	movdqu xmm0, [rdi]
+	movdqu xmm1, [rdi+16]
+	movdqu xmm2, [rdi+32]
+	movdqu xmm3, [rdi+48]
+
+	chacha20_twenty_rounds xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6
+
+	movdqu [rdi],    xmm0
+	movdqu [rdi+16], xmm1
+	movdqu [rdi+32], xmm2
+	movdqu [rdi+48], xmm3
 	ret
 
 twenty_rounds:
 	movdqa xmm5, [chacha20_mask8]
 	movdqa xmm6, [chacha20_mask16]
-	push rdi
-	mov rsi, rdi
-	mov rdi, twenty_rounds_tmp
-	mov rdx, 16*4
-	call memcpy
-	chacha20_twenty_rounds xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, twenty_rounds_tmp
-	pop rdi
-	mov rsi, twenty_rounds_tmp
-	mov rdx, 16*4
-	call memcpy
+
+	movdqu xmm0, [rdi]
+	movdqu xmm1, [rdi+16]
+	movdqu xmm2, [rdi+32]
+	movdqu xmm3, [rdi+48]
+
+	movdqa xmm7, xmm0
+	movdqa xmm8, xmm1
+	movdqa xmm9, xmm2
+	movdqa xmm10, xmm3
+
+	chacha20_twenty_rounds xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6
+
+	paddd xmm0, xmm7
+	paddd xmm1, xmm8
+	paddd xmm2, xmm9
+	paddd xmm3, xmm10
+
+	movdqu [rdi],    xmm0
+	movdqu [rdi+16], xmm1
+	movdqu [rdi+32], xmm2
+	movdqu [rdi+48], xmm3
+
 	ret
 
 [section .bss]

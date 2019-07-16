@@ -12,6 +12,7 @@ typedef u32 block[16];
 u32 rotate_left_7(u32 x);
 void quarter_round(u32* a, u32* b, u32* c, u32* d);
 void two_rounds(state);
+void twenty_rounds_no_add(state);
 void twenty_rounds(state);
 
 const size_t NUM_RANDOM_TESTS = 1000;
@@ -19,6 +20,8 @@ u32 rotate_left_reference(u32 x, u32 n);
 
 const char* test = "<not set>";
 void expect(u32 g, u32 e);
+void expect_arr(u32 g[16], u32 e[16]);
+void pass(void);
 
 // Test vectors from RFC8439.
 int main(void) {
@@ -28,6 +31,7 @@ int main(void) {
 		u32 x = rand();
 		expect(rotate_left_7(x), rotate_left_reference(x, 7));
 	}
+	pass();
 
 	test = "Section 2.1.1"; // Test Vector for the ChaCha Quarter Round
 	u32 a = 0x11111111, b = 0x01020304, c = 0x9b8d6f43, d = 0x01234567;
@@ -36,6 +40,7 @@ int main(void) {
 	expect(b, 0xcb1cf8ce);
 	expect(c, 0x4581472e);
 	expect(d, 0x5881c4bb);
+	pass();
 
 	test = "Section 2.2.1"; // Test Vector for the Quarter Round on the ChaCha State
 	state s, t;
@@ -48,39 +53,31 @@ int main(void) {
 	t[0x8] = 0xe46bea80; t[0x9] = 0xb00a5631; t[0xa] = 0x974c541a; t[0xb] = 0x359e9963;
 	t[0xc] = 0x5c971061; t[0xd] = 0xccc07c79; t[0xe] = 0x2098d9d6; t[0xf] = 0x91dbd320;
 	quarter_round(&s[2], &s[7], &s[8], &s[13]);
-	for(size_t i = 0; i < 16; i++)
-		expect(s[i], t[i]);
-
-	test = "Two Rounds"; // Self-made results from the 2.3.2 test on the ref. impl.
-	s[0x0] = 0x61707865; s[0x1] = 0x3320646e; s[0x2] = 0x79622d32; s[0x3] = 0x6b206574;
-	s[0x4] = 0x03020100; s[0x5] = 0x07060504; s[0x6] = 0x0b0a0908; s[0x7] = 0x0f0e0d0c;
-	s[0x8] = 0x13121110; s[0x9] = 0x17161514; s[0xa] = 0x1b1a1918; s[0xb] = 0x1f1e1d1c;
-	s[0xc] = 0x00000001; s[0xd] = 0x09000000; s[0xe] = 0x4a000000; s[0xf] = 0x00000000;
-	t[0x0] = 0xcd52e917; t[0x1] = 0x85ab03b4; t[0x2] = 0xb3457395; t[0x3] = 0xf96de7dd;
-	t[0x4] = 0xc4b7cd22; t[0x5] = 0x5c2e187a; t[0x6] = 0xc95eb461; t[0x7] = 0x316c801a;
-	t[0x8] = 0x7bf7d740; t[0x9] = 0x7eddd644; t[0xa] = 0xf1a1bdf5; t[0xb] = 0x761246ca;
-	t[0xc] = 0x6b0d58a3; t[0xd] = 0x6798471a; t[0xe] = 0xd737f167; t[0xf] = 0xf173888d;
-	two_rounds(s);
-	for(int i = 0; i < 4; i++) {
-		for(int j = 0; j < 4; j++)
-			printf("0x%08x\n", s[4*i + j]);
-		puts("");
-	}
-	for(size_t i = 0; i < 16; i++)
-		expect(s[i], t[i]);
+	expect_arr(s, t);
 
 	test = "Section 2.3.2, Part 1"; // Test Vector for the ChaCha20 Block Function
 	s[0x0] = 0x61707865; s[0x1] = 0x3320646e; s[0x2] = 0x79622d32; s[0x3] = 0x6b206574;
 	s[0x4] = 0x03020100; s[0x5] = 0x07060504; s[0x6] = 0x0b0a0908; s[0x7] = 0x0f0e0d0c;
 	s[0x8] = 0x13121110; s[0x9] = 0x17161514; s[0xa] = 0x1b1a1918; s[0xb] = 0x1f1e1d1c;
 	s[0xc] = 0x00000001; s[0xd] = 0x09000000; s[0xe] = 0x4a000000; s[0xf] = 0x00000000;
-	twenty_rounds(s);
 	t[0x0] = 0x837778ab; t[0x1] = 0xe238d763; t[0x2] = 0xa67ae21e; t[0x3] = 0x5950bb2f;
 	t[0x4] = 0xc4f2d0c7; t[0x5] = 0xfc62bb2f; t[0x6] = 0x8fa018fc; t[0x7] = 0x3f5ec7b7;
 	t[0x8] = 0x335271c2; t[0x9] = 0xf29489f3; t[0xa] = 0xeabda8fc; t[0xb] = 0x82e46ebd;
 	t[0xc] = 0xd19c12b4; t[0xd] = 0xb04e16de; t[0xe] = 0x9e83d0cb; t[0xf] = 0x4e3c50a2;
-	for(size_t i = 0; i < 16; i++)
-		expect(s[i], t[i]);
+	twenty_rounds_no_add(s);
+	expect_arr(s, t);
+
+	test = "Section 2.3.2, Part 2"; // Test Vector for the ChaCha20 Block Function
+	s[0x0] = 0x61707865; s[0x1] = 0x3320646e; s[0x2] = 0x79622d32; s[0x3] = 0x6b206574;
+	s[0x4] = 0x03020100; s[0x5] = 0x07060504; s[0x6] = 0x0b0a0908; s[0x7] = 0x0f0e0d0c;
+	s[0x8] = 0x13121110; s[0x9] = 0x17161514; s[0xa] = 0x1b1a1918; s[0xb] = 0x1f1e1d1c;
+	s[0xc] = 0x00000001; s[0xd] = 0x09000000; s[0xe] = 0x4a000000; s[0xf] = 0x00000000;
+	t[0x0] = 0xe4e7f110; t[0x1] = 0x15593bd1; t[0x2] = 0x1fdd0f50; t[0x3] = 0xc47120a3;
+	t[0x4] = 0xc7f4d1c7; t[0x5] = 0x0368c033; t[0x6] = 0x9aaa2204; t[0x7] = 0x4e6cd4c3;
+	t[0x8] = 0x466482d2; t[0x9] = 0x09aa9f07; t[0xa] = 0x05d7c214; t[0xb] = 0xa2028bd9;
+	t[0xc] = 0xd19c12b5; t[0xd] = 0xb94e16de; t[0xe] = 0xe883d0cb; t[0xf] = 0x4e3c50a2;
+	twenty_rounds(s);
+	expect_arr(s, t);
 
 	return 0;
 }
@@ -94,4 +91,21 @@ void expect(u32 g, u32 e) {
 		printf("%s: Expected 0x%08x to equal 0x%08x.\n", test, g, e);
 		exit(1);
 	}
+}
+
+void pass(void) {
+	printf("%s: OK\n", test);
+	test = "<not set>";
+}
+
+void expect_arr(u32 g[16], u32 e[16]) {
+	for(size_t i = 0; i < 16; i++) {
+		if(g[i] != e[i]) {
+			printf("%s: Expected 0x%08x to equal 0x%08x.\n", test, g[i], e[i]);
+			for(size_t j = 0; j < 16; j++)
+				printf("0x%lx - 0x%08x vs 0x%08x %c\n", j, g[j], e[j], i == j ? '*' : ' ');
+			exit(1);
+		}
+	}
+	pass();
 }
