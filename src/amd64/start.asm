@@ -61,7 +61,7 @@ begincolon
 	; Reserve some space
 	;   64k qwords for process table
 	;   1k bytes for init's process space
-	lit (1<<19) + (1<<10)
+	lit (1 << 19) + (1 << 10)
 	word allot
 	;   HERE should now be 0x280400
 
@@ -72,28 +72,28 @@ begincolon
 	word store
 	;   Write the PID.
 	lit 0
-	lit ifa + (1 << 16)/8 + (1 << 16) + 0x00
+	lit ifa + (1 << 19) + 0x00
 	word store
 	;   Write the source code start canary.
 	lit "SRCSTART"
-	lit ifa + (1 << 16)/8 + (1 << 16) + 0x08
+	lit ifa + (1 << 19) + 0x08
 	word store
 	;   Write the source code length canary.
 	lit "SRC__LEN"
-	lit ifa + (1 << 16)/8 + (1 << 16) + 0x10
+	lit ifa + (1 << 19) + 0x10
 	word store
 	;   Write the source code offset canary.
 	lit "SRC__>IN"
-	lit ifa + (1 << 16)/8 + (1 << 16) + 0x18
+	lit ifa + (1 << 19) + 0x18
 	word store
 	;   Write the dictionary pointer.
 	lit forth_last_pseudobuiltin
 	word fetch
-	lit ifa + (1 << 16)/8 + (1 << 16) + 0x20
+	lit ifa + (1 << 19) + 0x20
 	word store
 	;   Write the flags.
 	lit 0
-	lit ifa + (1 << 16)/8 + (1 << 16) + 0x28
+	lit ifa + (1 << 19) + 0x28
 	word store
 
 	; Switch to hex, for convenience.
