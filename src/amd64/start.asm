@@ -33,7 +33,7 @@ start64:
 
 	; Set the process area pointer to where we will eventually create the init
 	; process, and the parameter and return stacks to within it.
-	mov r15, ifa+((1 << 16)/8 + (1 << 16))
+	mov r15, ifa+(1 << 19)
 	lea r14, [r15+512]
 	lea r13, [r15+1024]
 	mov rbp, r14
@@ -63,7 +63,7 @@ begincolon
 	;   1k bytes for init's process space
 	lit (1<<19) + (1<<10)
 	word allot
-	;   HERE should now be 0x212400
+	;   HERE should now be 0x280400
 
 	; Set up the init process
 	;   Write the process pointer to the right spot.
