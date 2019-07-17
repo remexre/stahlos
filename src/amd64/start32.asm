@@ -41,6 +41,15 @@ start32:
 	add edi, 8
 	loop .p3_init_loop
 
+	; Enable SSE
+	mov eax, cr0
+	and ax, 0xfffb
+	or ax, 0x2
+	mov cr0, eax
+	mov eax, cr4
+	or ax, (1<<10) | (1<<9)
+	mov cr4, eax
+
 	; Set the page table.
 	mov eax, p4
 	mov cr3, eax

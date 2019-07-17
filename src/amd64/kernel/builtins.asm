@@ -1,5 +1,6 @@
 bits 64
 
+%include "src/amd64/chacha20.inc"
 %include "src/amd64/macros.inc"
 %include "src/amd64/kernel/macros.inc"
 
@@ -88,6 +89,32 @@ endcode
 
 defcode cell_plus, "CELL+", 1, 0x00, "u -- u"
 	add rbx, 8
+endcode
+
+defcode chacha20, "CHACHA20", 1, 0x00, "block-addr out-addr --"
+	mov rdx, rbx
+	pop rax
+	pop rbx
+
+	movdqa xmm5, [chacha20_mask8]
+	movdqa xmm6, [chacha20_mask16]
+
+	movdqa xmm0, [rax]
+	movdqa xmm1, [rax+16]
+	movdqa xmm2, [rax+32]
+	movdqa xmm3, [rax+48]
+
+	chacha20_twenty_rounds xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6
+
+	paddd xmm0, [rax]
+	paddd xmm1, [rax+16]
+	paddd xmm2, [rax+32]
+	paddd xmm3, [rax+48]
+
+	movdqa [rdx],    xmm0
+	movdqa [rdx+16], xmm1
+	movdqa [rdx+32], xmm2
+	movdqa [rdx+48], xmm3
 endcode
 
 defcode context_switch, "CONTEXT-SWITCH", 1, 0x00, "addr --"

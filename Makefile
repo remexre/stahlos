@@ -14,7 +14,6 @@ ASM_UNITS += amd64/structures
 ASM_UNITS += amd64/start
 ASM_UNITS += amd64/int
 ASM_UNITS += amd64/panic
-ASM_UNITS += amd64/chacha20
 ASM_UNITS += amd64/devices/pic8259
 ASM_UNITS += amd64/kernel/builtins
 ASM_UNITS += amd64/kernel/error_handling
@@ -80,6 +79,13 @@ run: out/stahlos.img
 		-m $(QEMU_MEM) \
 		-machine q35 \
 		$(QEMUFLAGS)
+run-nokvm: out/stahlos.img
+	qemu-system-x86_64 \
+		-cpu max \
+		-drive format=raw,file=out/stahlos.img,if=ide,media=disk \
+		-m $(QEMU_MEM) \
+		-machine q35 \
+		$(QEMUFLAGS)
 test: out/stahlos.img out/utils/chacha20_tests out/utils/to_number_tests
 	out/utils/chacha20_tests
 	out/utils/to_number_tests
@@ -87,7 +93,7 @@ test: out/stahlos.img out/utils/chacha20_tests out/utils/to_number_tests
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
 	watchexec -cre asm,c,cfg,f,inc,ld,md $(MAKE) all docs test
-.PHONY: all clean disas docs help image install kernel run test utils watch
+.PHONY: all clean disas docs help image install kernel run run-nokvm test utils watch
 
 ci:
 	docker build -t remexre/stahlos-builder .travis
@@ -138,5 +144,5 @@ tmp/amd64/start.o: src/amd64/forth/std.fs \
 	src/amd64/forth/init/paging.fs \
 	src/amd64/forth/init/spawn.fs
 out/utils/chacha20_tests: tmp/utils/chacha20_helpers.o
-tmp/utils/chacha20_helpers.o: src/amd64/chacha20.asm
+tmp/utils/chacha20_helpers.o: src/amd64/chacha20.inc
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o

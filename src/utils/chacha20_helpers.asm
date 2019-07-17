@@ -1,6 +1,6 @@
 bits 64
 
-%include "src/amd64/chacha20.asm"
+%include "src/amd64/chacha20.inc"
 
 global rotate_left_7
 global quarter_round

@@ -92,3 +92,5 @@ GC Allocation
 ```
 
 Garbage collection is done with Cheney's Algorithm.
+
+**TODO:** Details, advice for implementing the mark XT, rename the mark XT

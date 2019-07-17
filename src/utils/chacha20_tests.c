@@ -2,8 +2,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
+typedef uint8_t u8;
 typedef uint32_t u32;
 typedef u32 state[16];
 typedef u32 nonce[3];
@@ -14,13 +16,15 @@ void quarter_round(u32* a, u32* b, u32* c, u32* d);
 void two_rounds(state);
 void twenty_rounds_no_add(state);
 void twenty_rounds(state);
+void encrypt(const u8*, u8*, size_t);
 
 const size_t NUM_RANDOM_TESTS = 1000;
 u32 rotate_left_reference(u32 x, u32 n);
 
 const char* test = "<not set>";
 void expect(u32 g, u32 e);
-void expect_arr(u32 g[16], u32 e[16]);
+void expect_bytes(const u8* g, const u8* e, size_t l);
+void expect_state(state g, state e);
 void pass(void);
 
 // Test vectors from RFC8439.
@@ -53,7 +57,7 @@ int main(void) {
 	t[0x8] = 0xe46bea80; t[0x9] = 0xb00a5631; t[0xa] = 0x974c541a; t[0xb] = 0x359e9963;
 	t[0xc] = 0x5c971061; t[0xd] = 0xccc07c79; t[0xe] = 0x2098d9d6; t[0xf] = 0x91dbd320;
 	quarter_round(&s[2], &s[7], &s[8], &s[13]);
-	expect_arr(s, t);
+	expect_state(s, t);
 
 	test = "Section 2.3.2, Part 1"; // Test Vector for the ChaCha20 Block Function
 	s[0x0] = 0x61707865; s[0x1] = 0x3320646e; s[0x2] = 0x79622d32; s[0x3] = 0x6b206574;
@@ -65,7 +69,7 @@ int main(void) {
 	t[0x8] = 0x335271c2; t[0x9] = 0xf29489f3; t[0xa] = 0xeabda8fc; t[0xb] = 0x82e46ebd;
 	t[0xc] = 0xd19c12b4; t[0xd] = 0xb04e16de; t[0xe] = 0x9e83d0cb; t[0xf] = 0x4e3c50a2;
 	twenty_rounds_no_add(s);
-	expect_arr(s, t);
+	expect_state(s, t);
 
 	test = "Section 2.3.2, Part 2"; // Test Vector for the ChaCha20 Block Function
 	s[0x0] = 0x61707865; s[0x1] = 0x3320646e; s[0x2] = 0x79622d32; s[0x3] = 0x6b206574;
@@ -77,7 +81,7 @@ int main(void) {
 	t[0x8] = 0x466482d2; t[0x9] = 0x09aa9f07; t[0xa] = 0x05d7c214; t[0xb] = 0xa2028bd9;
 	t[0xc] = 0xd19c12b5; t[0xd] = 0xb94e16de; t[0xe] = 0xe883d0cb; t[0xf] = 0x4e3c50a2;
 	twenty_rounds(s);
-	expect_arr(s, t);
+	expect_state(s, t);
 
 	return 0;
 }
@@ -98,7 +102,19 @@ void pass(void) {
 	test = "<not set>";
 }
 
-void expect_arr(u32 g[16], u32 e[16]) {
+void expect_bytes(const u8* g, const u8* e, size_t l) {
+	for(size_t i = 0; i < l; i++) {
+		if(g[i] != e[i]) {
+			printf("%s: Expected 0x%02x to equal 0x%02x.\n", test, g[i], e[i]);
+			for(size_t j = 0; j < l; j++)
+				printf("0x%lx - 0x%02x vs 0x%02x %c\n", j, g[j], e[j], i == j ? '*' : ' ');
+			exit(1);
+		}
+	}
+	pass();
+}
+
+void expect_state(u32 g[16], u32 e[16]) {
 	for(size_t i = 0; i < 16; i++) {
 		if(g[i] != e[i]) {
 			printf("%s: Expected 0x%08x to equal 0x%08x.\n", test, g[i], e[i]);

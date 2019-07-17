@@ -5,9 +5,7 @@ traverse-mb2
 check-modules
 make-free-page-list
 setup-himem
-\ spawn-mb2-modules
-
-\ TRY-RDSEED DEBUG
+spawn-mb2-modules
 
 .( Done with init!)
 QUIT

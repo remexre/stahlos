@@ -59,21 +59,16 @@ start64:
 .pfa:
 begincolon
 	; Reserve some space
-	;   64k bits for readiness
-	;   64k qwords for address of process area
+	;   64k qwords for process table
 	;   1k bytes for init's process space
-	lit (1 << 16)/8 + (1 << 16) + (1<<10)
+	lit (1<<19) + (1<<10)
 	word allot
 	;   HERE should now be 0x212400
 
 	; Set up the init process
-	;   Write a bit that we're ready to run.
-	lit 1
-	lit ifa
-	word store
 	;   Write the process pointer to the right spot.
 	word process_pointer
-	lit ifa + (1 << 16)/8
+	lit ifa
 	word store
 	;   Write the PID.
 	lit 0

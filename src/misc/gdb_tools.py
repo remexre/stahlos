@@ -34,7 +34,8 @@ def command(func):  # decorator
             stack_size = (r13 - rsp) // 8
             stack = []
             if stack_size > 0:
-                stack.append(int(frame.read_register('rbx')))
+                ull = gdb.lookup_type('unsigned long long')
+                stack.append(int(frame.read_register('rbx').cast(ull)))
             for i in range(0, stack_size - 1):
                 stack.append(read(rsp + 8 * i, 8, 'Q')[0])
             func(args, frame, stack, read)

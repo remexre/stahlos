@@ -49,8 +49,6 @@ bits 64
 	chacha20_two_rounds %1, %2, %3, %4, %5, %6, %7
 %endmacro
 
-[section .text]
-
 [section .rodata]
 
 align 16

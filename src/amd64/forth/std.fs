@@ -260,6 +260,79 @@ $1ffff8 @ CONSTANT IPB-START ?( start address of the IPB)
     ." No such word " TYPELN
   THEN ;
 
+\ CSPRNG.
+MODULE
+  HERE 4 ALIGN-UP-TO-POW2 HERE - ALLOT \ Align to 16 bytes
+  HERE $40 ALLOT
+  HERE $40 ALLOT
+  CONSTANT buffer
+  CONSTANT chacha-block
+  VARIABLE buffer-index
+  VARIABLE entropy-index
+
+  chacha-block $30 + CONSTANT counter
+
+  VARIABLE word-buf
+  : entropy-addr chacha-block $10 + entropy-index @ + ;
+  : incr-entropy 1 entropy-index +! ;
+  : ADD-ENTROPY-BYTE ?( c --) entropy-addr C@ XOR entropy-addr C! incr-entropy ;
+  : ADD-ENTROPY ?( addr len --) OVER + SWAP ?DO I C@ ADD-ENTROPY-BYTE LOOP ;
+  : ADD-ENTROPY-WORD ?( u --)
+    word-buf ! word-buf CELL ADD-ENTROPY ;
+
+  : TRY-ADD-RDSEED-ENTROPY ?( --)
+    TRY-RDSEED IF ADD-ENTROPY-WORD ELSE DROP THEN ;
+
+  : incr-counter ?( --) counter D@ 1+ counter D! ;
+  : refill-buffer ?( --) incr-counter chacha-block buffer CHACHA20 ;
+
+  : buffer-addr buffer buffer-index @ + ;
+  : incr-buffer
+    buffer-index @ DUP $40 >=
+    IF refill-buffer DROP 0 ELSE 1+ THEN buffer-index ! ;
+  : RAND-BYTE ?( c-addr --) buffer-addr C@ SWAP C! incr-buffer ;
+  : RAND ?( addr len --) OVER + SWAP ?DO I RAND-BYTE LOOP ;
+  : RAND-WORD ?( -- u) word-buf CELL RAND word-buf @ ;
+
+  \ Read the time from CMOS.
+  : cmos-read $70 OUTB $71 INB ;
+  : current-time
+    $32 cmos-read
+    $09 cmos-read $08 LSHIFT OR
+    $08 cmos-read $10 LSHIFT OR
+    $07 cmos-read $18 LSHIFT OR
+    $04 cmos-read $20 LSHIFT OR
+    $02 cmos-read $28 LSHIFT OR
+    $00 cmos-read $30 LSHIFT OR
+    $06 cmos-read $38 LSHIFT OR ;
+
+  : spin #1000000 0 DO LOOP ;
+
+  : init-csprng
+    \ Initialize chacha-block.
+    $3320646e61707865 chacha-block !
+    $6b20657479622d32 chacha-block 8 + !
+    0 counter D!
+    current-time chacha-block $38 + ! \ nonce
+
+    \ TODO Find more sources of early-boot entropy...
+
+    \ We wait one second of busy-looping to add more entropy to the TSC.
+    current-time BEGIN DUP current-time <> WHILE spin REPEAT DROP
+    RDTSC ADD-ENTROPY-WORD
+
+    \ Add RDSEED entropy.
+    TRY-ADD-RDSEED-ENTROPY
+    TRY-ADD-RDSEED-ENTROPY
+    TRY-ADD-RDSEED-ENTROPY
+    TRY-ADD-RDSEED-ENTROPY
+
+    \ Make the first block.
+    chacha-block buffer CHACHA20 ;
+
+  init-csprng
+END-MODULE( ADD-ENTROPY ADD-ENTROPY-WORD RAND RAND-WORD )
+
 \ Allocation. There's no FREE word, since we (eventually will) garbage collect.
 \ TODO: Rework this for Cheney's algorithm.
 $ffff800000000000 CONSTANT MIN-PAGED-HIMEM-ADDR
@@ -272,12 +345,12 @@ $ffff800000000000 HIMEM-NEXT-FREE-ADDR !
 
 : ALLOCATE-TRACING ?( l xt -- addr)
   HIMEM-NEXT-FREE-ADDR @
-  ROT DUP #24 + ALIGNED HIMEM-NEXT-FREE-ADDR +!
+  ROT DUP $18 + ALIGNED HIMEM-NEXT-FREE-ADDR +!
   OVER ! CELL+
   DUP -ROT ! CELL+
   DUP 0 ! CELL+ ;
 : ALLOCATE-TRACING-ZEROED ?( l xt -- addr)
-  SWAP DUP ROT ALLOCATE-TRACING DUP -ROT ERASE ;
+  SWAP DUP ROT ALLOCATE-TRACING DUP ROT ERASE ;
 : ALLOCATE ?( l -- addr) ['] DROP ALLOCATE-TRACING ;
 : ALLOCATE-ZEROED ?( l -- addr) DUP ALLOCATE DUP -ROT ERASE ;
 
@@ -290,23 +363,39 @@ $ffff800000000000 HIMEM-NEXT-FREE-ADDR !
     2DROP
   THEN ;
 
-\ Spawning.
+\ Process management.
 MODULE
-  : GC-PROCESS-AREA ?( addr --) TODO DROP ;
-  : ALLOCATE-PROCESS-AREA ?( -- addr)
-    $400 ['] GC-PROCESS-AREA ALLOCATE-TRACING-ZEROED ;
-  : MAKE-PROCESS-AREA ?( pid -- addr)
-    ALLOCATE-PROCESS-AREA
-    DUP -ROT ! DEBUG ;
+  : gc-process-area ?( addr --) TODO DROP ;
+  : gc-process-entry ?( addr --) TODO DROP ;
+
+  : allocate-process-area ?( -- addr)
+    $400 ['] gc-process-area ALLOCATE-TRACING-ZEROED ;
+  : allocate-process-entry ?( -- addr)
+    $18 ['] gc-process-entry ALLOCATE-TRACING ;
+
+  : make-process-area ?( pid -- addr) allocate-process-area DUP -ROT ! ;
+  : make-process-entry ?( addr pid -- addr)
+    allocate-process-entry
+    DUP -ROT 8 + !
+    DUP -ROT $10 + ! ;
+
+  $202000 CONSTANT process-table
+  : add-to-process-table ?( pid addr --)
+    OVER make-process-entry
+    OVER $30 RSHIFT CELLS
+    DEBUG ;
+
+  \ PIDs are always positive, just for convenience.
+  : make-pid ?( -- pid) RAND-WORD 1 $3f LSHIFT 1- AND ;
 
   : SPAWN ?( u_k ... u_1 k xt --)
-    ( RDRAND ) DUP MAKE-PROCESS-AREA DEBUG
-    DROP DISCARD ;
-END-MODULE( SPAWN )
+    make-pid DUP make-process-area
+    \ TODO Insert stack items, XT, call to :NONAME EXECUTE KILL ;
+    add-to-process-table
+    DEBUG DROP DISCARD ;
 
-\ Context switching and the scheduler.
-: PROCESS-POINTER-FOR ?( n -- addr) CELLS $202000 + ;
-: PID ?( -- n) PROCESS-POINTER @ ;
+  : SPAWN DROP DISCARD ;
+END-MODULE( SPAWN )
 
 \ Message passing.
 MODULE
