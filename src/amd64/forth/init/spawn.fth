@@ -1,13 +1,12 @@
 MODULE
 
-: spawn-mb2-module ?( tag-addr --)
-  RESET-TO-STD
-  DEBUG ;
+: evaluate-module ?( tag-addr --) DUP 8 + D@ SWAP #12 + D@ OVER - EVALUATE ;
+: mb2-module-entrypoint ?( tag-addr --) RESET-TO-STD evaluate-module ;
 
 : spawn-mb2-modules
   mb2-end mb2-tags ?DO
     I mb2-tag-type mb2-type-module = IF
-      I 1 ['] spawn-mb2-module SPAWN
+      I 1 ['] mb2-module-entrypoint SPAWN
     THEN
     I mb2-tag-size
   +LOOP ;

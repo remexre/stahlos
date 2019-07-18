@@ -31,7 +31,7 @@ MISC_UTILS += fnv1a
 MISC_UTILS += chacha20_tests to_number_tests
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
-FORTH_SRCS = $(patsubst %,src/forth/%.fs,$(FORTH_UNITS))
+FORTH_SRCS = $(patsubst %,src/forth/%.fth,$(FORTH_UNITS))
 
 all: kernel image docs
 clean:
@@ -137,12 +137,12 @@ tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
 
-tmp/amd64/start.o: src/amd64/forth/std.fs \
-	src/amd64/forth/init/main.fs \
-	src/amd64/forth/init/mb2.fs \
-	src/amd64/forth/init/mem.fs \
-	src/amd64/forth/init/paging.fs \
-	src/amd64/forth/init/spawn.fs
+tmp/amd64/start.o: src/amd64/forth/std.fth \
+	src/amd64/forth/init/main.fth \
+	src/amd64/forth/init/mb2.fth \
+	src/amd64/forth/init/mem.fth \
+	src/amd64/forth/init/paging.fth \
+	src/amd64/forth/init/spawn.fth
 out/utils/chacha20_tests: tmp/utils/chacha20_helpers.o
 tmp/utils/chacha20_helpers.o: src/amd64/chacha20.inc
 out/utils/to_number_tests: tmp/amd64/kernel/to_number.o

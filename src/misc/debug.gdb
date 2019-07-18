@@ -13,9 +13,14 @@ define l
 	layout regs
 	focus cmd
 end
+
 define nsi
 	next
 	stepi
+end
+
+define proc
+	hd $r15 64
 end
 
 continue

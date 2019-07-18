@@ -157,7 +157,8 @@ VARIABLE (LOOP-IDX)
   THEN ; IMMEDIATE
 
 \ I/O primitives.
-:NONAME $e9 OUTB ; IS-EMIT
+: EMIT-DEFAULT $e9 OUTB ;
+' EMIT-DEFAULT IS-EMIT
 : TYPE TIMES DUP I + C@ EMIT LOOP DROP ;
 $0a CONSTANT NL
 $20 CONSTANT BL
@@ -203,7 +204,10 @@ $20 CONSTANT BL
   LATEST HEADER>NAME POSTPONE LITERAL
   COMPILING COUNT
   COMPILING TYPELN
-  COMPILING DEBUG ; IMMEDIATE
+  COMPILING DEBUG
+  POSTPONE BEGIN
+  COMPILING HLT
+  POSTPONE AGAIN ; IMMEDIATE
 : WORDS ?( --) LATEST BEGIN DUP WHILE DUP HEADER>NAME COUNT TYPE SPACE @ REPEAT CR ;
 
 \ Aborting.
@@ -373,37 +377,59 @@ MODULE
   : allocate-process-entry ?( -- addr)
     $18 ['] gc-process-entry ALLOCATE-TRACING ;
 
-  : make-process-area ?( pid -- addr) allocate-process-area DUP -ROT ! ;
+  $200000 CONSTANT process-table
+  : PID>AREA ?( pid -- addr | 0)
+    DUP $30 RSHIFT CELLS process-table +
+    BEGIN @ DUP WHILE 2DUP 8 + @ = IF $10 + @ NIP LEAVE THEN REPEAT ;
+
+  : DIE TODO ;
+
+  :NONAME [ DROP HERE ] R> EXECUTE DIE ;
+  CONSTANT entrypoint
+
+  : make-process-area ?( u_k ... u_1 k xt pid -- addr)
+    allocate-process-area
+    DUP -ROT ! \ Process ID
+    DUP -ROT $1f8 + ! \ XT
+    OVER 0 DO
+      I 2 + PICK
+      OVER $3f0 + I CELLS - !
+    LOOP
+    TRUE OVER 8 + ! \ Start of Source
+    ['] ABORT-DEFAULT OVER $40 + ! \ ABORT
+    ['] INT3 OVER $48 + ! \ BP
+    ['] EMIT-DEFAULT OVER $50 + ! \ EMIT
+    ['] DIE OVER $58 + ! \ QUIT
+    entrypoint OVER $e8 + ! \ Stored RSI
+    OVER CELLS $3f8 SWAP - OVER + OVER $f0 + ! \ Stored RSP
+    DUP $1f8 + OVER $f8 + ! \ Stored RBP
+    >R DISCARD R> ;
   : make-process-entry ?( addr pid -- addr)
     allocate-process-entry
     DUP -ROT 8 + !
     DUP -ROT $10 + ! ;
 
-  $200000 CONSTANT process-table
   : add-to-process-table-entry ?( entry addr --)
     BEGIN DUP @ WHILE @ REPEAT ! ;
   : add-to-process-table ?( pid addr --)
     OVER make-process-entry
-    OVER $30 RSHIFT CELLS
+    SWAP $30 RSHIFT CELLS
     process-table + add-to-process-table-entry ;
 
-  : PID>AREA TODO ;
-
   \ PIDs are always positive, just for convenience.
+  \ TODO ensure no duplicate pids
   : make-pid ?( -- pid) RAND-WORD 1 $3f LSHIFT 1- AND ;
 
-  \ DEBUG for add-to-process-table-entry, PIDs are now assigned sequentially!
+  \ TODO for add-to-process-table-entry, PIDs are now assigned sequentially!
   VARIABLE last-pid
   : make-pid 1 last-pid +! last-pid @ ;
 
   : SPAWN ?( u_k ... u_1 k xt --)
-    make-pid DUP make-process-area
-    \ TODO Insert stack items, XT, call to :NONAME EXECUTE KILL ;
-    add-to-process-table
-    PID>AREA CONTEXT-SWITCH ;
-
-  : SPAWN DROP DISCARD ;
-END-MODULE( PID>AREA SPAWN )
+    make-pid DUP
+    >R make-process-area R>
+    OVER add-to-process-table
+    CONTEXT-SWITCH ;
+END-MODULE( DIE PID>AREA SPAWN )
 
 \ Message passing.
 MODULE
@@ -414,5 +440,5 @@ END-MODULE()
 \ Clearing the slate for spawned children.
 : RESET-TO-STD [ LATEST ] LITERAL DICT-HEAD ! ;
 
-.( Done with std.fs!)
+.( Done with std.fth!)
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

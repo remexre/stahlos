@@ -23,9 +23,9 @@ These mainly focus on getting the parser up and running, and providing enough co
 Standard Library
 ----------------
 
-This is currently `src/amd64/forth/std.fs`. Words mentioned in the core word set of the Forth 2012 standard are generally defined here. This file should be portable between different architectures that share the same cell size, word layout, etc.
+This is currently `src/amd64/forth/std.fth`. Words mentioned in the core word set of the Forth 2012 standard are generally defined here. This file should be portable between different architectures that share the same cell size, word layout, etc.
 
 Init
 ----
 
-This is currently `src/amd64/forth/init.fs`. This file finishes initializing hardware, and begins loading startup programs (as specified as Multiboot2 modules).
+This is currently `src/amd64/forth/init.fth`. This file finishes initializing hardware, and begins loading startup programs (as specified as Multiboot2 modules).

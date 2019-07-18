@@ -1,4 +1,6 @@
+from functools import *
 import gdb
+from math import *
 import shutil
 import string
 import struct
@@ -24,8 +26,9 @@ def command(func):  # decorator
                 else:
                     return struct.unpack(fmt, mem)
 
-            rsp = int(frame.read_register('rsp'))
-            r13 = int(frame.read_register('r13'))
+            ull = gdb.lookup_type('unsigned long long')
+            rsp = int(frame.read_register('rsp').cast(ull))
+            r13 = int(frame.read_register('r13').cast(ull))
 
             # If we're in the int3 handler, skip its stack entries.
             if func_name == 'bp_handler':
@@ -42,6 +45,23 @@ def command(func):  # decorator
 
     DecoratedCommand()
     return func
+
+
+@command
+def fn(args, frame, stack, read):  # forth next
+    stop = False
+    while True:
+        gdb.execute('stepi')
+        frame = gdb.selected_frame()
+        rip = frame.read_register('rip')
+        if stop:
+            break
+        if read(rip, 2) == b'\xff\xe0':
+            stop = True
+    if '+' in str(rip) or '<' not in str(rip):
+        gdb.execute('disas {},+64'.format(int(rip)))
+    else:
+        gdb.execute('disas')
 
 
 @command
@@ -80,37 +100,19 @@ def hd(args, frame, stack, read):
 
 
 @command
-def hhd(args, frame, stack, read):
-    assert len(args) == 1
-    addr = gdb.parse_and_eval(args[0]).cast(gdb.lookup_type('void').pointer())
-    addr += 0xffff800000000000
-    args = [str(addr)]
-    hd(args, frame, stack, read)
-
-
-@command
-def fn(args, frame, stack, read):  # forth next
-    stop = False
-    while True:
-        gdb.execute('stepi')
-        frame = gdb.selected_frame()
-        rip = frame.read_register('rip')
-        if stop:
-            break
-        if read(rip, 2) == b'\xff\xe0':
-            stop = True
-    if '+' in str(rip) or '<' not in str(rip):
-        gdb.execute('disas {},+64'.format(int(rip)))
-    else:
-        gdb.execute('disas')
+def ph(args, frame, stack, read):
+    assert len(args) > 0
+    ull = gdb.lookup_type('unsigned long long')
+    print(hex(gdb.parse_and_eval(' '.join(args)).cast(ull)))
 
 
 @command
 def rstack(args, frame, stack, read):
     assert len(args) == 0
 
-    rbp = int(frame.read_register('rbp'))
-    r14 = int(frame.read_register('r14'))
+    ull = gdb.lookup_type('unsigned long long')
+    rbp = int(frame.read_register('rbp').cast(ull))
+    r14 = int(frame.read_register('r14').cast(ull))
 
     rstack = []
     for i in range((r14 - rbp) // 8):

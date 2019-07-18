@@ -114,13 +114,13 @@ endcolon
 [section .forth_code]
 
 cold_code:
-	incbin "src/amd64/forth/std.fs"
+	incbin "src/amd64/forth/std.fth"
 	db 0x0a
-	incbin "src/amd64/forth/init/mb2.fs"
-	incbin "src/amd64/forth/init/mem.fs"
-	incbin "src/amd64/forth/init/paging.fs"
-	incbin "src/amd64/forth/init/spawn.fs"
-	incbin "src/amd64/forth/init/main.fs"
+	incbin "src/amd64/forth/init/mb2.fth"
+	incbin "src/amd64/forth/init/mem.fth"
+	incbin "src/amd64/forth/init/paging.fth"
+	incbin "src/amd64/forth/init/spawn.fth"
+	incbin "src/amd64/forth/init/main.fth"
 .len equ $-cold_code
 
 ; vi: cc=80 ft=nasm
