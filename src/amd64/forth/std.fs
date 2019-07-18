@@ -379,23 +379,31 @@ MODULE
     DUP -ROT 8 + !
     DUP -ROT $10 + ! ;
 
-  $202000 CONSTANT process-table
+  $200000 CONSTANT process-table
+  : add-to-process-table-entry ?( entry addr --)
+    BEGIN DUP @ WHILE @ REPEAT ! ;
   : add-to-process-table ?( pid addr --)
     OVER make-process-entry
     OVER $30 RSHIFT CELLS
-    DEBUG ;
+    process-table + add-to-process-table-entry ;
+
+  : PID>AREA TODO ;
 
   \ PIDs are always positive, just for convenience.
   : make-pid ?( -- pid) RAND-WORD 1 $3f LSHIFT 1- AND ;
+
+  \ DEBUG for add-to-process-table-entry, PIDs are now assigned sequentially!
+  VARIABLE last-pid
+  : make-pid 1 last-pid +! last-pid @ ;
 
   : SPAWN ?( u_k ... u_1 k xt --)
     make-pid DUP make-process-area
     \ TODO Insert stack items, XT, call to :NONAME EXECUTE KILL ;
     add-to-process-table
-    DEBUG DROP DISCARD ;
+    PID>AREA CONTEXT-SWITCH ;
 
   : SPAWN DROP DISCARD ;
-END-MODULE( SPAWN )
+END-MODULE( PID>AREA SPAWN )
 
 \ Message passing.
 MODULE

@@ -58,18 +58,24 @@ start64:
 .after: dq cold_exited
 .pfa:
 begincolon
-	; Reserve some space
-	;   64k qwords for process table
-	;   1k bytes for init's process space
-	lit (1 << 19) + (1 << 10)
+	; Reserve some space.
+	;   64k qwords for process table.
+	;   1k bytes for init's process space.
+	lit (1 << 19) + (1 << 10) + 0x18
 	word allot
 	;   HERE should now be 0x280400
 
-	; Set up the init process
+	; Set up the init process' link.
 	;   Write the process pointer to the right spot.
 	word process_pointer
+	lit ifa + (1 << 19) + (1 << 10) + 0x10
+	word store
+	;   Write the link's address to the right spot.
+	lit ifa + (1 << 19) + (1 << 10)
 	lit ifa
 	word store
+
+	; Set up the init process' area.
 	;   Write the PID.
 	lit 0
 	lit ifa + (1 << 19) + 0x00
