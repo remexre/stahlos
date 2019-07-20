@@ -1,14 +1,13 @@
+S" startup" SET-PROCESS-NAME
+
+." Startup is PID " PID H. ." with arguments: " TYPELN
+
 : MiB #20 RSHIFT D. ." MiB" ;
 
-." Paged " TOTAL-PAGED-HIMEM MiB CR
+."    Paged: " TOTAL-PAGED-HIMEM MiB CR
 ." Free mem: " FREE-HIMEM MiB CR
 ." Used mem: " USED-HIMEM MiB CR
 
-: main ;
-
+YIELD
 .( Done with startup!)
-
-.( Shutting down...)
-:NONAME ?( --) $2000 $604 OUTW BEGIN HLT AGAIN ; EXECUTE
-
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :

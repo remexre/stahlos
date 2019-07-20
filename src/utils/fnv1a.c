@@ -9,7 +9,7 @@ unsigned long long fnv1a64(const char* cstr);
 
 int main(int argc, char** argv) {
 	if(argc != 2) {
-		fprintf(stderr, "Usage: %s <string>\n", argc ? argv[0] : "fnv1a0");
+		fprintf(stderr, "Usage: %s <string>\n", argc ? argv[0] : "fnv1a");
 		return EXIT_FAILURE;
 	}
 

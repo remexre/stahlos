@@ -9,8 +9,6 @@ VARIABLE p1-index
 VARIABLE out-of-pages-depth
 VARIABLE out-of-pages-rdepth
 
-' MAX-PAGED-HIMEM-ADDR 5 + CONSTANT MAX-PAGED-HIMEM-ADDR-VALUE
-
 : out-of-pages ?( --)
   ." No free page when one was expected!" CR
   ." Bailing out of page-pages-to-himem..." CR
@@ -65,7 +63,7 @@ VARIABLE out-of-pages-rdepth
   WHILE
     DUP page-size ERASE
     addr>pte next-p1-entry !
-    page-size MAX-PAGED-HIMEM-ADDR-VALUE +!
+    MAX-PAGED-HIMEM-ADDR page-size + TO MAX-PAGED-HIMEM-ADDR
   REPEAT DROP ;
 
 END-MODULE( setup-himem )

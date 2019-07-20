@@ -19,12 +19,14 @@ proc wait_for {waiting_for line} {
 }
 
 log_user 0
-spawn qemu-system-x86_64 -cpu max -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -nographic
+spawn qemu-system-x86_64 -cpu max -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -machine q35 -nographic
 
-wait_for GRUB "Booting `StahlOS'"
-set timeout 15
+wait_for GRUB "GNU GRUB"
+send "\033\[B\r"
 
-# Real tests should go here once serial works...
+set timeout 30
+wait_for "serial driver" "serial port inited!"
+set timeout 5
 
 wait_for shutdown eof
 

@@ -11,6 +11,8 @@ extern aes_mode_encrypt
 extern allot_overflow
 extern ipb
 extern ipb.here
+extern ipb.quantum
+extern ipb.quantum_max
 extern to_number
 extern underflow
 extern underflow_return
@@ -127,6 +129,8 @@ defcode context_switch, "CONTEXT-SWITCH", 1, 0x00, "addr --"
 	mov rbp, [r15+0xf8]
 	lea r13, [r15+0x400]
 	lea r14, [r15+0x200]
+	mov rax, [ipb.quantum_max]
+	mov [ipb.quantum], rax
 	pop rbx
 endcode
 
@@ -240,6 +244,24 @@ endcode
 
 defcode fetch_word, "W@", 1, 0x00, "addr -- word"
 	movzx rbx, word [rbx]
+endcode
+
+defcode fnv1a, "FNV1A", 2, 0x00, "addr len -- hash"
+	xor r9, r9 ; idx
+	pop rdi ; addr
+	mov rax, 0xcbf29ce484222325 ; hash
+	mov r8, 1099511628211 ; prime
+
+.loop:
+	cmp rbx, r9
+	je .end
+	xor al, [rdi+r9]
+	mul r8
+	inc r9
+	jmp .loop
+
+.end:
+	mov rbx, rax
 endcode
 
 defcode from_r, "R>"
@@ -550,6 +572,24 @@ defcode s_to_d, "S>D", 1
 	sar rbx, 31
 endcode
 
+defcode sat_sub, "SAT-", 1, 0x00, "a b -- a-b | 0"
+	pop rax
+	mov rdx, rbx
+	xor rbx, rbx
+	sub rax, rdx
+	cmovnc rbx, rax
+endcode
+
+defcode set_flag, "SET-FLAG", 2, 0x00, "u bit -- u"
+	pop rax
+	xor edx, edx
+	inc edx
+	mov rcx, rbx
+	shl rdx, cl
+	or rax, rdx
+	mov rbx, rax
+endcode
+
 defcode source_buffer, "SOURCE-BUFFER"
 	push rbx
 	lea rbx, [r15+0x08]
@@ -633,7 +673,7 @@ defcode swap, "SWAP", 2, 0x00, "x y -- y x"
 	xchg [rsp], rbx
 endcode
 
-defcode test_flag, "TEST-FLAG", 2
+defcode test_flag, "TEST-FLAG", 2, 0x00, "x y -- flag"
 	pop rdx
 	mov rcx, rbx
 	mov rax, 1
@@ -762,9 +802,20 @@ defcode umul, "U*", 2, 0x00, "x y -- x*y"
 	mov rbx, rax
 endcode
 
-defcode process_pointer, "PROCESS-POINTER"
+defcode process_pointer, "PROCESS-POINTER", 0, 0x00, "-- addr"
 	push rbx
 	mov rbx, r15
+endcode
+
+defcode unset_flag, "UNSET-FLAG", 2, 0x00, "u bit -- u"
+	pop rax
+	xor edx, edx
+	inc edx
+	mov rcx, rbx
+	shl rdx, cl
+	not rdx
+	and rax, rdx
+	mov rbx, rax
 endcode
 
 defcode xor, "XOR", 2, 0x00, "x y -- x^y"

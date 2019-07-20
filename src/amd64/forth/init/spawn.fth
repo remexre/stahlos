@@ -1,7 +1,17 @@
 MODULE
 
-: evaluate-module ?( tag-addr --) DUP 8 + D@ SWAP #12 + D@ OVER - EVALUATE ;
-: mb2-module-entrypoint ?( tag-addr --) RESET-TO-STD evaluate-module ;
+: module-tag>cmdline ?( tag-addr -- addr len) #16 + CSTR>STR ;
+: module-tag>data ?( tag-addr -- addr len)
+  DUP 8 + D@ SWAP #12 + D@ OVER - ;
+: evaluate-module ?( tag-addr --)
+  DUP module-tag>cmdline ROT module-tag>data EVALUATE ;
+: mb2-module-entrypoint ?( tag-addr --)
+  RESET-TO-STD
+  ['] ABORT-DEFAULT IS-ABORT
+  ['] INT3          IS-BP
+  ['] EMIT-DEFAULT  IS-EMIT
+  ['] DIE           IS-QUIT
+  evaluate-module ;
 
 : spawn-mb2-modules
   mb2-end mb2-tags ?DO

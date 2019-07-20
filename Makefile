@@ -24,6 +24,7 @@ ASM_UNITS += amd64/kernel/to_number
 FORTH_UNITS += debug-service
 FORTH_UNITS += serial
 FORTH_UNITS += startup
+FORTH_UNITS += tests
 
 QEMU_MEM = 64M
 
@@ -33,7 +34,7 @@ MISC_UTILS += chacha20_tests to_number_tests
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
 FORTH_SRCS = $(patsubst %,src/forth/%.fth,$(FORTH_UNITS))
 
-all: kernel image docs
+all: kernel image utils docs
 clean:
 	rm -rf tmp out
 debug: out/stahlos.img out/stahlos.sym
@@ -53,7 +54,7 @@ docs:
 	mdbook build
 help:
 	@echo >&2 'Targets:'
-	@echo >&2 '  all     - Does kernel, image, and docs'
+	@echo >&2 '  all     - Creates the kernel, image, utils, and docs targets'
 	@echo >&2 '  clean   - Removes temporary and output files'
 	@echo >&2 '  debug   - Opens GDB, connected to QEMU, running the boot image'
 	@echo >&2 '  disas   - Disassembles the kernel'
