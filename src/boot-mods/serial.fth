@@ -26,6 +26,7 @@ $3f8 VALUE port
 : read-ready? ?( -- flag) line-status INB 0 TEST-FLAG ;
 : write-ready? ?( -- flag) line-status INB 5 TEST-FLAG ;
 
+: read-byte ?( -- byte) BEGIN read-ready? NOT WHILE YIELD REPEAT port INB ;
 : write-byte ?( byte --) BEGIN write-ready? NOT WHILE YIELD REPEAT port OUTB ;
 
 : main
