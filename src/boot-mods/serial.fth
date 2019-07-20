@@ -17,8 +17,8 @@ $3f8 VALUE port
 : init-serial ?( --)
   $00 int-enable OUTB \ TODO Make this interrupt-driven...
   $80 line-ctrl OUTB \ Enable DLAB
-  $01 dlab-lsb OUTB \ 115200 baud
-  $00 dlab-msb OUTB \ 115200 baud
+  $0c dlab-lsb OUTB \ 9600 baud
+  $00 dlab-msb OUTB \ 9600 baud
   $03 line-ctrl OUTB \ Disable DLAB, set 8N1
   $c7 int-ident OUTB \ TODO Figure out what this does...
   $0b modem-status OUTB ; \ TODO Figure out what this does...

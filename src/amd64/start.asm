@@ -114,7 +114,12 @@ endcolon
 [section .forth_code]
 
 cold_code:
-	incbin "src/amd64/forth/std.fth"
+	incbin "src/amd64/forth/std/basic.fth"
+	incbin "src/amd64/forth/std/gc.fth"
+	incbin "src/amd64/forth/std/rng.fth"
+	incbin "src/amd64/forth/std/process.fth"
+	incbin "src/amd64/forth/std/msg.fth"
+	incbin "src/amd64/forth/std/end.fth"
 	db 0x0a
 	incbin "src/amd64/forth/init/mb2.fth"
 	incbin "src/amd64/forth/init/mem.fth"

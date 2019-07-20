@@ -3,6 +3,10 @@
 proc wait_for {waiting_for line} {
 	expect {
 		$line {}
+		eof {
+			puts "QEMU died early!"
+			exit 3
+		}
 		timeout {
 			puts "Timed out while waiting for ${waiting_for}!"
 			send "\001x"

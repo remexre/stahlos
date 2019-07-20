@@ -21,10 +21,10 @@ ASM_UNITS += amd64/kernel/interpret
 ASM_UNITS += amd64/kernel/pseudobuiltins
 ASM_UNITS += amd64/kernel/to_number
 
-FORTH_UNITS += debug-service
-FORTH_UNITS += serial
-FORTH_UNITS += startup
-FORTH_UNITS += tests
+BOOT_MODULES += debug-service
+BOOT_MODULES += serial
+BOOT_MODULES += startup
+BOOT_MODULES += tests
 
 QEMU_MEM = 64M
 
@@ -32,7 +32,7 @@ MISC_UTILS += fnv1a
 MISC_UTILS += chacha20_tests to_number_tests
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
-FORTH_SRCS = $(patsubst %,src/forth/%.fth,$(FORTH_UNITS))
+FORTH_SRCS = $(patsubst %,src/boot-mods/%.fth,$(BOOT_MODULES))
 
 all: kernel image utils docs
 clean:
@@ -138,7 +138,12 @@ tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
 
-tmp/amd64/start.o: src/amd64/forth/std.fth \
+tmp/amd64/start.o: src/amd64/forth/std/basic.fth \
+	src/amd64/forth/std/end.fth \
+	src/amd64/forth/std/gc.fth \
+	src/amd64/forth/std/msg.fth \
+	src/amd64/forth/std/process.fth \
+	src/amd64/forth/std/rng.fth \
 	src/amd64/forth/init/main.fth \
 	src/amd64/forth/init/mb2.fth \
 	src/amd64/forth/init/mem.fth \
