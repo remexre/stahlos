@@ -139,6 +139,7 @@ tmp/utils/%.o: src/utils/%.c
 	$(CC) -c -o $@ $(CFLAGS) $^
 
 tmp/amd64/start.o: src/amd64/forth/std/basic.fth \
+	src/amd64/forth/std/buffer.fth \
 	src/amd64/forth/std/end.fth \
 	src/amd64/forth/std/gc.fth \
 	src/amd64/forth/std/msg.fth \
