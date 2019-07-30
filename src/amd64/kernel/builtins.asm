@@ -400,6 +400,16 @@ defcode min, "MIN", 2, 0x00, "n n -- n"
 	mov rbx, rax
 endcode
 
+defcode move, "MOVE", 3, 0x00, "from-addr to-addr len --"
+	mov rcx, rbx
+	mov rdx, rdi
+	pop rdi
+	pop rsi
+	pop rbx
+	rep movsb
+	mov rdi, rdx
+endcode
+
 defcode mul_d, "*D", 2
 	mov rax, [rsp]
 	imul rbx
