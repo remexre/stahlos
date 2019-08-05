@@ -37,11 +37,11 @@ Process Area
    0 +--------------------+--------------------+--------------------+--------------------+
      |     Process ID     |   Start of Source  |  Length of Source  |     Input Offset   |
   32 +--------------------+--------------------+--------------------+--------------------+
-	 |   Dictionary Head  |        Flags       |   Head of Mailbox  |   Tail of Mailbox  |
+     |   Dictionary Head  |        Flags       |   Head of Mailbox  |   Tail of Mailbox  |
   64 +--------------------+--------------------+--------------------+--------------------+
-	 |      ABORT xt      |        BP xt       |       EMIT xt      |       QUIT xt      |
+     |      ABORT xt      |        BP xt       |       EMIT xt      |       QUIT xt      |
   96 +--------------------+--------------------+--------------------+--------------------+
-	 |    Name Pointer    |     Name Length    |      Reserved      |      Reserved      |
+     |    Name Pointer    |     Name Length    |      Reserved      |      Reserved      |
  128 +--------------------+--------------------+--------------------+--------------------+
     ...                                    Reserved                                     ...
  224 +--------------------+--------------------+--------------------+--------------------+
