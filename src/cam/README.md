@@ -136,3 +136,8 @@ First, we notice that:
 We then introduce an identity combinator, `id`, and the rewrite rule `app ∘ <Λ(x), y> = x ∘ <id, y>`.
 
 We can compile `id` to an empty sequence of instructions. Because of this, the sequence `push swap` is now possibly present -- this can be optimized to `push`, since the top of stack will be the same as the current term.
+
+Additional Features
+-------------------
+
+Currently, recursion and branching are not supported; they can of course be simulated with the Church encoding, but this is of course inefficient.
