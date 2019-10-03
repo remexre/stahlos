@@ -137,7 +137,7 @@ We then introduce an identity combinator, `id`, and the rewrite rule `app âˆ˜ <Î
 
 We can compile `id` to an empty sequence of instructions. Because of this, the sequence `push swap` is now possibly present -- this can be optimized to `push`, since the top of stack will be the same as the current term.
 
-Additional Features
--------------------
+Compiling to Forth
+==================
 
-Currently, recursion and branching are not supported; they can of course be simulated with the Church encoding, but this is inefficient.
+In Forth, we only have the data stack, rather than a data stack and a current term, so we use the top slot of the data stack as the current term. We also assign names to the code sequences in the `lam` instruction, which are compiled to Forth words.

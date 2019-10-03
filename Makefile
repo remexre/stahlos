@@ -138,6 +138,10 @@ tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
 
+src/hosted_compiler/_build/default/stahl_hosted.exe:
+	dune build stahl_hosted.exe --root src/hosted_compiler
+.PHONY: src/hosted_compiler/_build/default/stahl_hosted.exe
+
 tmp/amd64/start.o: src/amd64/forth/std/basic.fth \
 	src/amd64/forth/std/buffer.fth \
 	src/amd64/forth/std/end.fth \

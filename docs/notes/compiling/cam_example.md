@@ -1,3 +1,4 @@
+```ocaml
 (*********)
 (* utils *)
 (*********)
@@ -314,3 +315,4 @@ assert (size_after id        opt_cam id3   <= size_after id id id3);;
 assert (size_after opt_insns opt_cam id3   <= size_after id id id3);;
 assert (size_after id        opt_cam add23 <= size_after id id add23);;
 assert (size_after opt_insns opt_cam add23 <= size_after id id add23);;
+```
