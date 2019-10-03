@@ -80,10 +80,8 @@ let step (state: t) : t =
   | Some(Swap) -> (match dtl with
                   | (cadr::cddr) -> cadr::dhd::cddr
                   | [] -> raise Stack_underflow)
-  (* | Some(QuoteName(n)) -> "drop ' " ^ n *)
+  | Some(QuoteName(n)) -> Code(Some(n), 0)::dtl
   | Some(QuoteNum(n)) -> Lit(n)::dtl
-  (* | Some(Add) -> "add" *)
-  (* | Some(Mul) -> "mul" *)
   | Some(w) -> print_endline (to_string state);
                failwith ("TODO Forth_vm.step [" ^ Forth.string_of_word w ^ "]")
   | None -> (match rs with
