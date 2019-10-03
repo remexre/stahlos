@@ -21,11 +21,13 @@ Binary: `_ ∘ _`, `<_, _>`
 
 (where `0`, `1+n` are de Brujin indices)
 
--	`[[0]] = snd`
--	`[[1+n]] = [[n]] ∘ fst`
--	`[[c]] = 'c`
--	`[[f x]] = app ∘ <[[f]], [[x]]>`
--	`[[λ x]] = Λ([[x]])`
+```
+[[0]]   → snd
+[[1+n]] → [[n]] ∘ fst
+[[c]]   → 'c
+[[f x]] → app ∘ <[[f]], [[x]]>
+[[λ x]] → Λ([[x]])
+```
 
 Dynamic Combinators
 -------------------
@@ -39,12 +41,14 @@ At runtime (if executing by term rewriting), pairing and combinator application 
 
 The following evaluation rules are applied repeatedly to reduce an expression.
 
--	`((x ∘ y) $ z) → x $ (y $ z)`
--	`(fst $ (x, y)) → x`
--	`(snd $ (x, y)) → y`
--	`(<x, y> $ z) → (x $ z, y $ z)`
--	`(app $ (Λ(x) $ y, z)) → (x $ (y, z))`
--	`('(x) $ y) → x`
+```
+((x ∘ y) $ z)         → x $ (y $ z)
+(fst $ (x, y))        → x
+(snd $ (x, y))        → y
+(<x, y> $ z)          → (x $ z, y $ z)
+(app $ (Λ(x) $ y, z)) → (x $ (y, z))
+('(x) $ y)            → x
+```
 
 Simple Example
 --------------
@@ -106,24 +110,28 @@ Lastly, `'` acts largely as before, but replaces the current term with the assoc
 
 To summarize, the compilation rules from static combinators are:
 
--	`[[app]]    → app`
--	`[[fst]]    → fst`
--	`[[snd]]    → snd`
--	`[['x]]     → quote(x)`
--	`[[Λ(x)]]   → lam([[x]])`
--	`[[x ∘ y]]  → [[y]] [[x]]`
--	`[[<x, y>]] → push [[x]] swap [[y]] cons`
+```
+[[app]]    → app
+[[fst]]    → fst
+[[snd]]    → snd
+[['x]]     → quote(x)
+[[Λ(x)]]   → lam([[x]])
+[[x ∘ y]]  → [[y]] [[x]]
+[[<x, y>]] → push [[x]] swap [[y]] cons
+```
 
 And the evaluation rules (on a `[Code | Term | Stack]` triple) are:
 
--	`[app     ,C | ((B:X), Y) |   S] → [B,C | (X, Y) |   S]`
--	`[lam(B)  ,C |      X     |   S] → [  C |   B:X  |   S]`
--	`[fst     ,C |   (X, Y)   |   S] → [  C |    X   |   S]`
--	`[snd     ,C |   (X, Y)   |   S] → [  C |    Y   |   S]`
--	`[cons    ,C |      Y     | X,S] → [  C | (X, Y) |   S]`
--	`[push    ,C |      X     |   S] → [  C |    X   | X,S]`
--	`[quote(X),C |      Y     |   S] → [  C |    X   |   S]`
--	`[swap    ,C |      X     | Y,S] → [  C |    Y   | X,S]`
+```
+[app,     C | ((B:X), Y) |   S] → [B,C | (X, Y) |   S]
+[lam(B),  C |      X     |   S] → [  C |   B:X  |   S]
+[fst,     C |   (X, Y)   |   S] → [  C |    X   |   S]
+[snd,     C |   (X, Y)   |   S] → [  C |    Y   |   S]
+[cons,    C |      Y     | X,S] → [  C | (X, Y) |   S]
+[push,    C |      X     |   S] → [  C |    X   | X,S]
+[quote(X),C |      Y     |   S] → [  C |    X   |   S]
+[swap,    C |      X     | Y,S] → [  C |    Y   | X,S]
+```
 
 Optimization
 ------------
