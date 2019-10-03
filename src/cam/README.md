@@ -140,4 +140,4 @@ We can compile `id` to an empty sequence of instructions. Because of this, the s
 Additional Features
 -------------------
 
-Currently, recursion and branching are not supported; they can of course be simulated with the Church encoding, but this is of course inefficient.
+Currently, recursion and branching are not supported; they can of course be simulated with the Church encoding, but this is inefficient.

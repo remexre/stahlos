@@ -10,13 +10,16 @@ let id (x: 'a) : 'a = x
 
 type lam
   = Abs of lam
+  | Add of lam * lam
   | App of lam * lam
-  | Con of string
+  | Con of int
+  | Mul of lam * lam
   | Var of int
 
-let kiuv = App(App(App(Abs(Abs(Var(1))), Abs(Var(0))), Con("u")), Con("v"))
-let kuv = App(App(Abs(Abs(Var(1))), Con("u")), Con("v"))
-let idw = App(Abs(App(Abs(Var(0)), Var(0))), Con("w"))
+let ki12 = App(App(App(Abs(Abs(Var(1))), Abs(Var(0))), Con(1)), Con(2))
+let k12 = App(App(Abs(Abs(Var(1))), Con(1)), Con(2))
+let id3 = App(Abs(App(Abs(Var(0)), Var(0))), Con(3))
+let add23 = Add(Con(2), Con(3))
 
 (**********************)
 (* Static combinators *)
@@ -26,7 +29,9 @@ type cam
   = SApp
   | SFst
   | SSnd
-  | SQuote of string
+  | SAdd
+  | SMul
+  | SQuote of int
   | SLam of cam
   | SCom of cam * cam
   | SPair of cam * cam
@@ -34,8 +39,10 @@ type cam
 
 let rec cam_of_lam : lam -> cam = function
   | Abs(b) -> SLam(cam_of_lam b)
+  | Add(x, y) -> SCom(SAdd, SPair(cam_of_lam x, cam_of_lam y))
   | App(f, x) -> SCom(SApp, SPair(cam_of_lam f, cam_of_lam x))
   | Con(s) -> SQuote(s)
+  | Mul(x, y) -> SCom(SMul, SPair(cam_of_lam x, cam_of_lam y))
   | Var(n) -> if n < 0 then
                 failwith "Invalid de Brujin index"
               else if n = 0 then
@@ -43,24 +50,28 @@ let rec cam_of_lam : lam -> cam = function
               else
                 SCom(cam_of_lam(Var(n-1)), SFst)
 
-let static_kiuv =
+let static_ki12 =
   let app x y = SCom(SApp, SPair(x, y)) in
-  app (app (app (SLam(SLam(SCom(SSnd, SFst)))) (SLam(SSnd))) (SQuote("u"))) (SQuote("v"))
+  app (app (app (SLam(SLam(SCom(SSnd, SFst)))) (SLam(SSnd))) (SQuote(1))) (SQuote(2))
 
-let static_kuv =
+let static_k12 =
   let app x y = SCom(SApp, SPair(x, y)) in
-  app (app (SLam(SLam(SCom(SSnd, SFst)))) (SQuote("u"))) (SQuote("v"))
+  app (app (SLam(SLam(SCom(SSnd, SFst)))) (SQuote(1))) (SQuote(2))
 
-let static_idw =
+let static_id3 =
   let app x y = SCom(SApp, SPair(x, y)) in
-  app (SLam(app (SLam(SSnd)) SSnd)) (SQuote("w"))
+  app (SLam(app (SLam(SSnd)) SSnd)) (SQuote(3))
+
+let static_add23 =
+  SCom(SAdd, SPair(SQuote(2), SQuote(3)))
 
 ;;
 (* wtf ocaml... the ;; above seems to be necessary... *)
 
-assert (cam_of_lam kiuv = static_kiuv);;
-assert (cam_of_lam kuv = static_kuv);;
-assert (cam_of_lam idw = static_idw)
+assert (cam_of_lam ki12 = static_ki12);;
+assert (cam_of_lam k12 = static_k12);;
+assert (cam_of_lam id3 = static_id3);;
+assert (cam_of_lam add23 = static_add23)
 
 (********************************)
 (* Static + dynamic combinators *)
@@ -70,14 +81,16 @@ type cam_runtime
   = CApp
   | CFst
   | CSnd
-  | CQuote of string
+  | CAdd
+  | CMul
+  | CQuote of int
   | CLam of cam_runtime
   | CCom of cam_runtime * cam_runtime
   | CPair of cam_runtime * cam_runtime
   | CId
   (* Dynamic things below *)
   | CEmpty
-  | CCon of string
+  | CCon of int
   | CApply of cam_runtime * cam_runtime
   | CDPair of cam_runtime * cam_runtime
 
@@ -85,6 +98,8 @@ let rec inj : cam -> cam_runtime = function
   | SApp -> CApp
   | SFst -> CFst
   | SSnd -> CSnd
+  | SAdd -> CAdd
+  | SMul -> CMul
   | SQuote(s) -> CQuote(s)
   | SLam(b) -> CLam(inj b)
   | SCom(f, g) -> CCom(inj f, inj g)
@@ -99,10 +114,15 @@ let rec eval_cam_1 : cam_runtime -> cam_runtime = function
   | CApply(CPair(x, y), z) -> CDPair(CApply(x, z), CApply(y, z))
   | CApply(CApp, CDPair(CApply(CLam(x), y), z)) -> CApply(x, CDPair(y, z))
   | CApply(CQuote(s), _) -> CCon(s)
+  (* arithmetic operators are currently curried... *)
+  | CApply(CAdd, CDPair(CCon(x), CCon(y))) -> CCon(x + y)
+  | CApply(CMul, CDPair(CCon(x), CCon(y))) -> CCon(x * y)
   (* apply them recursively *)
   | CApp -> CApp
   | CFst -> CFst
   | CSnd -> CSnd
+  | CAdd -> CAdd
+  | CMul -> CMul
   | CQuote(s) -> CQuote(s)
   | CLam(b) -> CLam(eval_cam_1 b)
   | CCom(f, g) -> CCom(eval_cam_1 f, eval_cam_1 g)
@@ -124,9 +144,10 @@ let rec eval_cam' (expr: cam_runtime) : cam_runtime =
 let eval_cam (expr: cam) : cam_runtime =
   eval_cam' (CApply(inj expr, CEmpty));;
 
-assert (eval_cam (cam_of_lam kiuv) = CCon("v"));;
-assert (eval_cam (cam_of_lam kuv) = CCon("u"));;
-assert (eval_cam (cam_of_lam idw) = CCon("w"))
+assert (eval_cam (cam_of_lam ki12) = CCon(2));;
+assert (eval_cam (cam_of_lam k12) = CCon(1));;
+assert (eval_cam (cam_of_lam id3) = CCon(3));;
+assert (eval_cam (cam_of_lam add23) = CCon(5))
 
 (*********************************)
 (* High-level stack instructions *)
@@ -139,13 +160,17 @@ type insn
   | ISnd
   | ICons
   | IPush
-  | IQuote of string
+  | IQuote of int
+  | IAdd
+  | IMul
   | ISwap
 
 let rec insns_of_cam : cam -> insn list = function
   | SApp -> [IApp]
   | SFst -> [IFst]
   | SSnd -> [ISnd]
+  | SAdd -> [IAdd]
+  | SMul -> [IMul]
   | SQuote(s) -> [IQuote(s)]
   | SLam(b) -> [ILam(insns_of_cam b)]
   | SCom(f, g) -> insns_of_cam g @ insns_of_cam f
@@ -158,7 +183,7 @@ let rec insns_of_cam : cam -> insn list = function
 
 type insn_term
   = IClo of insn list * insn_term
-  | ICon of string
+  | ICon of int
   | IPair of insn_term * insn_term
   | IEmpty
 
@@ -192,6 +217,12 @@ let rec step_insn_state (state: insn_state) : insn_status =
                     | [] -> failwith "Stack underflow at IPair")
   | (IPush::ctl) -> Continue({term=tm; code=ctl; stack=(tm::st)})
   | (IQuote(s)::ctl) -> Continue({term=ICon(s); code=ctl; stack=st})
+  | (IAdd::ctl) -> (match tm with
+                   | IPair(ICon(x), ICon(y)) -> Continue({term=ICon(x + y); code=ctl; stack=st})
+                   | _ -> failwith "Type error at ISnd")
+  | (IMul::ctl) -> (match tm with
+                   | IPair(ICon(x), ICon(y)) -> Continue({term=ICon(x * y); code=ctl; stack=st})
+                   | _ -> failwith "Type error at ISnd")
   | (ISwap::ctl) -> (match st with
                     | shd::stl -> Continue({term=shd; code=ctl; stack=(tm::stl)})
                     | [] -> failwith "Stack underflow at ISwap")
@@ -208,9 +239,10 @@ let eval_insns (insns: insn list) : insn_term =
   | (out, []) -> out
   | _ -> failwith "nonempty stack";;
 
-assert (eval_insns (insns_of_cam (cam_of_lam kiuv)) = ICon("v"));;
-assert (eval_insns (insns_of_cam (cam_of_lam kuv)) = ICon("u"));;
-assert (eval_insns (insns_of_cam (cam_of_lam idw)) = ICon("w"))
+assert (eval_insns (insns_of_cam (cam_of_lam ki12)) = ICon(2));;
+assert (eval_insns (insns_of_cam (cam_of_lam k12)) = ICon(1));;
+assert (eval_insns (insns_of_cam (cam_of_lam id3)) = ICon(3));;
+assert (eval_insns (insns_of_cam (cam_of_lam add23)) = ICon(5))
 
 (****************)
 (* Optimization *)
@@ -240,6 +272,8 @@ let rec opt_cam_1 : cam -> cam flag_monad = function
   | SApp        -> return SApp
   | SFst        -> return SFst
   | SSnd        -> return SSnd
+  | SAdd        -> return SAdd
+  | SMul        -> return SMul
   | SQuote(s)   -> return (SQuote(s))
   | SLam(b)     -> opt_cam_1 b >>= fun b'
                 -> return (SLam(b'))
@@ -265,15 +299,18 @@ let rec opt_insns : insn list -> insn list = function
   | [] -> []
   | hd::tl -> hd::opt_insns tl;;
 
-assert (eval_cam (opt_cam (cam_of_lam kiuv)) = CCon("v"));;
-assert (eval_cam (opt_cam (cam_of_lam kuv)) = CCon("u"));;
-assert (eval_cam (opt_cam (cam_of_lam idw)) = CCon("w"))
+assert (eval_cam (opt_cam (cam_of_lam ki12)) = CCon(2));;
+assert (eval_cam (opt_cam (cam_of_lam k12)) = CCon(1));;
+assert (eval_cam (opt_cam (cam_of_lam id3)) = CCon(3));;
+assert (eval_cam (opt_cam (cam_of_lam add23)) = CCon(5))
 
 let size_after f g expr = List.length (f (insns_of_cam (g (cam_of_lam expr))));;
 
-assert (size_after id        opt_cam kiuv < size_after id id kiuv);;
-assert (size_after opt_insns opt_cam kiuv < size_after id id kiuv);;
-assert (size_after id        opt_cam kuv  < size_after id id kuv);;
-assert (size_after opt_insns opt_cam kuv  < size_after id id kuv);;
-assert (size_after id        opt_cam idw  < size_after id id idw);;
-assert (size_after opt_insns opt_cam idw  < size_after id id idw);;
+assert (size_after id        opt_cam ki12  <= size_after id id ki12);;
+assert (size_after opt_insns opt_cam ki12  <= size_after id id ki12);;
+assert (size_after id        opt_cam k12   <= size_after id id k12);;
+assert (size_after opt_insns opt_cam k12   <= size_after id id k12);;
+assert (size_after id        opt_cam id3   <= size_after id id id3);;
+assert (size_after opt_insns opt_cam id3   <= size_after id id id3);;
+assert (size_after id        opt_cam add23 <= size_after id id add23);;
+assert (size_after opt_insns opt_cam add23 <= size_after id id add23);;
