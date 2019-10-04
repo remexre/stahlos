@@ -16,3 +16,8 @@ let () =
   let forth = Lam.compile_to_forth ki12 in
   print_endline (Forth.string_of_program forth);
   print_endline (run' forth)
+
+let () =
+  print_endline (Sexpr.to_string (Sexpr.Symbol("test")));
+  let sexprs = must id (Sexpr.parse "1 (2 () three) four") in
+  List.iter (print_endline %% Sexpr.to_string) sexprs

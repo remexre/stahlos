@@ -4,7 +4,11 @@ val const : 'a -> 'b -> 'a
 
 val gensym : unit -> string
 
+val id : 'a -> 'a
+
 val join_with : string -> string list -> string
+
+val map_string : (char -> 'a) -> string -> 'a list
 
 val must : ('b -> string) -> ('a, 'b) result -> 'a
 

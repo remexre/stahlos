@@ -10,6 +10,8 @@ let gensym : unit -> string =
     "gensym@" ^ string_of_int n
   end
 
+let id (x: 'a) : 'a = x
+
 let join_with (sep: string) : string list -> string =
   let rec helper : string list -> string = function
   | [] -> ""
@@ -17,6 +19,14 @@ let join_with (sep: string) : string list -> string =
   in function
   | [] -> ""
   | h::t -> h ^ helper t
+
+let map_string (f: char -> 'a) (s: string) : 'a list =
+  let rec helper (i: int) (acc : 'a list) : 'a list =
+    if i = 0 then
+      acc
+    else
+      helper (i-1) (f (String.get s (i-1)) :: acc)
+  in helper (String.length s) []
 
 let must (to_string: 'b -> string) : ('a, 'b) result -> 'a = function
   | Ok(x) -> x
