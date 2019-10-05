@@ -49,9 +49,9 @@ let expect_char (ctx: string * int ref) (c: char) : unit =
   else
     expectation_failed ctx (Printf.sprintf "'%s'" (Char.escaped c))
 
-let skip_whitespace (ctx: string * int ref) : unit =
+let rec skip_whitespace (ctx: string * int ref) : unit =
   match peek ctx with
-  | Some(c) when String.contains " \n" c -> advance ctx
+  | Some(c) when String.contains " \n" c -> advance ctx; skip_whitespace ctx
   | _ -> ()
 
 
@@ -60,7 +60,30 @@ let is_symbolish (ch: char) : bool =
   ('0' <= ch && ch <= '9') ||
   ('A' <= ch && ch <= 'Z') ||
   ('a' <= ch && ch <= 'z') ||
-  String.contains "+-*/%" ch
+  String.contains "%*+-/<>?" ch
+
+let parse_string (ctx: string * int ref) : string =
+  let cs =
+    let rec loop (cs: char list) : char list =
+      let c = match peek ctx with
+      | Some(c) -> c
+      | None -> expectation_failed ctx "'\"'"
+      in
+      advance ctx;
+      if c = '"' then
+        cs
+      else
+        loop (c::cs)
+    in loop []
+  in
+  let length = List.length cs in
+  let buf = Bytes.create length in
+  let _ =
+    let helper (l: int) (c: char) : int =
+      Bytes.set buf l c;
+      l + 1
+    in List.fold_left helper 0 cs
+  in Bytes.to_string buf
 
 let rec parse_symbolish (ctx: string * int ref) (start: int) : string =
   advance ctx;
@@ -70,6 +93,8 @@ let rec parse_symbolish (ctx: string * int ref) (start: int) : string =
 
 let rec parse_one (ctx: string * int ref) : t =
   match peek ctx with
+  | Some('"') -> advance ctx;
+                 String(parse_string ctx)
   | Some('\'') -> advance ctx;
                   skip_whitespace ctx;
                   let e = parse_one ctx in

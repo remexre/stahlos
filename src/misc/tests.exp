@@ -22,6 +22,8 @@ proc wait_for {waiting_for line} {
 	}
 }
 
+puts "Starting expect tests..."
+
 log_user 0
 spawn qemu-system-x86_64 -cpu max -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -machine q35 -nographic
 

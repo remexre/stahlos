@@ -97,7 +97,7 @@ test: out/stahlos.img out/utils/chacha20_tests out/utils/to_number_tests
 	expect src/misc/tests.exp
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
-	watchexec -cre asm,c,cfg,f,inc,ld,md $(MAKE) all docs test
+	watchexec -cre asm,c,cfg,f,inc,ld,md,ml -w src $(MAKE) all docs test
 .PHONY: all clean disas docs help image install kernel run run-nokvm test utils watch
 
 ci:

@@ -2,8 +2,9 @@
 \ once and have Stahl programs all share it, especially once the self-hosting
 \ compiler is in use.
 
-." main:State = " HEX ' main:State . CR
-." main:setup = " HEX ' main:setup . CR
-." main:loop = " HEX ' main:loop . CR
+HEX
+." main:State = " ' main:State . CR
+." main:setup = " ' main:setup . CR
+." main:loop = " ' main:loop . CR
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :
