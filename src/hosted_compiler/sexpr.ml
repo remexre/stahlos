@@ -3,6 +3,7 @@ open Utils
 type t
   = Int of Int64.t
   | List of t list
+  | String of string
   | Symbol of string
 
 let rec to_string : t -> string = function
@@ -11,6 +12,7 @@ let rec to_string : t -> string = function
   (* general cases *)
   | Int(x) -> Int64.to_string x
   | List(l) -> "(" ^ join_with " " (List.map to_string l) ^ ")"
+  | String(s) -> "\"" ^ String.escaped s ^ "\""
   | Symbol(s) -> s
 
 
@@ -49,7 +51,7 @@ let expect_char (ctx: string * int ref) (c: char) : unit =
 
 let skip_whitespace (ctx: string * int ref) : unit =
   match peek ctx with
-  | Some(' ') | Some('\n') -> advance ctx
+  | Some(c) when String.contains " \n" c -> advance ctx
   | _ -> ()
 
 
