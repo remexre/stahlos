@@ -1,7 +1,7 @@
 Categorical Abstract Machine
 ============================
 
-These are some notes on the CAM. Read the original paper for more detail.
+These are some notes on the CAM. Read the original paper for context.
 
 Static Combinators
 ------------------

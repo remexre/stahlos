@@ -81,6 +81,6 @@ let compile_to_forth (expr: t) : Forth.program =
                 [Forth.Lam(name)]
               end
   | Com(g, f) -> helper f @ helper g
-  | Pair(l, r) -> [Forth.Push] @ helper l @ [Forth.Swap] @ helper r @ [Forth.Cons]
+  | Pair(l, r) -> [Forth.Dup] @ helper l @ [Forth.Swap] @ helper r @ [Forth.Cons]
   in let main = helper expr
   in { defs = !defs; main = Forth.optimize main }

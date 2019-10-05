@@ -1,0 +1,11 @@
+(module main)
+
+(deftype Unit Type
+  unit Unit)
+
+(deftype Nat Type
+  Z Nat
+  S (-> Nat Nat))
+
+(defun main () Unit
+  (%evalForth ".( Hello, Stahl World!)"))

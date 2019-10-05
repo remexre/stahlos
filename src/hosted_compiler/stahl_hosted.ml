@@ -1,3 +1,4 @@
+(*
 open Utils
 
 let ki12 =
@@ -19,5 +20,14 @@ let () =
 
 let () =
   print_endline (Sexpr.to_string (Sexpr.Symbol("test")));
-  let sexprs = must id (Sexpr.parse "1 (2 () three) four") in
+  let sexprs = must id (Sexpr.parse " one '(2 () three) 4 ") in
   List.iter (print_endline %% Sexpr.to_string) sexprs
+
+let () =
+  print_endline (read_file_string "src/hosted_compiler/cam.ml")
+
+let () = print_endline "Done"
+*)
+
+let () =
+  print_endline ".( Hello, Stahl world!)"

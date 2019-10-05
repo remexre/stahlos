@@ -6,7 +6,7 @@ type word
   | Fst
   | Snd
   | Cons
-  | Push
+  | Dup
   | Swap
   | QuoteName of string
   | QuoteNum of int
@@ -20,7 +20,7 @@ type program =
 
 let rec optimize : word list -> word list = function
   | [] -> []
-  | Push::Swap::tl -> Push::optimize tl
+  | Dup::Swap::tl -> Dup::optimize tl
   | hd::tl -> hd::optimize tl
 
 let string_of_word : word -> string = function
@@ -29,7 +29,7 @@ let string_of_word : word -> string = function
   | Fst -> "fst"
   | Snd -> "snd"
   | Cons -> "cons"
-  | Push -> "push"
+  | Dup -> "push"
   | Swap -> "swap"
   | QuoteName(n) -> "drop ' " ^ n
   | QuoteNum(n) -> "drop " ^ string_of_int n

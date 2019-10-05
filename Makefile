@@ -26,13 +26,17 @@ BOOT_MODULES += serial
 BOOT_MODULES += startup
 BOOT_MODULES += tests
 
+STAHL_UNITS += hello
+
 QEMU_MEM = 64M
 
 MISC_UTILS += fnv1a
 MISC_UTILS += chacha20_tests to_number_tests
 
 ASM_OBJS = $(patsubst %,tmp/%.o,$(ASM_UNITS))
-FORTH_SRCS = $(patsubst %,src/boot-mods/%.fth,$(BOOT_MODULES))
+BOOT_FORTH_SRCS = $(patsubst %,src/boot-mods/%.fth,$(BOOT_MODULES))
+STAHL_FORTH_SRCS = $(patsubst %,tmp/stahl/%.fth,$(STAHL_UNITS))
+FORTH_SRCS = $(BOOT_FORTH_SRCS) $(STAHL_FORTH_SRCS)
 
 all: kernel image utils docs
 clean:
@@ -138,9 +142,19 @@ tmp/utils/%.o: src/utils/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $(CFLAGS) $^
 
-src/hosted_compiler/_build/default/stahl_hosted.exe:
-	dune build stahl_hosted.exe --root src/hosted_compiler
-.PHONY: src/hosted_compiler/_build/default/stahl_hosted.exe
+tmp/stahl_hosted: tmp/hosted_compiler/default/stahl_hosted.exe
+	@mkdir -p $(dir $@)
+	@cp $< $@
+tmp/hosted_compiler/default/stahl_hosted.exe:
+	@mkdir -p $(dir $@)
+	dune build stahl_hosted.exe \
+		--build-dir "$(shell pwd)/tmp/hosted_compiler" \
+		--root src/hosted_compiler
+.PHONY: tmp/hosted_compiler/default/stahl_hosted.exe
+
+tmp/stahl/%.fth: src/stahl/%.stahl tmp/stahl_hosted
+	@mkdir -p $(dir $@)
+	tmp/stahl_hosted < $< > $@
 
 tmp/amd64/start.o: src/amd64/forth/std/basic.fth \
 	src/amd64/forth/std/buffer.fth \

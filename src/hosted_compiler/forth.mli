@@ -4,7 +4,7 @@ type word
   | Fst
   | Snd
   | Cons
-  | Push
+  | Dup
   | Swap
   | QuoteName of string
   | QuoteNum of int

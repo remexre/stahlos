@@ -1,6 +1,6 @@
 FROM alpine:edge
 
-RUN apk add --no-cache binutils expect gcc grub grub-bios grub-efi libc-dev make mtools nasm qemu-system-x86_64 xorriso
+RUN apk add --no-cache binutils dune expect gcc grub grub-bios grub-efi libc-dev make mtools nasm ocaml qemu-system-x86_64 xorriso
 RUN apk add --no-cache cargo && \
 	cargo install mdbook --vers "0.3.1" && \
 	install /root/.cargo/bin/mdbook /usr/local/bin && \

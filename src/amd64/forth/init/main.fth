@@ -15,8 +15,8 @@ S" Register"  FNV1A CONSTANT register
   ." Entering init.main..." CR
   BEGIN
     YIELD
-    ." init.main loop" CR
-    INT3
+    \ ." init.main loop" CR
+    \ INT3
   AGAIN ; 
 main
 

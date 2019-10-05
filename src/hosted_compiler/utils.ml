@@ -34,3 +34,38 @@ let must (to_string: 'b -> string) : ('a, 'b) result -> 'a = function
 
 let opt_parens (s: string) (x: int) (y: int) : string =
   if x > y then "(" ^ s ^ ")" else s
+
+let read_all_string (chan: in_channel) : string =
+  let chunks = ref [] in
+  begin
+    try
+      let rec loop () =
+        let buf = Bytes.create 1024 in
+        let len = input chan buf 0 10 in
+        if len > 0 then begin
+          chunks := (Bytes.sub buf 0 len) :: !chunks;
+          loop ()
+        end
+      in loop ()
+    with
+      End_of_file -> ()
+  end;
+  let chunks = !chunks in
+  let total_len = List.fold_left (fun l b -> l + Bytes.length b) 0 chunks in
+  let out = Bytes.create total_len in
+  let blit l b =
+      let l' = Bytes.length b in
+      Bytes.blit b 0 out (total_len-l-l') l';
+      l + l'
+  in
+  let _ = List.fold_left blit 0 chunks in
+  Bytes.to_string out
+
+let read_file_string (path: string) : string =
+  let f = open_in path in
+  try
+    let s = read_all_string f in
+    close_in f;
+    s
+  with
+    e -> close_in f; raise e

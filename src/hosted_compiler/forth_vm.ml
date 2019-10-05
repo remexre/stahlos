@@ -76,7 +76,7 @@ let step (state: t) : t =
   | Some(Cons) -> (match dtl with
                   | (cadr::cddr) -> Pair(cadr, dhd)::cddr
                   | [] -> raise Stack_underflow)
-  | Some(Push) -> dhd::ds
+  | Some(Dup) -> dhd::ds
   | Some(Swap) -> (match dtl with
                   | (cadr::cddr) -> cadr::dhd::cddr
                   | [] -> raise Stack_underflow)
