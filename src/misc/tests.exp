@@ -1,39 +1,44 @@
 #!/usr/bin/env expect
 
+proc shutdown {quit_after} {
+	send "\003"
+	set timeout 3
+	expect {
+		eof {
+			if $quit_after {
+				exit 1
+			}
+		}
+		timeout {
+			puts "QEMU didn't quit in time!"
+			exit 2
+		}
+	}
+}
+
 proc wait_for {waiting_for line} {
 	expect {
 		$line {}
 		eof {
-			puts "QEMU died early!"
+			puts "QEMU crashed!"
 			exit 3
 		}
 		timeout {
 			puts "Timed out while waiting for ${waiting_for}!"
-			send "\001x"
-			set timeout 3
-			expect {
-				eof { exit 1 }
-				timeout {
-					puts "QEMU didn't quit in time either!"
-					exit 2
-				}
-			}
+			shutdown true
 		}
 	}
 }
 
 puts "Starting expect tests..."
 
-log_user 0
-spawn qemu-system-x86_64 -cpu max -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -machine q35 -nographic
-
-wait_for GRUB "GNU GRUB"
-send "\033\[B\r"
+spawn qemu-system-x86_64 -cpu max -drive format=raw,file=out/stahlos.img,if=ide,media=disk -m 64M -machine q35 -display none -serial stdio
 
 set timeout 30
 wait_for "serial driver" "serial port inited!"
 set timeout 5
 
-wait_for shutdown eof
+shutdown false
+# wait_for shutdown eof
 
 puts "Expect tests passed!"

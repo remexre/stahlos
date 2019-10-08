@@ -53,7 +53,9 @@ MODULE
   : TICK-QUANTUM ?( --) quantum-addr @ 1 SAT- quantum-addr ! ;
 
   : YIELD ?( --)
-    run-queue @ link-next @ DUP run-queue ! link-area @ CONTEXT-SWITCH ;
+    run-queue @ link-next @ DUP run-queue ! link-area @
+    ." Context switch to " DUP . CR
+    CONTEXT-SWITCH ;
   :NONAME ?( --) quantum-addr @ 0= IF YIELD THEN ; IS MAYBE-YIELD
 
   : remove-run-queue-link ?( link-addr -- next-addr)

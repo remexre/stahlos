@@ -24,7 +24,6 @@ ASM_UNITS += amd64/kernel/to_number
 BOOT_MODULES += debug-service
 BOOT_MODULES += serial
 BOOT_MODULES += startup
-BOOT_MODULES += tests
 
 STAHL_UNITS += hello
 
@@ -97,8 +96,10 @@ test: out/stahlos.img out/utils/chacha20_tests out/utils/to_number_tests
 	expect src/misc/tests.exp
 utils: $(patsubst %,out/utils/%,$(MISC_UTILS))
 watch:
-	watchexec -cre asm,c,cfg,f,inc,ld,md,ml -w src $(MAKE) all docs test
-.PHONY: all clean disas docs help image install kernel run run-nokvm test utils watch
+	watchexec -cre asm,c,cfg,f,inc,ld,md,ml,mli,stahl -w src $(MAKE) all
+watch-test:
+	watchexec -cre asm,c,cfg,f,inc,ld,md,ml,mli,stahl -w src $(MAKE) test
+.PHONY: all clean disas docs help image install kernel run run-nokvm test utils watch watch-test
 
 ci:
 	docker build -t remexre/stahlos-builder .travis

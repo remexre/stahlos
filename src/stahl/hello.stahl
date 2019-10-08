@@ -1,5 +1,6 @@
-(module main)
+# (module main)
 
+#|
 (deftype Unit Type
   unit Unit)
 
@@ -7,5 +8,27 @@
   Z Nat
   S (-> Nat Nat))
 
-(defun main () Unit
-  (%evalForth ".( Hello, Stahl World!)"))
+(deftype (Pair T U) (-> Type Type Type)
+  pair (-> T U (Pair T U)))
+
+(deftype (List T) (-> Type Type)
+  nil (List T)
+  cons (-> T (List T) (List T)))
+|#
+
+(def State Type
+  Unit)
+
+(defun setup ((args String) (pid PID)) State
+  unit)
+
+(defun loop ((messages (List MessageIn)) (state State)) (Pair (List MessageOut) State)
+  # TODO: Do something with messages other than just ignoring it.
+  (pair nil state))
+
+(def test TODO
+  (list (fn x y)
+        (fn (x y) z)
+        (pi x y (pi z w v))
+        (pi ((x y) (z w)) v)
+        (-> x y z)))

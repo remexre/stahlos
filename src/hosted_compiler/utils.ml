@@ -12,6 +12,11 @@ let gensym : unit -> string =
 
 let id (x: 'a) : 'a = x
 
+let rec init : 'a list -> 'a list = function
+  | [] -> failwith "init"
+  | [_] -> []
+  | hd::tl -> hd :: init tl
+
 let join_with (sep: string) : string list -> string =
   let rec helper : string list -> string = function
   | [] -> ""
@@ -19,6 +24,11 @@ let join_with (sep: string) : string list -> string =
   in function
   | [] -> ""
   | h::t -> h ^ helper t
+
+let rec last : 'a list -> 'a = function
+  | [] -> failwith "last"
+  | [x] -> x
+  | _::tl -> last tl
 
 let map_string (f: char -> 'a) (s: string) : 'a list =
   let rec helper (i: int) (acc : 'a list) : 'a list =

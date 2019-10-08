@@ -12,8 +12,8 @@ Since Stahl does not yet have codata, the runtime system handles the infinite lo
 
 ### `setup`
 
-`(the (-> (Pair String PID) State) setup)` returns the initial `State` of the program, given the program arguments and PID.
+`(the (-> String PID State) setup)` returns the initial `State` of the program, given the program arguments and PID.
 
 ### `loop`
 
-`(the (-> (Pair (List MessageIn) State) (Option (Pair (List MessageOut) State))) loop)` implements the main body of the program. All messages that were received during the previous execution are passed to the function, as well as the previous state. It returns any new messages to be sent, as well as the new state.
+`(the (-> (List MessageIn) State (Option (Pair (List MessageOut) State))) loop)` implements the main body of the program. All messages that were received during the previous execution are passed to the function, as well as the previous state. It returns any new messages to be sent, as well as the new state.

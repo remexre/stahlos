@@ -6,7 +6,11 @@ val gensym : unit -> string
 
 val id : 'a -> 'a
 
+val init : 'a list -> 'a list
+
 val join_with : string -> string list -> string
+
+val last : 'a list -> 'a
 
 val map_string : (char -> 'a) -> string -> 'a list
 

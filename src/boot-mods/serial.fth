@@ -11,6 +11,8 @@ $3f8 VALUE port
 : dlab-lsb port ;
 : dlab-msb port 1 + ;
 
+: log-prefix ?( --) ." [serial@" port HN. ." ] " ;
+
 : setup-port-from-args ?( addr len --)
   DUP IF HEX >NUMBER ABORT" Invalid port!" TO port THEN ;
 
@@ -30,16 +32,16 @@ $3f8 VALUE port
 : write-byte ?( byte --) BEGIN write-ready? NOT WHILE YIELD REPEAT port OUTB ;
 
 : main
-  ." Entering serial.main..." CR
+  log-prefix ." Entering serial.main..." CR
   BEGIN
-    YIELD
-    ." serial.main loop" CR
+    SLEEP
+    log-prefix ." serial.main loop" CR
   AGAIN ; 
 
 setup-port-from-args
 init-serial
 ' write-byte IS-EMIT
-.( serial port inited!)
+log-prefix .( serial port inited!)
 main
 
 \ vim: set cc=80 ft=forth ss=2 sw=2 ts=2 et :
