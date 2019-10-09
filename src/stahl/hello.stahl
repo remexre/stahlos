@@ -16,6 +16,15 @@
   cons (-> T (List T) (List T)))
 |#
 
+
+(defun id+ ((T Type) (x T)) T
+  x)
+
+(defun const+ ((T Type) (U Type) (x T) (y U)) T
+  x)
+
+
+
 (def State Type
   Unit)
 
@@ -31,4 +40,5 @@
         (fn (x y) z)
         (pi x y (pi z w v))
         (pi ((x y) (z w)) v)
-        (-> x y z)))
+        (-> x y z)
+        (f x y z)))
