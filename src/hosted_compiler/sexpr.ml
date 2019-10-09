@@ -78,7 +78,7 @@ let is_symbolish (ch: char) : bool =
   ('0' <= ch && ch <= '9') ||
   ('A' <= ch && ch <= 'Z') ||
   ('a' <= ch && ch <= 'z') ||
-  String.contains "!%*+-/<>?" ch
+  String.contains "!%*+-/<=>?" ch
 
 let parse_string (ctx: string * int ref) : string =
   (* TODO: This is written to be fast, but the fast thing would be to build up

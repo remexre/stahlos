@@ -2,6 +2,8 @@ val (%%) : ('b -> 'c) -> ('a -> 'b) -> ('a -> 'c)
 
 val const : 'a -> 'b -> 'a
 
+val flip : ('a -> 'b -> 'c) -> ('b -> 'a -> 'c)
+
 val gensym : unit -> string
 
 val id : 'a -> 'a

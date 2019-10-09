@@ -16,14 +16,14 @@ val string_of_expr : expr -> string
 
 type defty =
   { name : string
+  ; pargs : (string * expr) list
   ; iargs : (string * expr) list
-  ; pargs : expr list
   }
 
 type ctor =
   { name : string
-  ; args_tys : expr list
-  ; tyarg_tys : expr list
+  ; args : (string * expr) list
+  ; tyargs : expr list
   }
 
 type def
@@ -33,3 +33,15 @@ type def
 val def_of_sexpr : Sexpr.t -> def
 val sexpr_of_def : def -> Sexpr.t
 val string_of_def : def -> string
+
+type module_ =
+  { name : string
+  ; defs : def list
+  }
+
+val module_of_sexprs : Sexpr.t list -> module_
+val sexprs_of_module : module_ -> Sexpr.t list
+val string_of_module : module_ -> string
+
+val load_module_from : in_channel -> module_
+val load_module_from_path : string -> module_

@@ -14,7 +14,7 @@ type expr
   | Universe
 
 let check_name (name: string) : unit =
-  let keywords = ["->"; "Type"; "fn"; "pi"; "quote"] in
+  let keywords = ["->"; "Pi"; "Type"; "fn"; "quote"] in
   if String.length name = 0 || String.get name 0 = '_' || List.mem name keywords then
     raise (Invalid_ast("Invalid name", Atom(name)))
 
@@ -65,12 +65,12 @@ let rec expr_of_sexpr (ctx: string list) : Sexpr.t -> expr = function
       | [] -> ret
       | hd::tl -> Pi(gensym (), hd, helper tl)
       in helper (init tys)
-  | List([Atom("pi"); Atom(name); arg; ret]) ->
+  | List([Atom("Pi"); Atom(name); arg; ret]) ->
       check_name name;
       let arg = expr_of_sexpr ctx arg
       and ret = expr_of_sexpr (name::ctx) ret in
       Pi(name, arg, ret)
-  | List([Atom("pi"); List(args); ret]) ->
+  | List([Atom("Pi"); List(args); ret]) ->
       let rec helper (ctx: string list) : Sexpr.t list -> expr = function
       | [] -> expr_of_sexpr ctx ret
       | List([Atom(name); ty])::tl ->
@@ -108,43 +108,72 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
   | Pi(_, _, _) as e ->
       let (args, body) = decompose_pis e in
       let sexpr_of_arg (s, e) = List([Atom(s); sexpr_of_expr e]) in
-      List([Atom("pi"); List(List.map sexpr_of_arg args); sexpr_of_expr body])
+      List([Atom("Pi"); List(List.map sexpr_of_arg args); sexpr_of_expr body])
   | Universe -> Atom("Type")
 
 let string_of_expr : expr -> string = Sexpr.to_string %% sexpr_of_expr
 
 type defty =
   { name : string
+  ; pargs : (string * expr) list
   ; iargs : (string * expr) list
-  ; pargs : expr list
   }
 
 type ctor =
   { name : string
-  ; args_tys : expr list
-  ; tyarg_tys : expr list
+  ; args : (string * expr) list
+  ; tyargs : expr list
   }
 
 type def
   = Def of string * expr * expr
   | Deftype of defty * ctor list
 
-let make_defty (name: Sexpr.t) (kind: expr) : defty =
-  let _ = name
-  and _ = kind
-  in failwith "TODO make_defty"
+let make_defty (name: Sexpr.t) (kind: Sexpr.t) : defty =
+  let (name', pargs) = match name with
+  | Atom(n) -> (n, [])
+  | List(Atom(n)::args) ->
+      let rec helper (ctx: string list) : Sexpr.t list -> (string * expr) list = function
+      | [] -> []
+      | List([Atom(n); t])::tl -> (n, expr_of_sexpr ctx t) :: helper (n::ctx) tl
+      | _ -> raise (Invalid_ast("Invalid type name", name))
+      in (n, helper [] args)
+  | _ -> raise (Invalid_ast("Invalid type name", name))
+  in
+  let (iargs, kind') = decompose_pis (expr_of_sexpr [] kind) in
+  prerr_endline "defty";
+  prerr_endline ("  name: " ^ name');
+  prerr_endline ("  pargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) pargs) ^ "]");
+  prerr_endline ("  iargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) iargs) ^ "]");
+  prerr_endline ("  kind: " ^ string_of_expr kind');
+  prerr_endline "---------";
+  if kind' <> Universe then
+    raise (Invalid_ast("Invalid kind for defty", kind));
+  { name = name'; iargs = iargs; pargs = pargs }
 
-let make_ctor (name: string) (ty: Sexpr.t) : ctor =
-  let _ = (name, ty) in
-  (* { name = name; } *)
-  failwith "TODO make_ctor"
+let make_ctor (def: defty) (name: string) (ty: Sexpr.t) : ctor =
+  let ctx = [] in assert (def.iargs = []);
+  let (args, ty') = decompose_pis (expr_of_sexpr ctx ty) in
+  let (ty', tyargs) = decompose_apps ty' in
+  prerr_endline "ctor";
+  prerr_endline ("  def.name: " ^ def.name);
+  prerr_endline ("  def.pargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) def.pargs) ^ "]");
+  prerr_endline ("  def.iargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) def.iargs) ^ "]");
+  prerr_endline ("  name: " ^ name);
+  prerr_endline ("  ty: " ^ string_of_expr ty');
+  prerr_endline ("  args: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) args) ^ "]");
+  prerr_endline ("  tyargs: [" ^ join_with ", " (List.map string_of_expr tyargs) ^ "]");
+  prerr_endline "---------";
+  if ty' <> Global(def.name) then
+    raise (Invalid_ast("Invalid return type for constructor", ty));
+  { name = name; args = args; tyargs = tyargs }
 
-let rec make_ctors : Sexpr.t list -> ctor list = function
+let rec make_ctors (def: defty) : Sexpr.t list -> ctor list = function
   | [] -> []
   | [e] -> raise (Invalid_ast("Odd number of arguments to deftype", e))
   | (Atom(name))::ty::tl ->
       check_name name;
-      make_ctor name ty :: make_ctors tl
+      make_ctor def name ty :: make_ctors def tl
   | e::_ -> raise (Invalid_ast("Invalid name in deftype", e))
 
 let def_of_sexpr : Sexpr.t -> def = function
@@ -152,7 +181,8 @@ let def_of_sexpr : Sexpr.t -> def = function
       check_name name;
       Def(name, expr_of_sexpr [] ty, expr_of_sexpr [] expr)
   | List(Atom("deftype")::name_and_indexed::kind::ctors) ->
-      Deftype(make_defty name_and_indexed (expr_of_sexpr [] kind), make_ctors ctors)
+      let def = make_defty name_and_indexed kind in
+      Deftype(def, make_ctors def ctors)
   | List([Atom("defun"); Atom(name); List(args); ret_ty; expr]) ->
       check_name name;
       let rec helper (ctx: string list) : Sexpr.t list -> expr * expr = function
@@ -167,8 +197,58 @@ let def_of_sexpr : Sexpr.t -> def = function
       Def(name, ty, ex)
   | e -> raise (Invalid_ast("Unrecognized definition", e))
 
+let sexprs_of_defty (dt: defty) : Sexpr.t * expr =
+  assert (dt.iargs = []);
+  let name = List.fold_right (fun (n, t) e -> Pi(n, t, e)) dt.pargs (Global(dt.name)) in
+  let name = match sexpr_of_expr name with
+  | Atom(n) -> Atom(n)
+  | List([Atom("Pi"); List(args); name]) -> List(name::args)
+  | _ -> failwith "unreachable"
+  in
+  (name, Universe)
+
+let sexprs_of_ctor (dt: defty) (ctor: ctor) : expr * expr =
+  assert (dt.iargs = []);
+  let ty = List.fold_right (fun t e -> App(e, t)) ctor.tyargs (Global(dt.name)) in
+  let ty = List.fold_right (fun (n, t) e -> Pi(n, t, e)) ctor.args ty in
+  (Global(ctor.name), ty)
+
 let sexpr_of_def : def -> Sexpr.t = function
   | Def(n, t, e) -> List([Atom("def"); Atom(n); sexpr_of_expr t; sexpr_of_expr e])
-  | Deftype(_, _) -> failwith "TODO sexpr_of_def deftype"
+  | Deftype(dt, cs) ->
+      let rec helper = function
+      | [] -> []
+      | hd::tl ->
+          let (a, b) = sexprs_of_ctor dt hd in
+          a::b::helper tl
+      in
+      let (a, b) = sexprs_of_defty dt in
+      List(Atom("deftype")::a::(List.map sexpr_of_expr (b::helper cs)))
 
 let string_of_def : def -> string = Sexpr.to_string %% sexpr_of_def
+
+type module_ =
+  { name : string
+  ; defs : def list
+  }
+
+let module_of_sexprs : Sexpr.t list -> module_ = function
+  | List([Atom("module"); Atom(name)])::defs ->
+      check_name name;
+      { name = name; defs = List.map def_of_sexpr defs }
+  | [] -> raise (Invalid_ast("Missing module form", List([])))
+  | hd::_ -> raise (Invalid_ast("Invalid module form", hd))
+
+let sexprs_of_module (m: module_) : Sexpr.t list =
+  let module_form = List([Atom("module"); Atom(m.name)])
+  and defs = List.map sexpr_of_def m.defs in
+  module_form::defs
+
+let string_of_module : module_ -> string =
+  join_with "\n" %% List.map Sexpr.to_string %% sexprs_of_module
+
+let load_module_from : in_channel -> module_ =
+    module_of_sexprs %% must id %% Sexpr.parse %% read_all_string
+
+let load_module_from_path : string -> module_ =
+    module_of_sexprs %% must id %% Sexpr.parse %% read_file_string

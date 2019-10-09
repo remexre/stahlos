@@ -2,6 +2,9 @@ let (%%) (g: 'b -> 'c) (f: 'a -> 'b) (x: 'a) : 'c = g (f x)
 
 let const (x: 'a) (_: 'b) : 'a = x
 
+let flip (f: 'a -> 'b -> 'c) (y: 'b) (x: 'a) : 'c =
+  f x y
+
 let gensym : unit -> string =
   let counter = ref 0 in
   fun () -> begin

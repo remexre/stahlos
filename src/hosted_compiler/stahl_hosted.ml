@@ -2,10 +2,8 @@ open Utils
 
 let () =
   try
-    let src = read_all_string stdin in
-    let sexprs = must id (Sexpr.parse src) in
-    let defs = List.map Ast.def_of_sexpr sexprs in
-    List.iter (print_endline %% Ast.string_of_def) defs
+    let m = Ast.load_module_from stdin in
+    print_endline (Ast.string_of_module m)
   with
     Ast.Invalid_ast(msg, sexpr) ->
       prerr_string "Invalid AST: ";
