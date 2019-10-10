@@ -1,9 +1,16 @@
 (module main)
 
+(def String Type %String)
+(def PID Type %Uint64)
+
 (deftype Void Type)
 
 (deftype Unit Type
   unit Unit)
+
+# TODO
+(def MessageIn Type Unit)
+(def MessageOut Type Unit)
 
 (deftype Nat Type
   Z Nat
@@ -24,6 +31,7 @@
   vnil (Vect T Z)
   vcons (pi n Nat (-> T (Vect T n) (Vect T (S n)))))
 |#
+
 
 
 (defun the ((T Type) (x T)) T

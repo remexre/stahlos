@@ -1,3 +1,5 @@
+type 'a set = ('a, unit) Hashtbl.t
+
 val (%%) : ('b -> 'c) -> ('a -> 'b) -> ('a -> 'c)
 
 val const : 'a -> 'b -> 'a
@@ -9,6 +11,8 @@ val gensym : unit -> string
 val id : 'a -> 'a
 
 val init : 'a list -> 'a list
+
+val insert_and_get : 'a set -> 'a -> bool
 
 val join_with : string -> string list -> string
 

@@ -1,3 +1,5 @@
+type 'a set = ('a, unit) Hashtbl.t
+
 let (%%) (g: 'b -> 'c) (f: 'a -> 'b) (x: 'a) : 'c = g (f x)
 
 let const (x: 'a) (_: 'b) : 'a = x
@@ -19,6 +21,14 @@ let rec init : 'a list -> 'a list = function
   | [] -> failwith "init"
   | [_] -> []
   | hd::tl -> hd :: init tl
+
+let insert_and_get (s: 'a set) (x: 'a) : bool =
+  if Hashtbl.mem s x then
+    true
+  else begin
+    Hashtbl.add s x ();
+    false
+  end
 
 let join_with (sep: string) : string list -> string =
   let rec helper : string list -> string = function

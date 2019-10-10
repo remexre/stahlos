@@ -17,12 +17,14 @@ type expr
   | Universe
 
 let check_name (name: string) : unit =
-  let empty = String.length name = 0
-  and hole_like = String.length name > 0 && String.get name 0 = '_'
+  let len = String.length name in
+  let bad_builtin = len > 0 && String.contains (String.sub name 1 (len - 1)) '%'
+  and empty = len = 0
+  and hole_like = len > 0 && String.get name 0 = '_'
   and implicit_like = String.contains name '!'
   and keyword = List.mem name ["->"; "Pi"; "Type"; "fn"; "quote"]
   in
-  if empty || hole_like || implicit_like || keyword then
+  if bad_builtin || empty || hole_like || implicit_like || keyword then
     raise (Invalid_ast("Invalid name", Atom(name)))
 
 let decompose_apps (expr: expr) : expr * expr list =
@@ -189,18 +191,13 @@ let make_defty (name: Sexpr.t) (kind: Sexpr.t) : defty =
   | _ -> raise (Invalid_ast("Invalid type name", name))
   in
   let (iargs, kind') = decompose_pis (expr_of_sexpr [] kind) in
-  prerr_endline "defty";
-  prerr_endline ("  name: " ^ name');
-  prerr_endline ("  pargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) pargs) ^ "]");
-  prerr_endline ("  iargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) iargs) ^ "]");
-  prerr_endline ("  kind: " ^ string_of_expr kind');
-  prerr_endline "---------";
   if kind' <> Universe then
     raise (Invalid_ast("Invalid kind for defty", kind));
   { name = name'; iargs = iargs; pargs = pargs }
 
 let make_ctor (def: defty) (name: string) (ty: Sexpr.t) : ctor =
-  let ctx = [] in assert (def.iargs = []);
+  let ctx = List.map fst def.pargs in
+  assert (def.iargs = []);
   let (args, ty') = decompose_pis (expr_of_sexpr ctx ty) in
   let (ty', tyargs) = decompose_apps ty' in
   prerr_endline "ctor";
