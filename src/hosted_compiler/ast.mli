@@ -2,12 +2,15 @@ exception Invalid_ast of string * Sexpr.t
 
 type expr
   = App of expr * expr
+  | AppI of expr * expr
   | Global of string
   | Hole
   | Lam of string * expr
+  | LamI of string * expr
   | Lit of Sexpr.t
   | Local of int
   | Pi of string * expr * expr
+  | PiI of string * expr * expr
   | Universe
 
 val expr_of_sexpr : string list -> Sexpr.t -> expr

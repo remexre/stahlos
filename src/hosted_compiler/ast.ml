@@ -5,17 +5,24 @@ exception Invalid_ast of string * Sexpr.t
 
 type expr
   = App of expr * expr
+  | AppI of expr * expr
   | Global of string
   | Hole
   | Lam of string * expr
+  | LamI of string * expr
   | Lit of Sexpr.t
   | Local of int
   | Pi of string * expr * expr
+  | PiI of string * expr * expr
   | Universe
 
 let check_name (name: string) : unit =
-  let keywords = ["->"; "Pi"; "Type"; "fn"; "quote"] in
-  if String.length name = 0 || String.get name 0 = '_' || List.mem name keywords then
+  let empty = String.length name = 0
+  and hole_like = String.length name > 0 && String.get name 0 = '_'
+  and implicit_like = String.contains name '!'
+  and keyword = List.mem name ["->"; "Pi"; "Type"; "fn"; "quote"]
+  in
+  if empty || hole_like || implicit_like || keyword then
     raise (Invalid_ast("Invalid name", Atom(name)))
 
 let decompose_apps (expr: expr) : expr * expr list =
@@ -32,9 +39,21 @@ let rec decompose_lams : expr -> string list * expr = function
       (n::args, expr)
   | e -> ([], e)
 
+let rec decompose_lamis : expr -> string list * expr = function
+  | LamI(n, b) ->
+      let (args, expr) = decompose_lamis b in
+      (n::args, expr)
+  | e -> ([], e)
+
 let rec decompose_pis : expr -> (string * expr) list * expr = function
   | Pi(n, t, b) ->
       let (args, expr) = decompose_pis b in
+      ((n, t)::args, expr)
+  | e -> ([], e)
+
+let rec decompose_piis : expr -> (string * expr) list * expr = function
+  | PiI(n, t, b) ->
+      let (args, expr) = decompose_piis b in
       ((n, t)::args, expr)
   | e -> ([], e)
 
@@ -57,6 +76,21 @@ let rec expr_of_sexpr (ctx: string list) : Sexpr.t -> expr = function
       let rec helper (ctx: string list) : string list -> expr = function
       | [] -> expr_of_sexpr ctx body
       | hd::tl -> Lam(hd, helper (hd::ctx) tl)
+      in helper ctx (List.map check_arg_name args)
+  | List([Atom("fn!"); Atom(arg); body]) ->
+      check_name arg;
+      let body = expr_of_sexpr (arg::ctx) body in
+      LamI(arg, body)
+  | List([Atom("fn!"); List(args); body]) ->
+      let check_arg_name : Sexpr.t -> string = function
+      | Atom(name) ->
+          check_name name;
+          name
+      | e -> raise (Invalid_ast("Invalid argument name", e))
+      in
+      let rec helper (ctx: string list) : string list -> expr = function
+      | [] -> expr_of_sexpr ctx body
+      | hd::tl -> LamI(hd, helper (hd::ctx) tl)
       in helper ctx (List.map check_arg_name args)
   | List(Atom("->")::((_::_) as tys)) ->
       let tys = List.map (expr_of_sexpr ctx) tys in
@@ -87,6 +121,9 @@ let rec expr_of_sexpr (ctx: string list) : Sexpr.t -> expr = function
       | hd::_ when hd = n -> Local(i)
       | _::tl -> helper (i+1) tl
       in helper 0 ctx
+  | List([Atom("!"); e]) -> expr_of_sexpr ctx e
+  | List(Atom("!")::f::xs) -> AppI(expr_of_sexpr ctx (List(Atom("!")::f::init xs)),
+                                   expr_of_sexpr ctx (last xs))
   | List([e]) -> expr_of_sexpr ctx e
   | List(f::xs) -> App(expr_of_sexpr ctx (List(f::init xs)), expr_of_sexpr ctx (last xs))
   | e -> raise (Invalid_ast("Unrecognized expression", e))
@@ -95,12 +132,19 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
   | App(_, _) as e ->
       let (f, xs) = decompose_apps e in
       List(List.map sexpr_of_expr (f::xs))
+  | AppI(_, _) as e ->
+      let (f, xs) = decompose_apps e in
+      List(Atom("!") :: List.map sexpr_of_expr (f::xs))
   | Global(s) -> Atom(s)
   | Hole -> Atom("_")
   | Lam(_, _) as e ->
       let (args, body) = decompose_lams e in
       let atom s = Atom(s) in
       List([Atom("fn"); List(List.map atom args); sexpr_of_expr body])
+  | LamI(_, _) as e ->
+      let (args, body) = decompose_lamis e in
+      let atom s = Atom(s) in
+      List([Atom("fn!"); List(List.map atom args); sexpr_of_expr body])
   | Local(n) -> Atom("$" ^ string_of_int n)
   | Lit(Int(_) as e) -> e
   | Lit(String(_) as e) -> e
@@ -109,6 +153,10 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
       let (args, body) = decompose_pis e in
       let sexpr_of_arg (s, e) = List([Atom(s); sexpr_of_expr e]) in
       List([Atom("Pi"); List(List.map sexpr_of_arg args); sexpr_of_expr body])
+  | PiI(_, _, _) as e ->
+      let (args, body) = decompose_piis e in
+      let sexpr_of_arg (s, e) = List([Atom(s); sexpr_of_expr e]) in
+      List([Atom("Pi!"); List(List.map sexpr_of_arg args); sexpr_of_expr body])
   | Universe -> Atom("Type")
 
 let string_of_expr : expr -> string = Sexpr.to_string %% sexpr_of_expr
@@ -191,6 +239,10 @@ let def_of_sexpr : Sexpr.t -> def = function
           check_name n;
           let (ty', ex') = helper (n::ctx) tl in
           (Pi(n, expr_of_sexpr ctx ty, ty'), Lam(n, ex'))
+      | List([Atom("!"); Atom(n); ty])::tl ->
+          check_name n;
+          let (ty', ex') = helper (n::ctx) tl in
+          (PiI(n, expr_of_sexpr ctx ty, ty'), LamI(n, ex'))
       | e::_ -> raise (Invalid_ast("Invalid argument", e))
       in
       let (ty, ex) = helper [] args in
