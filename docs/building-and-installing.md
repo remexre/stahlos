@@ -13,7 +13,7 @@ Building requires:
 -	[mtools](https://www.gnu.org/software/mtools/), for `grub-mkrescue`
 -	[nasm](https://nasm.us/)
 -	[xorriso](https://www.gnu.org/software/xorriso/), for `grub-mkrescue`
--	[OCaml](https://ocaml.org/)
+-	[OCaml](https://ocaml.org/), version 4.08.0 or later
 -	[Dune](https://dune.build/)
 
 Additionally, for other targets, the following dependencies apply:

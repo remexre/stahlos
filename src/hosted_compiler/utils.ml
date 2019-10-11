@@ -7,13 +7,16 @@ let const (x: 'a) (_: 'b) : 'a = x
 let flip (f: 'a -> 'b -> 'c) (y: 'b) (x: 'a) : 'c =
   f x y
 
-let gensym : unit -> string =
+let genint : unit -> int =
   let counter = ref 0 in
   fun () -> begin
     let n = !counter in
     counter := (n + 1);
-    "gensym@" ^ string_of_int n
+    n
   end
+
+let gensym () : string =
+  "gensym@" ^ string_of_int (genint ())
 
 let id (x: 'a) : 'a = x
 

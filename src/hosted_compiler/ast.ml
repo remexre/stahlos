@@ -297,7 +297,7 @@ let string_of_module : module_ -> string =
   join_with "\n" %% List.map Sexpr.to_string %% sexprs_of_module
 
 let load_module_from : in_channel -> module_ =
-    module_of_sexprs %% must id %% Sexpr.parse %% read_all_string
+  module_of_sexprs %% must id %% Sexpr.parse %% read_all_string
 
 let load_module_from_path : string -> module_ =
-    module_of_sexprs %% must id %% Sexpr.parse %% read_file_string
+  module_of_sexprs %% must id %% Sexpr.parse %% read_file_string

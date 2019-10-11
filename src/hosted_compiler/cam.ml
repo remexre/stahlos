@@ -46,14 +46,14 @@ let rec optimize1 : t -> t Flag_monad.t =
   | Mul          -> return Mul
   | QuoteName(n) -> return (QuoteName(n))
   | QuoteNum(n)  -> return (QuoteNum(n))
-  | Lam(b)       -> optimize1 b >>= fun b'
-                 -> return (Lam(b'))
-  | Com(g, f)    -> optimize1 g >>= fun g'
-                 -> optimize1 f >>= fun f'
-                 -> return (Com(g', f'))
-  | Pair(l, r)   -> optimize1 l >>= fun l'
-                 -> optimize1 r >>= fun r'
-                 -> return (Pair(l', r'))
+  | Lam(b)       -> let+ b' = optimize1 b in
+                    return (Lam(b'))
+  | Com(g, f)    -> let+ g' = optimize1 g
+                    and+ f' = optimize1 f in
+                    return (Com(g', f'))
+  | Pair(l, r)   -> let+ l' = optimize1 l
+                    and+ r' = optimize1 r in
+                    return (Pair(l', r'))
 
 let rec optimize (expr: t) : t =
   let (expr', rerun) = (optimize1 expr).run in
