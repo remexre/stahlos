@@ -1,22 +1,30 @@
 open State_monad
+open Uast
 
 exception Type_error of expr * expr
 
-type ctx_entry =
-  { type_ : Tast.expr
-  ; value : Tast.expr option
+type ctx =
+  { ast_defs : Ast.def list
+  ; defs : (string * Tast.expr) list
+  ; fresh : int
+  ; subst : (int * Uast.expr) list
   }
-type ctx = (string * ctx_entry) list
 
-(* type subst = (int * expr) list *)
+let ctx_empty : ctx = { ast_defs = []; defs = []; fresh = 0; subst = [] }
 
-let tyck_def : Ast.def -> (ctx, Tast.def) State_monad.t = function
-  | _ -> failwith "TODO"
+let ctx_finish (ast: Ast.def) : (ctx, unit) State_monad.t =
+  modify (fun ctx -> { ast_defs = ast::ctx.ast_defs
+                     ; defs = ctx.defs
+                     ; fresh = 0
+                     ; subst = [] })
 
-let tyck_module' (m: Ast.module_) : (ctx, Tast.module_) State_monad.t =
-  let+ defs' = forM m.defs tyck_def in
-  let _ = defs' in
-  failwith "TODO"
+let tyck_def : Ast.def -> (ctx, unit) State_monad.t = function
+  | Ast.Def(n, t, e) -> let _ = (n, t, e) in return () (* failwith "TODO Def" *)
+  | Ast.Deftype(dt, cs) -> let _ = (dt, cs) in return () (* failwith "TODO Deftype" *)
+
+let tyck_module' (m: Ast.module_) : (ctx, unit) State_monad.t =
+  forM_ m.defs (fun def -> tyck_def def >> ctx_finish def)
 
 let tyck_module (m: Ast.module_) : Tast.module_ =
-  fst ((tyck_module' m).run [])
+  let (_, ctx) = (tyck_module' m).run ctx_empty in
+  { name = m.name; defs = ctx.defs }

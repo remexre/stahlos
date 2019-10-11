@@ -25,10 +25,19 @@ let get : ('s, 's) t =
 let put (s: 's) : ('s, unit) t =
   { run = fun _ -> ((), s) }
 
-let rec forM (l: 'a list) (f: 'a -> ('s, 'b) t) : ('s, 'b list) t =
-  match l with
+let modify (f: 's -> 's) : ('s, unit) t =
+  get >>= put %% f
+
+let rec mapM (f: 'a -> ('s, 'b) t) : 'a list -> ('s, 'b list) t = function
   | [] -> return []
   | hd::tl ->
       let+ hd' = f hd
-      and+ tl' = forM tl f
+      and+ tl' = mapM f tl
       in return (hd'::tl')
+
+let rec mapM_ (f: 'a -> ('s, unit) t) : 'a list -> ('s, unit) t = function
+  | [] -> return ()
+  | hd::tl -> f hd >> mapM_ f tl
+
+let forM (l: 'a list) (f: 'a -> ('s, 'b) t) : ('s, 'b list) t = mapM f l
+let forM_ (l: 'a list) (f: 'a -> ('s, unit) t) : ('s, unit) t = mapM_ f l

@@ -13,4 +13,4 @@ and expr_inner
   | Pi of expr * expr
   | Universe of int
 
-val from_ast : Ast.expr -> expr  
+val from_ast : Ast.def list -> Ast.expr -> expr  

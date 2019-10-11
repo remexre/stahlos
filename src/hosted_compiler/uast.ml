@@ -13,4 +13,5 @@ and expr_inner
   | Pi of expr * expr
   | Universe of int
 
-val from_ast : Ast.expr -> expr  
+let from_ast (ctx: Ast.def list) : Ast.expr -> expr = function
+  | _ -> let _ = ctx in failwith "TODO"
