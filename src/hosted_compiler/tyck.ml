@@ -182,15 +182,17 @@ let add_elim (dt: Ast.defty) : (ctx, unit) State.t =
 
 let tyck_def (def: Ast.def) : (ctx, unit) State.t =
   return ("tyck_def " ^ Ast.string_of_def def) >>= (return %% prerr_endline) >>= fun _ ->
-  match def with
-  | Ast.Def(n, t, e) ->
-      let+ t = tyck_expr t (Tast.Universe(0)) in
-      let+ e = tyck_expr e t.value in
-      ctx_add_def n e
-  | Ast.Deftype(dt, cs) ->
-      add_defty dt >>
-      add_elim dt >>
-      forM_ cs (add_ctor dt)
+  begin
+    match def with
+    | Ast.Def(n, t, e) ->
+        let+ t = tyck_expr t (Tast.Universe(0)) in
+        let+ e = tyck_expr e t.value in
+        ctx_add_def n e
+    | Ast.Deftype(dt, cs) ->
+        add_defty dt >>
+        add_elim dt >>
+        forM_ cs (add_ctor dt)
+  end >>= fun _ -> return (prerr_endline "===========================")
 
 let tyck_module' (m: Ast.module_) : (ctx, unit) State.t =
   forM_ m.defs (fun def -> tyck_def def >> ctx_add_ast_def def)
