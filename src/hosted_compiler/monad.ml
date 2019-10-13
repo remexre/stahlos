@@ -1,79 +1,92 @@
 open Utils
 
-module type State = sig
-  type ('s, 'a) t
+module type Type = sig type t end
 
-  val return : 'a -> ('s, 'a) t
-  val (>>=) : ('s, 'a) t -> ('a -> ('s, 'b) t) -> ('s, 'b) t
-  val (>>) : ('s, 'a) t -> ('s, 'b) t -> ('s, 'b) t
+module type Monad_minimal = sig
+  type 'a t
 
-  val (let+) : ('s, 'a) t -> ('a -> ('s, 'b) t) -> ('s, 'b) t
-  val (and+) : ('s, 'a) t -> ('s, 'b) t -> ('s, 'a * 'b) t
-
-  val run : 's -> ('s, 'a) t -> 'a * 's
-  val eval : 's -> ('s, 'a) t -> 'a
-  val exec : 's -> ('s, unit) t -> 's
-
-  val get : ('s, 's) t
-  val put : 's -> ('s, unit) t
-  val modify : ('s -> 's) -> ('s, unit) t
-
-  val mapM : ('a -> ('s, 'b) t) -> 'a list -> ('s, 'b list) t
-  val mapM_ : ('a -> ('s, unit) t) -> 'a list -> ('s, unit) t
-
-  val forM : 'a list -> ('a -> ('s, 'b) t) -> ('s, 'b list) t
-  val forM_ : 'a list -> ('a -> ('s, unit) t) -> ('s, unit) t
+  val return : 'a -> 'a t
+  val (>>=) : 'a t -> ('a -> 'b t) -> 'b t
 end
 
-module State_pure : State= struct
-  type ('s, 'a) t = { run : 's -> 'a * 's }
+module type Monad = sig
+  include Monad_minimal
 
-  let return (x: 'a) : ('s, 'a) t =
-    { run = fun s -> (x, s) }
+  val (>>) : 'a t -> 'b t -> 'b t
 
-  let (>>=) (x: ('s, 'a) t) (f: 'a -> ('s, 'b) t) : ('s, 'b) t =
-    { run = fun s -> let (x', s') = x.run s in (f x').run s' }
+  val (let+) : 'a t -> ('a -> 'b t) -> 'b t
+  val (and+) : 'a t -> 'b t -> ('a * 'b) t
 
-  let (>>) (x: ('s, 'a) t) (y: ('s, 'b) t) : ('s, 'b) t =
+  val mapM : ('a -> 'b t) -> 'a list -> 'b list t
+  val mapM_ : ('a -> unit t) -> 'a list -> unit t
+
+  val forM : 'a list -> ('a -> 'b t) -> 'b list t
+  val forM_ : 'a list -> ('a -> unit t) -> unit t
+end
+
+module Extend (M: Monad_minimal) = struct
+  include M
+
+  let (>>) x y =
     x >>= const y
 
-  let (let+) (x: ('s, 'a) t) (f: 'a -> ('s, 'b) t) : ('s, 'b) t =
+  let (let+) x f =
     x >>= f
 
-  let (and+) (x: ('s, 'a) t) (y: ('s, 'b) t) : ('s, 'a * 'b) t =
+  let (and+) x y =
     let+ x' = x in
     let+ y' = y in
     return (x', y')
 
-  let run (s: 's) (m: ('s, 'a) t) : 'a * 's =
-    m.run s
-
-  let eval (s: 's) (m: ('s, 'a) t) : 'a =
-    fst (run s m)
-
-  let exec (s: 's) (m: ('s, unit) t) : 's =
-    snd (run s m)
-
-  let get : ('s, 's) t =
-    { run = fun s -> (s, s) }
-
-  let put (s: 's) : ('s, unit) t =
-    { run = fun _ -> ((), s) }
-
-  let modify (f: 's -> 's) : ('s, unit) t =
-    get >>= put %% f
-
-  let rec mapM (f: 'a -> ('s, 'b) t) : 'a list -> ('s, 'b list) t = function
+  let rec mapM f = function
     | [] -> return []
     | hd::tl ->
         let+ hd' = f hd
         and+ tl' = mapM f tl
         in return (hd'::tl')
 
-  let rec mapM_ (f: 'a -> ('s, unit) t) : 'a list -> ('s, unit) t = function
+  let rec mapM_ f = function
     | [] -> return ()
     | hd::tl -> f hd >> mapM_ f tl
 
-  let forM (l: 'a list) (f: 'a -> ('s, 'b) t) : ('s, 'b list) t = mapM f l
-  let forM_ (l: 'a list) (f: 'a -> ('s, unit) t) : ('s, unit) t = mapM_ f l
+  let forM l f = mapM f l
+  let forM_ l f = mapM_ f l
+end
+
+module type Fresh = sig
+  include Monad
+
+  type f
+
+  val fresh : f t
+end
+
+module type State = sig
+  include Monad
+
+  type s
+
+  val get : s t
+  val put : s -> unit t
+  val modify : (s -> s) -> unit t
+end
+
+module State_pure (T: Type) = struct
+  type 'a m = { run : T.t -> 'a * T.t }
+  include Extend(struct
+    type 'a t = 'a m
+
+    let return x = { run = fun s -> (x, s) }
+
+    let (>>=) x f =
+      { run = fun s -> let (x', s') = x.run s in (f x').run s' }
+  end)
+
+  let get = { run = fun s -> (s, s) }
+  let put (s: 's) = { run = fun _ -> ((), s) }
+  let modify f = get >>= put %% f
+
+  let run s x = x.run s
+  let eval s x = fst (run s x)
+  let exec s x = snd (run s x)
 end

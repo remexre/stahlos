@@ -1,7 +1,3 @@
-module State = Monad.State_pure
-open State
-open Utils
-
 type cstr
   = Eq of Uast.expr_inner * Uast.expr_inner
   | Ty of Uast.expr_inner * Uast.expr_inner
@@ -21,37 +17,59 @@ type ctx =
   ; subst : (int * Uast.expr_inner) list
   }
 
+module M : sig
+  type 'a t
+
+  include Monad.State with type s := ctx
+                      with type 'a t := 'a t
+
+  include Monad.Fresh with type f := Uast.expr_inner
+                      with type 'a t := 'a t
+
+  val exec : ctx -> unit t -> ctx
+end = struct
+  include Monad.State_pure(struct type t = ctx end)
+
+  let fresh =
+    let+ ctx = get in
+    modify (fun ctx -> { ctx with fresh = ctx.fresh + 1 }) >>
+    return (Uast.Logic(ctx.fresh))
+end
+
+open M
+open Utils
+
 let ctx_empty : ctx = { ast_defs = []; cstrs = []; defs = Builtins.builtins
                       ; fresh = 2; subst = [] }
 
-let ctx_add_ast_def (def: Ast.def) : (ctx, unit) State.t =
+let ctx_add_ast_def (def: Ast.def) : unit M.t =
   modify (fun ctx -> { ctx with ast_defs = def::ctx.ast_defs })
 
-let ctx_add_cstr_eq (l: Uast.expr_inner) (r: Uast.expr_inner) : (ctx, unit) State.t =
+let ctx_add_cstr_eq (l: Uast.expr_inner) (r: Uast.expr_inner) : unit M.t =
   modify (fun ctx -> { ctx with cstrs = Eq(l, r)::ctx.cstrs })
 
-let ctx_add_cstr_ty (l: Uast.expr_inner) (r: Uast.expr_inner) : (ctx, unit) State.t =
+let ctx_add_cstr_ty (l: Uast.expr_inner) (r: Uast.expr_inner) : unit M.t =
   modify (fun ctx -> { ctx with cstrs = Ty(l, r)::ctx.cstrs })
 
-let ctx_add_cstr_eq_expr (l: Uast.expr) (r: Uast.expr) : (ctx, unit) State.t =
+let ctx_add_cstr_eq_expr (l: Uast.expr) (r: Uast.expr) : unit M.t =
   ctx_add_cstr_eq l.type_ r.type_ >>
   ctx_add_cstr_eq l.value r.value
 
 (*
-let ctx_add_cstr_ty_expr (l: Uast.expr) (r: Uast.expr) : (ctx, unit) State.t =
+let ctx_add_cstr_ty_expr (l: Uast.expr) (r: Uast.expr) : unit M.t =
   ctx_add_cstr_ty l.type_ r.type_ >>
   ctx_add_cstr_ty l.value r.value
 *)
 
-let ctx_add_def (name: string) (expr: Tast.expr) : (ctx, unit) State.t =
+let ctx_add_def (name: string) (expr: Tast.expr) : unit M.t =
   prerr_endline ("add_def (def " ^ name ^ " " ^ Tast.string_of_expr_inner expr.type_ ^
                  " " ^ Tast.string_of_expr expr ^ ")");
   modify (fun ctx -> { ctx with defs = (name, expr)::ctx.defs })
 
-let ctx_ensure (cstr: cstr) (cond: bool) : (ctx, unit) State.t =
+let ctx_ensure (cstr: cstr) (cond: bool) : unit M.t =
   if cond then return () else raise (Failed_to_solve(cstr))
 
-let ctx_extend (var: int) (expr: Uast.expr_inner) : (ctx, unit) State.t =
+let ctx_extend (var: int) (expr: Uast.expr_inner) : unit M.t =
   modify (fun ctx -> { ctx with subst = (var, expr)::ctx.subst })
 
 let walk (subst: (int * Uast.expr_inner) list) : int -> Tast.expr_inner =
@@ -74,8 +92,8 @@ let walk (subst: (int * Uast.expr_inner) list) : int -> Tast.expr_inner =
     | Universe(n) -> Tast.Universe(n)
   in lookup
 
-let ctx_finish : (ctx, Tast.expr) State.t =
-  let solve_one (cstr: cstr) : (ctx, unit) State.t =
+let ctx_finish : Tast.expr M.t =
+  let solve_one (cstr: cstr) : unit M.t =
     return ("solve_one " ^ string_of_cstr cstr) >>= (return %% prerr_endline) >>
     match cstr with
     (* Variable-involving cases *)
@@ -111,7 +129,7 @@ let ctx_finish : (ctx, Tast.expr) State.t =
     | Ty(Universe(l), r) -> ctx_add_cstr_eq (Universe(l+1)) r
     | cstr -> raise (Failed_to_solve(cstr))
   in
-  let rec solve_all () : (ctx, unit) State.t =
+  let rec solve_all () : unit M.t =
     let+ ctx = get in
     match ctx.cstrs with
     | [] -> return ()
@@ -127,13 +145,8 @@ let ctx_finish : (ctx, Tast.expr) State.t =
   modify (fun ctx -> { ctx with fresh = 2; subst = [] }) >>
   return { Tast.type_ = ty; Tast.value = expr }
 
-let fresh (cb: Uast.expr_inner -> (ctx, 'a) State.t) : (ctx, 'a) State.t =
-  let+ ctx = get in
-  modify (fun ctx -> { ctx with fresh = ctx.fresh + 1 }) >>
-  cb (Uast.Logic(ctx.fresh))
-
-let from_ast (defs: Ast.def list) : int -> Ast.expr -> (ctx, Uast.expr_inner) State.t =
-  let rec to_expr_inner (given: int) : Ast.expr -> (ctx, Uast.expr_inner) State.t = function
+let from_ast (defs: Ast.def list) : int -> Ast.expr -> Uast.expr_inner M.t =
+  let rec to_expr_inner (given: int) : Ast.expr -> Uast.expr_inner M.t = function
   | App(f, x) ->
       let+ f = to_expr 0 f
       and+ x = to_expr 0 x
@@ -143,7 +156,7 @@ let from_ast (defs: Ast.def list) : int -> Ast.expr -> (ctx, Uast.expr_inner) St
       and+ x = to_expr 0 x
       in return (Uast.App(f, x))
   | Global(s) -> let _ = (defs, given) in return (Uast.Global(s)) (* TODO *)
-  | Hole -> fresh return
+  | Hole -> fresh
   | Lam(n, b) | LamI(n, b) ->
       let+ b = to_expr 0 b
       in return (Uast.Lam(n, b))
@@ -154,33 +167,34 @@ let from_ast (defs: Ast.def list) : int -> Ast.expr -> (ctx, Uast.expr_inner) St
       and+ b = to_expr 0 b
       in return (Uast.Pi(n, t, b))
   | Universe -> return (Uast.Universe(0))
-  and to_expr (given: int) (expr: Ast.expr) : (ctx, Uast.expr) State.t =
+  and to_expr (given: int) (expr: Ast.expr) : Uast.expr M.t =
     let+ expr = to_expr_inner given expr
-    in fresh (fun t -> return { Uast.type_ = t; Uast.value = expr })
+    and+ ty = fresh
+    in return { Uast.type_ = ty; Uast.value = expr }
   in to_expr_inner
 
-let tyck_expr (expr: Ast.expr) (ty: Tast.expr_inner) : (ctx, Tast.expr) State.t =
-  let+ ctx = State.get in
+let tyck_expr (expr: Ast.expr) (ty: Tast.expr_inner) : Tast.expr M.t =
+  let+ ctx = get in
   let ty = Uast.from_tast ty in
   let+ expr = from_ast ctx.ast_defs 0 expr in
   modify (fun ctx -> { ctx with subst = [(0, expr); (1, ty)] }) >>
   ctx_add_cstr_ty (Logic(0)) (Logic(1)) >>
   ctx_finish
 
-let add_ctor (dt: Ast.defty) (c: Ast.ctor) : (ctx, unit) State.t =
+let add_ctor (dt: Ast.defty) (c: Ast.ctor) : unit M.t =
   let _ = (dt, c) in
   return "TODO add_ctor" >>= failwith
 
-let add_defty (dt: Ast.defty) : (ctx, unit) State.t =
+let add_defty (dt: Ast.defty) : unit M.t =
   assert (dt.pargs = []);
   assert (dt.iargs = []);
   ctx_add_def dt.name { type_ = Tast.Universe(1); value = Tast.Universe(0) }
 
-let add_elim (dt: Ast.defty) : (ctx, unit) State.t =
+let add_elim (dt: Ast.defty) : unit M.t =
   let _ = dt in
   return "TODO add_elim" >>= failwith
 
-let tyck_def (def: Ast.def) : (ctx, unit) State.t =
+let tyck_def (def: Ast.def) : unit M.t =
   return ("tyck_def " ^ Ast.string_of_def def) >>= (return %% prerr_endline) >>= fun _ ->
   begin
     match def with
@@ -194,7 +208,7 @@ let tyck_def (def: Ast.def) : (ctx, unit) State.t =
         forM_ cs (add_ctor dt)
   end >>= fun _ -> return (prerr_endline "===========================")
 
-let tyck_module' (m: Ast.module_) : (ctx, unit) State.t =
+let tyck_module' (m: Ast.module_) : unit M.t =
   forM_ m.defs (fun def -> tyck_def def >> ctx_add_ast_def def)
 
 let tyck_module (m: Ast.module_) : Tast.module_ =
