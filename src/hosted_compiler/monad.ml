@@ -53,6 +53,18 @@ module Extend (M: Monad_minimal) = struct
   let forM_ l f = mapM_ f l
 end
 
+module type Semigroup = sig
+  include Type
+
+  val op : t -> t -> t
+end
+
+module type Monoid = sig
+  include Semigroup
+
+  val id : t
+end
+
 module type Fresh = sig
   include Monad
 
@@ -71,6 +83,20 @@ module type State = sig
   val modify : (s -> s) -> unit t
 end
 
+module type Writer = sig
+  include Monad
+
+  type w
+
+  val tell : w -> unit t
+end
+
+module Monoid_bool_or = struct
+  type t = bool
+  let op = (||)
+  let id = false
+end
+
 module State_pure (T: Type) = struct
   type 'a m = { run : T.t -> 'a * T.t }
   include Extend(struct
@@ -83,10 +109,30 @@ module State_pure (T: Type) = struct
   end)
 
   let get = { run = fun s -> (s, s) }
-  let put (s: 's) = { run = fun _ -> ((), s) }
+  let put s = { run = fun _ -> ((), s) }
   let modify f = get >>= put %% f
 
   let run s x = x.run s
   let eval s x = fst (run s x)
   let exec s x = snd (run s x)
+end
+
+module Writer_pure (M: Monoid) = struct
+  type 'a m = { run : 'a * M.t }
+  include Extend(struct
+    type 'a t = 'a m
+
+    let return x = { run = (x, M.id) }
+
+    let (>>=) x f =
+      let (x', w) = x.run in
+      let (y', w') = (f x').run in
+      { run = (y', M.op w w') }
+  end)
+
+  let tell w = { run = ((), w) }
+
+  let run x = x.run
+  let eval x = fst (x.run)
+  let exec x = snd (x.run)
 end

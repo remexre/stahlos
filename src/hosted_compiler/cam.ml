@@ -29,14 +29,16 @@ let rec to_string_prec : t -> int -> string = function
 let to_string (expr: t) : string =
   to_string_prec expr 1
 
+module M = Monad.Writer_pure(Monad.Monoid_bool_or)
+
 (* The flag is set if an optimization was performed. *)
-let rec optimize1 : t -> t Flag_monad.t =
-  let open Flag_monad in
+let rec optimize1 : t -> t M.t =
+  let open M in
   function
   (* The rewrite rules *)
-  | Com(Fst, Pair(x, _)) ->      set >> return x
-  | Com(Snd, Pair(_, y)) ->      set >> return y
-  | Com(App, Pair(Lam(x), y)) -> set >> return (Com(x, Pair(Id, y)))
+  | Com(Fst, Pair(x, _)) ->      tell true >> return x
+  | Com(Snd, Pair(_, y)) ->      tell true >> return y
+  | Com(App, Pair(Lam(x), y)) -> tell true >> return (Com(x, Pair(Id, y)))
   (* Recursively apply the rewrite *)
   | App          -> return App
   | Fst          -> return Fst
@@ -56,7 +58,7 @@ let rec optimize1 : t -> t Flag_monad.t =
                     return (Pair(l', r'))
 
 let rec optimize (expr: t) : t =
-  let (expr', rerun) = (optimize1 expr).run in
+  let (expr', rerun) = M.run (optimize1 expr) in
   if rerun then
     optimize expr'
   else
