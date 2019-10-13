@@ -15,11 +15,11 @@ let () =
         prerr_endline msg;
         prerr_endline (Sexpr.to_string sexpr);
         exit 2
-    | Tyck.Failed_to_solve(cstr) ->
+    | Tyck_ctx.Failed_to_solve(cstr) ->
         prerr_string "Failed to solve constraint: ";
-        prerr_endline (Tyck.string_of_cstr cstr);
+        prerr_endline (Tyck_ctx.string_of_cstr cstr);
         exit 3
-    | Tyck.Unsolved_variable(n) ->
+    | Tyck_ctx.Unsolved_variable(n) ->
         prerr_string "Unsolved variable: ?%";
         prerr_int n;
         prerr_newline ();
