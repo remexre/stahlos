@@ -44,7 +44,8 @@ let ctx_add_cstr_ty_expr (l: Uast.expr) (r: Uast.expr) : (ctx, unit) State.t =
 *)
 
 let ctx_add_def (name: string) (expr: Tast.expr) : (ctx, unit) State.t =
-  prerr_endline ("add_def (def " ^ name ^ " " ^ Tast.string_of_expr expr ^ ")");
+  prerr_endline ("add_def (def " ^ name ^ " " ^ Tast.string_of_expr_inner expr.type_ ^
+                 " " ^ Tast.string_of_expr expr ^ ")");
   modify (fun ctx -> { ctx with defs = (name, expr)::ctx.defs })
 
 let ctx_ensure (cstr: cstr) (cond: bool) : (ctx, unit) State.t =
@@ -121,8 +122,8 @@ let ctx_finish : (ctx, Tast.expr) State.t =
   in
   solve_all () >>
   let+ ctx = get in
-  let ty = walk ctx.subst 0 in
-  let expr = walk ctx.subst 1 in
+  let expr = walk ctx.subst 0
+  and ty = walk ctx.subst 1 in
   modify (fun ctx -> { ctx with fresh = 2; subst = [] }) >>
   return { Tast.type_ = ty; Tast.value = expr }
 
@@ -162,8 +163,8 @@ let tyck_expr (expr: Ast.expr) (ty: Tast.expr_inner) : (ctx, Tast.expr) State.t 
   let+ ctx = State.get in
   let ty = Uast.from_tast ty in
   let+ expr = from_ast ctx.ast_defs 0 expr in
-  modify (fun ctx -> { ctx with subst = [(0, ty); (1, expr)] }) >>
-  ctx_add_cstr_ty (Logic(1)) (Logic(0)) >>
+  modify (fun ctx -> { ctx with subst = [(0, expr); (1, ty)] }) >>
+  ctx_add_cstr_ty (Logic(0)) (Logic(1)) >>
   ctx_finish
 
 let add_ctor (dt: Ast.defty) (c: Ast.ctor) : (ctx, unit) State.t =
