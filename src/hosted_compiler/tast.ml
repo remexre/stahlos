@@ -9,23 +9,24 @@ and expr_inner
   = App of expr * expr
   | Global of string
   | Lam of string * expr
-  | Lit of string * Sexpr.t
+  | Lit of Sexpr.t
+  | LitTy
   | Local of int
   | Pi of string * expr * expr
   | Universe of int
 
-let string_of_expr_inner : expr_inner -> string = function
-  | App(f, x) -> let _ = (f, x) in failwith "TODO"
-  | Global(s) -> let _ = s in failwith "TODO"
-  | Lam(n, b) -> let _ = (n, b) in failwith "TODO"
-  | Lit(f, l) -> let _ = (f, l) in failwith "TODO"
-  | Local(n) -> let _ = n in failwith "TODO"
-  | Pi(n, t, b) -> let _ = (n, t, b) in failwith "TODO"
-  | Universe(n) -> let _ = n in failwith "TODO"
+let rec string_of_expr (expr: expr) : string =
+  string_of_expr_inner expr.value
 
-let string_of_expr (expr: expr) : string =
-  let _ = expr in
-  failwith "TODO"
+and string_of_expr_inner : expr_inner -> string = function
+  | App(f, x) -> let _ = (f, x) in failwith "TODO Tast.string_of_expr_inner App"
+  | Global(s) -> s
+  | Lam(n, b) -> let _ = (n, b) in failwith "TODO Tast.string_of_expr_inner Lam"
+  | Lit(l) -> let _ = l in failwith "TODO Tast.string_of_expr_inner Lit"
+  | LitTy -> "Erased%Type"
+  | Local(n) -> "$" ^ string_of_int n
+  | Pi(n, t, b) -> let _ = (n, t, b) in failwith "TODO Tast.string_of_expr_inner Pi"
+  | Universe(n) -> "Type%" ^ string_of_int n
 
 type module_ =
   { name : string

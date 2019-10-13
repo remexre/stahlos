@@ -1,7 +1,7 @@
 (module main)
 
 (def String Type %String)
-(def PID Type %Uint64)
+(def PID Type %U64)
 
 (deftype Void Type)
 

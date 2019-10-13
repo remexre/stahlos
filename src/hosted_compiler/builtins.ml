@@ -1,11 +1,8 @@
-open Ast
+open Tast
 
-type builtin =
-  { type_ : expr
-  }
-
-let builtins : (string * builtin) list =
-  [ "%Sint64", { type_ = Universe }
-  ; "%String", { type_ = Universe }
-  ; "%Uint64", { type_ = Universe }
+let builtins : (string * expr) list =
+  let ty = { type_ = Universe(0); value = Universe(1) } in
+  [ "%I64", ty
+  ; "%String", ty
+  ; "%U64", ty
   ]

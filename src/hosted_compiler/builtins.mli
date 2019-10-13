@@ -1,5 +1,1 @@
-type builtin =
-  { type_ : Ast.expr
-  }
-
-val builtins : (string * builtin) list
+val builtins : (string * Tast.expr) list

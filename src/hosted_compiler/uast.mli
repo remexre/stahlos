@@ -6,11 +6,14 @@ type expr =
 and expr_inner
   = App of expr * expr
   | Global of string
-  | Lam of expr
-  | Lit of string * Sexpr.t
+  | Lam of string * expr
+  | Lit of Sexpr.t
+  | LitTy
   | Logic of int
   | Local of int
-  | Pi of expr * expr
+  | Pi of string * expr * expr
   | Universe of int
 
-val from_ast : Ast.def list -> Ast.expr -> expr  
+val string_of_expr : expr -> string
+val string_of_expr_inner : expr_inner -> string
+val from_tast : Tast.expr_inner -> expr_inner

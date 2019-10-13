@@ -7,7 +7,8 @@ and expr_inner
   = App of expr * expr
   | Global of string
   | Lam of string * expr
-  | Lit of string * Sexpr.t
+  | Lit of Sexpr.t
+  | LitTy
   | Local of int
   | Pi of string * expr * expr
   | Universe of int
