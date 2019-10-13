@@ -137,28 +137,22 @@ let from_ast (defs: Ast.def list) : int -> Ast.expr -> (ctx, Uast.expr_inner) St
       let+ f = to_expr 0 f
       and+ x = to_expr 0 x
       in return (Uast.App(f, x))
-  (*
-  | AppI(_, _) as e ->
-      let (f, xs) = decompose_apps e in
-      List(Atom("!") :: List.map sexpr_of_expr (f::xs))
-  *)
-  | Global(s) -> let _ = given in return (Uast.Global(s)) (* TODO *)
+  | AppI(f, x) ->
+      let+ f = to_expr (given+1) f
+      and+ x = to_expr 0 x
+      in return (Uast.App(f, x))
+  | Global(s) -> let _ = (defs, given) in return (Uast.Global(s)) (* TODO *)
   | Hole -> fresh return
   | Lam(n, b) | LamI(n, b) ->
       let+ b = to_expr 0 b
       in return (Uast.Lam(n, b))
+  | Lit(l) -> return (Uast.Lit(l))
   | Local(n) -> return (Uast.Local(n))
-  (*
-  | Lit(Int(_) as e) -> e
-  | Lit(String(_) as e) -> e
-  | Lit(e) -> List([Atom("quote"); e])
-  *)
   | Pi(n, t, b) | PiI(n, t, b) ->
       let+ t = to_expr 0 t
       and+ b = to_expr 0 b
       in return (Uast.Pi(n, t, b))
   | Universe -> return (Uast.Universe(0))
-  | e -> let _ = defs in failwith ("TODO to_expr_inner " ^ Ast.string_of_expr e)
   and to_expr (given: int) (expr: Ast.expr) : (ctx, Uast.expr) State.t =
     let+ expr = to_expr_inner given expr
     in fresh (fun t -> return { Uast.type_ = t; Uast.value = expr })
