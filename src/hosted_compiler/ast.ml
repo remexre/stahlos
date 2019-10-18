@@ -79,21 +79,6 @@ let rec expr_of_sexpr (ctx: string list) : Sexpr.t -> expr = function
       | [] -> expr_of_sexpr ctx body
       | hd::tl -> Lam(hd, helper (hd::ctx) tl)
       in helper ctx (List.map check_arg_name args)
-  | List([Atom("fn!"); Atom(arg); body]) ->
-      check_name arg;
-      let body = expr_of_sexpr (arg::ctx) body in
-      LamI(arg, body)
-  | List([Atom("fn!"); List(args); body]) ->
-      let check_arg_name : Sexpr.t -> string = function
-      | Atom(name) ->
-          check_name name;
-          name
-      | e -> raise (Invalid_ast("Invalid argument name", e))
-      in
-      let rec helper (ctx: string list) : string list -> expr = function
-      | [] -> expr_of_sexpr ctx body
-      | hd::tl -> LamI(hd, helper (hd::ctx) tl)
-      in helper ctx (List.map check_arg_name args)
   | List(Atom("->")::((_::_) as tys)) ->
       let tys = List.map (expr_of_sexpr ctx) tys in
       let ret = last tys in
@@ -230,19 +215,24 @@ let def_of_sexpr : Sexpr.t -> def = function
       Deftype(def, make_ctors def ctors)
   | List([Atom("defun"); Atom(name); List(args); ret_ty; expr]) ->
       check_name name;
-      let rec helper (ctx: string list) : Sexpr.t list -> expr * expr = function
+      let rec helper (has_implicits: bool) (ctx: string list) : Sexpr.t list -> expr * expr = function
       | [] -> (expr_of_sexpr ctx ret_ty, expr_of_sexpr ctx expr)
+      | Atom("!")::tl ->
+          if has_implicits then
+            helper false ctx tl
+          else
+            raise (Invalid_ast("Unexpected !", List(args)))
       | List([Atom(n); ty])::tl ->
           check_name n;
-          let (ty', ex') = helper (n::ctx) tl in
-          (Pi(n, expr_of_sexpr ctx ty, ty'), Lam(n, ex'))
-      | List([Atom("!"); Atom(n); ty])::tl ->
-          check_name n;
-          let (ty', ex') = helper (n::ctx) tl in
-          (PiI(n, expr_of_sexpr ctx ty, ty'), LamI(n, ex'))
+          let (ty', ex') = helper has_implicits (n::ctx) tl in
+          if has_implicits then
+            (PiI(n, expr_of_sexpr ctx ty, ty'), LamI(n, ex'))
+          else
+            (Pi(n, expr_of_sexpr ctx ty, ty'), Lam(n, ex'))
       | e::_ -> raise (Invalid_ast("Invalid argument", e))
       in
-      let (ty, ex) = helper [] args in
+      let has_implicits = List.mem (Atom("!")) args in
+      let (ty, ex) = helper has_implicits [] args in
       Def(name, ty, ex)
   | e -> raise (Invalid_ast("Unrecognized definition", e))
 

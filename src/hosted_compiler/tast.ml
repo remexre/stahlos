@@ -30,10 +30,10 @@ and string_of_expr_inner : expr_inner -> string = function
 
 type module_ =
   { name : string
-  ; defs : (string * expr) list
+  ; defs : (string * expr * int) list
   }
 
-let string_of_def (name, expr) =
+let string_of_def (name, expr, _) =
   Printf.sprintf "(def %s %s %s)" name
     (string_of_expr_inner expr.type_)
     (string_of_expr_inner expr.value)

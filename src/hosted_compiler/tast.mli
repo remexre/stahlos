@@ -18,7 +18,7 @@ val string_of_expr : expr -> string
 
 type module_ =
   { name : string
-  ; defs : (string * expr) list
+  ; defs : (string * expr * int) list
   }
 
 val string_of_module : module_ -> string

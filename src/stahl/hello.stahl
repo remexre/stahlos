@@ -37,7 +37,7 @@
 (defun the ((T Type) (x T)) T
   x)
 
-(defun id ((! T Type) (x T)) T
+(defun id ((T Type) ! (x T)) T
   x)
 
 
