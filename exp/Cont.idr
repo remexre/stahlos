@@ -24,39 +24,24 @@ Applicative (Cont r) where
 Monad (Cont r) where
   (>>=) (MkCont x) f = MkCont (\k => x (\x' => runCont k (f x')))
 
--- Our magic trick!
-
-lift : Monad m => m a -> (Cont (m b) a)
-lift = MkCont . (>>=)
-
 --------------------------------------------------------------------------------
--------------------------------------- IO --------------------------------------
+------------------------------------- STATE ------------------------------------
 --------------------------------------------------------------------------------
 
--- IO on Cont
+get : Cont (s -> (b, s)) s
+get = MkCont (\g, s => g s s)
 
-interface MonadIO (m: Type -> Type) where
-  liftIO : IO a -> m a
+put : s -> Cont (s -> (b, s)) ()
+put x = MkCont (\g, s => g () x)
 
-MonadIO IO where
-  liftIO = id
+modify : (s -> s) -> Cont (s -> (b, s)) ()
+modify f = get >>= put . f
 
-(Monad m, MonadIO m) => MonadIO (Cont (m b)) where
-  liftIO = MkCont . (>>=) . liftIO
+doDoubleAdd2 : Cont (Int -> (b, Int)) ()
+doDoubleAdd2 = do
+  modify (*2)
+  modify (+2)
 
-print : (MonadIO m, Show a) => a -> m ()
-print = liftIO . Prelude.Interactive.print
-
-printLn : (MonadIO m, Show a) => a -> m ()
-printLn = liftIO . Prelude.Interactive.printLn
-
-putStr : MonadIO m => String -> m ()
-putStr = liftIO . Prelude.Interactive.putStr
-
-putStrLn : MonadIO m => String -> m ()
-putStrLn = liftIO . Prelude.Interactive.putStrLn
-
-{-
 --------------------------------------------------------------------------------
 ---------------------------------- BACKTRACKING --------------------------------
 --------------------------------------------------------------------------------
@@ -66,6 +51,11 @@ putStrLn = liftIO . Prelude.Interactive.putStrLn
 
 Semigroup () where () <+> () = ()
 Monoid () where neutral = ()
+-- The fully general forms of these (the instances work for any applicative)
+-- overlap with Maybe's instances, and for some reason I can't use named
+-- instances.
+Semigroup a => Semigroup (IO a) where (<+>) = liftA2 (<+>)
+Monoid a => Monoid (IO a) where neutral = pure neutral
 
 -- Lazy Lists; the builtin Stream type is infinite. With strict lists this
 -- still works, it's just very slow.
@@ -73,6 +63,13 @@ Monoid () where neutral = ()
 data LazyList : Type -> Type where
   Nil : LazyList a
   (::) : a -> Lazy (LazyList a) -> LazyList a
+
+Semigroup (LazyList a) where
+  (<+>) []      y = y
+  (<+>) (x::xs) y = x :: (xs <+> y)
+
+Monoid (LazyList a) where
+  neutral = []
 
 Functor LazyList where
   map f [] = []
@@ -86,11 +83,15 @@ filter : (a -> Bool) -> LazyList a -> LazyList a
 filter f [] = []
 filter f (x::xs) = if f x then x :: filter f xs else filter f xs
 
+toList : LazyList a -> List a
+toList [] = []
+toList (x::xs) = x :: Main.toList xs
+
 -- Backtracking on Cont
 
 Monoid m => Alternative (Cont m) where
-  empty = MkCont (\_ => pure neutral)
-  (<|>) (MkCont l) (MkCont r) = MkCont (\k => (<+>) <$> (l k) <*> (r k))
+  empty = MkCont (\_ => neutral)
+  (<|>) (MkCont l) (MkCont r) = MkCont (\k => l k <+> r k)
 
 fail : Monoid m => Cont m a
 fail = empty
@@ -126,32 +127,11 @@ findPerfectNumberBelow (S predMax) = do
   ensure (n == sum (divisorsOf n))
   pure n
 
-doPerfectNumberFinder : Monoid m => Cont m ()
-doPerfectNumberFinder = do
-  putStrLn "Searching for perfect numbers below 1000 (should find 6, 28, and 496)."
-  n <- findPerfectNumberBelow 1000
-  putStrLn ("Found " ++ show n ++ "!")
-  pure ()
-
---------------------------------------------------------------------------------
-------------------------------------- STATE ------------------------------------
---------------------------------------------------------------------------------
-
-State' : Type -> Type -> Type
-State' s a = s -> IO (a, s)
-
-get : State' s s
-get s = pure (s, s)
-
-stateBind : State' s a -> (a -> State' s b) -> State' s b
-stateBind m f s = (m s) >>= uncurry f
-
-get' : (s -> State' s b) -> State' s b
-get' k = stateBind get k
-
 --------------------------------------------------------------------------------
 
 main : IO ()
 main = do
-  runCont' doPerfectNumberFinder
-  -}
+  putStr "12 = "
+  printLn (snd (runCont (\_, s => ((), s)) doDoubleAdd2 5))
+  putStrLn "Searching for perfect numbers below 1000 (should find 6, 28, and 496)."
+  printLn (toList (runCont (\x => [x]) (findPerfectNumberBelow 1000)))
