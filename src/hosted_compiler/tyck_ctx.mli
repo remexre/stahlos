@@ -5,7 +5,7 @@ type cstr
 val string_of_cstr : cstr -> string
 
 exception Failed_to_solve of cstr
-exception Unsolved_variable of int
+exception Unsolved_variable of int * Uast.expr_inner list
 
 type ctx =
   { ast_defs : Ast.def list

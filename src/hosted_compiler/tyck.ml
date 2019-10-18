@@ -40,16 +40,23 @@ let tyck_expr (expr: Ast.expr) (ty: Tast.expr_inner) : Tast.expr Tyck_ctx.t =
 
 let add_ctor (dt: Ast.defty) (c: Ast.ctor) : unit Tyck_ctx.t =
   let _ = (dt, c) in
+  (*
   return "TODO add_ctor" >>= failwith
+  *)
+  return ()
 
 let add_defty (dt: Ast.defty) : unit Tyck_ctx.t =
+  if dt.pargs = [] && dt.iargs = [] then
   assert (dt.pargs = []);
   assert (dt.iargs = []);
   ctx_add_def dt.name { type_ = Tast.Universe(1); value = Tast.Universe(0) }
 
 let add_elim (dt: Ast.defty) : unit Tyck_ctx.t =
   let _ = dt in
+  (*
   return "TODO add_elim" >>= failwith
+  *)
+  return ()
 
 let tyck_def (def: Ast.def) : unit Tyck_ctx.t =
   return ("tyck_def " ^ Ast.string_of_def def) >>= (return %% prerr_endline) >>

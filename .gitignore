@@ -1,4 +1,5 @@
 .*
+*~
 !.gitignore
 !.tokeirc
 !.travis/
@@ -10,5 +11,7 @@ out/
 bx_enh_dbg.ini
 
 *.elf
+*.ibc
+*.idr
 *.img
 *.o

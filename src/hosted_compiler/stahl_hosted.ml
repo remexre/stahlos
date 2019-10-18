@@ -19,7 +19,12 @@ let () =
         prerr_string "Failed to solve constraint: ";
         prerr_endline (Tyck_ctx.string_of_cstr cstr);
         exit 3
-    | Tyck_ctx.Unsolved_variable(n) ->
+    | Tyck_ctx.Unsolved_variable(n, es) ->
+        List.iter
+          (fun e ->
+            prerr_string "While walking ";
+            prerr_endline (Uast.string_of_expr_inner e))
+          es;
         prerr_string "Unsolved variable: ?%";
         prerr_int n;
         prerr_newline ();

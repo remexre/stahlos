@@ -7,7 +7,7 @@ let string_of_cstr = function
   | Ty(l, r) -> Uast.string_of_expr_inner l ^ " : " ^ Uast.string_of_expr_inner r
 
 exception Failed_to_solve of cstr
-exception Unsolved_variable of int
+exception Unsolved_variable of int * Uast.expr_inner list
 
 type ctx =
   { ast_defs : Ast.def list
