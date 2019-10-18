@@ -1,5 +1,3 @@
-exception Unbound_name of string * Ast.expr list
-
 type expr
   = App of expr * expr
   | Global of string
@@ -32,3 +30,4 @@ type module_ =
   }
 
 val resolve_names_for_module : Ast.module_ -> module_
+val string_of_module : module_ -> string

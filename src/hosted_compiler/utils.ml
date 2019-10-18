@@ -16,7 +16,7 @@ let genint : unit -> int =
   end
 
 let gensym () : string =
-  "gensym@" ^ string_of_int (genint ())
+  "gensym%" ^ string_of_int (genint ())
 
 let id (x: 'a) : 'a = x
 

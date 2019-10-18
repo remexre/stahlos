@@ -4,8 +4,8 @@ let () =
   try
     let m = Ast.load_module_from stdin in
     Check_names.for_module m;
-    print_endline (Ast.string_of_module m);
     let m = Nast.resolve_names_for_module m in
+    print_endline (Nast.string_of_module m);
     let _ = m in
     (*
     let m = Tyck.tyck_module m in
@@ -19,7 +19,7 @@ let () =
         prerr_endline msg;
         prerr_endline (Sexpr.to_string sexpr);
         exit 2
-    | Nast.Unbound_name(name, es) ->
+    | Check_names.Unbound_name(name, es) ->
         prerr_string "Unbound name: ";
         prerr_endline name;
         List.iter

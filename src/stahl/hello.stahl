@@ -37,7 +37,7 @@
 (defun the ((T Type) (x T)) T
   x)
 
-(defun id ((T Type) ! (x T)) T
+(defun id ((T Type) @ (x T)) T
   x)
 
 
@@ -51,3 +51,9 @@
 (defun loop ((messages (List MessageIn)) (state State)) (Pair (List MessageOut) State)
   # TODO: Do something with messages other than just ignoring it.
   (pair nil state))
+
+(defun test-1 ((x String)) String
+  (the String x))
+
+(defun test-2 ((x String)) String
+  (id x))

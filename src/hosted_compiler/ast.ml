@@ -21,7 +21,7 @@ let check_name (name: string) : unit =
   let bad_builtin = len > 0 && String.contains (String.sub name 1 (len - 1)) '%'
   and empty = len = 0
   and hole_like = len > 0 && String.get name 0 = '_'
-  and implicit_like = String.contains name '!'
+  and implicit_like = String.contains name '@'
   and keyword = List.mem name ["->"; "Pi"; "Type"; "fn"; "quote"]
   in
   if bad_builtin || empty || hole_like || implicit_like || keyword then
@@ -108,8 +108,8 @@ let rec expr_of_sexpr (ctx: string list) : Sexpr.t -> expr = function
       | hd::_ when hd = n -> Local(i)
       | _::tl -> helper (i+1) tl
       in helper 0 ctx
-  | List([Atom("!"); e]) -> expr_of_sexpr ctx e
-  | List(Atom("!")::f::xs) -> AppI(expr_of_sexpr ctx (List(Atom("!")::f::init xs)),
+  | List([Atom("@"); e]) -> expr_of_sexpr ctx e
+  | List(Atom("@")::f::xs) -> AppI(expr_of_sexpr ctx (List(Atom("@")::f::init xs)),
                                    expr_of_sexpr ctx (last xs))
   | List([e]) -> expr_of_sexpr ctx e
   | List(f::xs) -> App(expr_of_sexpr ctx (List(f::init xs)), expr_of_sexpr ctx (last xs))
@@ -121,7 +121,7 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
       List(List.map sexpr_of_expr (f::xs))
   | AppI(_, _) as e ->
       let (f, xs) = decompose_apps e in
-      List(Atom("!") :: List.map sexpr_of_expr (f::xs))
+      List(Atom("@") :: List.map sexpr_of_expr (f::xs))
   | Global(s) -> Atom(s)
   | Hole -> Atom("_")
   | Lam(_, _) as e ->
@@ -131,7 +131,7 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
   | LamI(_, _) as e ->
       let (args, body) = decompose_lamis e in
       let atom s = Atom(s) in
-      List([Atom("fn!"); List(List.map atom args); sexpr_of_expr body])
+      List([Atom("fn@"); List(List.map atom args); sexpr_of_expr body])
   | Local(n) -> Atom("$" ^ string_of_int n)
   | Lit(Int(_) as e) -> e
   | Lit(String(_) as e) -> e
@@ -143,7 +143,7 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
   | PiI(_, _, _) as e ->
       let (args, body) = decompose_piis e in
       let sexpr_of_arg (s, e) = List([Atom(s); sexpr_of_expr e]) in
-      List([Atom("Pi!"); List(List.map sexpr_of_arg args); sexpr_of_expr body])
+      List([Atom("Pi@"); List(List.map sexpr_of_arg args); sexpr_of_expr body])
   | Universe -> Atom("Type")
 
 let string_of_expr : expr -> string = Sexpr.to_string %% sexpr_of_expr
@@ -217,11 +217,11 @@ let def_of_sexpr : Sexpr.t -> def = function
       check_name name;
       let rec helper (has_implicits: bool) (ctx: string list) : Sexpr.t list -> expr * expr = function
       | [] -> (expr_of_sexpr ctx ret_ty, expr_of_sexpr ctx expr)
-      | Atom("!")::tl ->
+      | Atom("@")::tl ->
           if has_implicits then
             helper false ctx tl
           else
-            raise (Invalid_ast("Unexpected !", List(args)))
+            raise (Invalid_ast("Unexpected @", List(args)))
       | List([Atom(n); ty])::tl ->
           check_name n;
           let (ty', ex') = helper has_implicits (n::ctx) tl in
@@ -231,7 +231,7 @@ let def_of_sexpr : Sexpr.t -> def = function
             (Pi(n, expr_of_sexpr ctx ty, ty'), Lam(n, ex'))
       | e::_ -> raise (Invalid_ast("Invalid argument", e))
       in
-      let has_implicits = List.mem (Atom("!")) args in
+      let has_implicits = List.mem (Atom("@")) args in
       let (ty, ex) = helper has_implicits [] args in
       Def(name, ty, ex)
   | e -> raise (Invalid_ast("Unrecognized definition", e))
