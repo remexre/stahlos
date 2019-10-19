@@ -1,0 +1,984 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>StahlOS</title>
+        
+        <meta name="robots" content="noindex" />
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="building-and-installing.html"><strong aria-hidden="true">2.</strong> Building and Installing</a></li><li><a href="forth/index.html"><strong aria-hidden="true">3.</strong> Forth Documentation</a></li><li><ol class="section"><li><a href="forth/structures.html"><strong aria-hidden="true">3.1.</strong> Structures</a></li><li><a href="forth/words.html"><strong aria-hidden="true">3.2.</strong> Words</a></li></ol></li><li><a href="protocols/index.html"><strong aria-hidden="true">4.</strong> Protocols</a></li><li><ol class="section"><li><a href="protocols/byte-input-stream.html"><strong aria-hidden="true">4.1.</strong> ByteInputStream</a></li><li><a href="protocols/byte-output-stream.html"><strong aria-hidden="true">4.2.</strong> ByteOutputStream</a></li><li><a href="protocols/debug.html"><strong aria-hidden="true">4.3.</strong> Debug</a></li><li><a href="protocols/fancy-terminal.html"><strong aria-hidden="true">4.4.</strong> FancyTerminal</a></li><li><a href="protocols/glyphfb.html"><strong aria-hidden="true">4.5.</strong> GlyphFB</a></li><li><a href="protocols/heartbeat.html"><strong aria-hidden="true">4.6.</strong> Heartbeat</a></li><li><a href="protocols/pixelfb.html"><strong aria-hidden="true">4.7.</strong> PixelFB</a></li><li><a href="protocols/terminal.html"><strong aria-hidden="true">4.8.</strong> Terminal</a></li></ol></li><li><a href="stahl/index.html"><strong aria-hidden="true">5.</strong> Stahl</a></li><li><ol class="section"><li><a href="stahl/runtime/index.html"><strong aria-hidden="true">5.1.</strong> Runtime</a></li><li><a href="stahl/compiling/index.html"><strong aria-hidden="true">5.2.</strong> Compiling</a></li><li><ol class="section"><li><a href="stahl/compiling/example.html"><strong aria-hidden="true">5.2.1.</strong> Example Compiler</a></li></ol></li></ol></li><li><a href="notes/index.html"><strong aria-hidden="true">6.</strong> Notes</a></li><li><ol class="section"><li><a href="notes/low-level/index.html"><strong aria-hidden="true">6.1.</strong> Low-Level</a></li><li><ol class="section"><li><a href="notes/low-level/abi.html"><strong aria-hidden="true">6.1.1.</strong> ABI</a></li><li><a href="notes/low-level/bootstrapping.html"><strong aria-hidden="true">6.1.2.</strong> Bootstrapping</a></li><li><a href="notes/low-level/forth-naming.html"><strong aria-hidden="true">6.1.3.</strong> Forth Naming</a></li><li><a href="notes/low-level/garbage-collector.html"><strong aria-hidden="true">6.1.4.</strong> Garbage Collector</a></li><li><a href="notes/low-level/multitasking.html"><strong aria-hidden="true">6.1.5.</strong> Multitasking</a></li></ol></li><li><a href="notes/stahlnet.html"><strong aria-hidden="true">6.2.</strong> StahlNet</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">StahlOS</h1>
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#introduction" id="introduction">Introduction</a></h1>
+<p>StahlOS is a hobbyist operating system. The goal is an extremely elegant system that is eventually capable of self-hosting.</p>
+<p>Features include:</p>
+<ul>
+<li>Implemented:
+<ul>
+<li>Boots on amd64 (via Multiboot2)</li>
+</ul>
+</li>
+<li>Planned (soon):
+<ul>
+<li>Serial support</li>
+<li>Cooperative multitasking</li>
+<li>Integrated Forth compiler/interpreter</li>
+<li>Forth over serial port</li>
+<li>Global garbage collector</li>
+</ul>
+</li>
+<li>Planned (eventually):
+<ul>
+<li>Disk support</li>
+<li>Intel GPU support</li>
+<li>Intel NIC support</li>
+<li>Network stack</li>
+<li>Multiprocessing support</li>
+</ul>
+</li>
+</ul>
+<p>A warning -- currently, this documentation is mainly meant as personal notes. As such, they might not be wholly useful to others. If you're interested in this project, don't hesitate to get in touch with me about it!</p>
+<h1><a class="header" href="#building" id="building">Building</a></h1>
+<p>To build, run <code>make</code>. (To see all targets, <code>make help</code>.)</p>
+<p>Building requires:</p>
+<ul>
+<li>coreutils or equivalent</li>
+<li>binutils, or at least a copy of <code>ld</code> and <code>strip</code> that can handle <code>elf64-x86-64</code> binaries</li>
+<li><a href="https://www.gnu.org/software/grub/">GRUB</a>, for <code>grub-file</code> and <code>grub-mkrescue</code></li>
+<li><a href="https://www.gnu.org/software/make/">make</a>, to run <code>make</code></li>
+<li><a href="https://github.com/rust-lang-nursery/mdBook">mdbook</a>, to build this documentation</li>
+<li><a href="https://www.gnu.org/software/mtools/">mtools</a>, for <code>grub-mkrescue</code></li>
+<li><a href="https://nasm.us/">nasm</a></li>
+<li><a href="https://www.gnu.org/software/xorriso/">xorriso</a>, for <code>grub-mkrescue</code></li>
+<li><a href="https://ocaml.org/">OCaml</a>, version 4.08.0 or later</li>
+<li><a href="https://dune.build/">Dune</a></li>
+</ul>
+<p>Additionally, for other targets, the following dependencies apply:</p>
+<ul>
+<li><a href="http://bochs.sourceforge.net/">Bochs</a>, for the <code>run</code> target</li>
+<li>a C compiler and headers, for the <code>test</code> and <code>utils</code> targets</li>
+<li><a href="https://core.tcl-lang.org/expect/index">expect</a>, for the <code>test</code> target</li>
+<li><a href="https://www.gnu.org/software/gdb/">gdb</a>, version 8.3 or higher, for the <code>debug</code> target</li>
+<li><code>objdump</code> (from binutils), for the <code>disas</code> target</li>
+<li><a href="https://www.qemu.org/">QEMU</a>, for the <code>run-qemu</code> and <code>test</code> targets</li>
+<li><a href="https://github.com/watchexec/watchexec">watchexec</a>, for the <code>watch</code> target</li>
+</ul>
+<p>When in doubt, see <code>.travis/Dockerfile</code> in the source code -- it contains all the necessary dependencies to build and test StahlOS.</p>
+<h1><a class="header" href="#installing" id="installing">Installing</a></h1>
+<p><code>out/stahlos.img</code> is a disk image containing GRUB, configured to be able to be booted in the ways the <code>grub-mkrescue</code> was configured to be able to. (For official releases, this means BIOS boot and UEFI; depending on your system configuration, different methods may be supported.)</p>
+<p>To run in QEMU, see the <code>run-qemu</code> target of the Makefile.</p>
+<p>In theory, it should be possible to run this on a real machine. It requires AESNI.</p>
+<h1><a class="header" href="#forth-documentation" id="forth-documentation">Forth Documentation</a></h1>
+<p>This attempts to document the Forth dialect used as the underpinnings of the system. Since no specific attempt is made to follow any given Forth standard, the system may exhibit peculiarities to an experienced Forther, so reading this documentation is still advised.</p>
+<h1><a class="header" href="#forth-structures" id="forth-structures">Forth Structures</a></h1>
+<h2><a class="header" href="#words" id="words">Words</a></h2>
+<pre><code>     0 +-------------------------------+  ---+
+       |           Next Link           |     |
+     8 +-------------------------------+     |
+       |         Documentation         |     +-- Header
+    16 +-------+-------+---------------+     |
+       | Flags |  Len  |     Name     ...    |
+24+Len +-------+-------+---------------+  ---+
+       |              CFA             ...
+       +-------------------------------+
+       |              PFA             ...
+       +-------------------------------+
+</code></pre>
+<p>The flags are:</p>
+<pre><code>MSB  LSB
+0000000I
+</code></pre>
+<table><thead><tr><th></th><th>Name</th><th>Description</th></tr></thead><tbody>
+<tr><td>0</td><td>Reserved</td><td>Should be 0</td></tr>
+<tr><td>I</td><td>Immediate</td><td>0 = normal, 1 = immediate</td></tr>
+</tbody></table>
+<h2><a class="header" href="#process-area" id="process-area">Process Area</a></h2>
+<pre><code>   0 +--------------------+--------------------+--------------------+--------------------+
+     |     Process ID     |   Start of Source  |  Length of Source  |     Input Offset   |
+  32 +--------------------+--------------------+--------------------+--------------------+
+     |   Dictionary Head  |        Flags       |   Head of Mailbox  |   Tail of Mailbox  |
+  64 +--------------------+--------------------+--------------------+--------------------+
+     |      ABORT xt      |        BP xt       |       EMIT xt      |       QUIT xt      |
+  96 +--------------------+--------------------+--------------------+--------------------+
+     |    Name Pointer    |     Name Length    |      Reserved      |      Reserved      |
+ 128 +--------------------+--------------------+--------------------+--------------------+
+    ...                                    Reserved                                     ...
+ 224 +--------------------+--------------------+--------------------+--------------------+
+     |      Reserved      |     Stored RSI     |     Stored RSP     |     Stored RBP     |
+ 256 +--------------------+--------------------+--------------------+--------------------+
+     |                                                                                   |
+     |                                    Return Stack                                   |
+     |                                     (32 words)                                    |
+     |                                                                                   |
+ 512 +--------------------+--------------------+--------------------+--------------------+
+     |                                                                                   |
+     |                                                                                   |
+     |                                                                                   |
+     |                                  Parameter Stack                                  |
+     |                                     (64 words)                                    |
+     |                                                                                   |
+     |                                                                                   |
+     |                                                                                   |
+1024 +--------------------+--------------------+--------------------+--------------------+
+</code></pre>
+<p>The flags are:</p>
+<pre><code>MSB                                                                 LSB
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000ZSB
+</code></pre>
+<table><thead><tr><th></th><th>Name</th><th>Description</th></tr></thead><tbody>
+<tr><td>0</td><td>Reserved</td><td>Should be 0</td></tr>
+<tr><td>B</td><td>Base</td><td>0 = decimal, 1 = hex</td></tr>
+<tr><td>S</td><td>State</td><td>0 = interpret, 1 = compile</td></tr>
+<tr><td>Z</td><td>Sleep</td><td>0 = runnable, 1 = asleep</td></tr>
+</tbody></table>
+<h2><a class="header" href="#gc-allocation" id="gc-allocation">GC Allocation</a></h2>
+<pre><code>     0 +----------------+
+       |       Len      |
+     8 +----------------+
+       |     Mark XT    |
+    16 +----------------+
+       | Forwarding Ptr |
+    24 +----------------+
+       |      Data      |
+24+Len +----------------+
+       |     Padding    |
+       +----------------+
+</code></pre>
+<p>Garbage collection is done with Cheney's Algorithm.</p>
+<p><strong>TODO:</strong> Details, advice for implementing the mark XT, rename the mark XT</p>
+<h1><a class="header" href="#forth-words" id="forth-words">Forth Words</a></h1>
+<h1><a class="header" href="#protocols" id="protocols">Protocols</a></h1>
+<p>This section documents the messages and protocols used throughout StahlOS.</p>
+<h2><a class="header" href="#messages" id="messages">Messages</a></h2>
+<p>StahlOS uses message-passing as the communication primitive between tasks. Each message is conceptually just the sender's task ID, a type code, and an arbitrary-length buffer of bytes. Since this body doesn't inherently have any structure, it is necessary for both sender and receiver to agree on the format of the messages sent for each type code.</p>
+<p>The following messages are currently specified:</p>
+<table><thead><tr><th>Message</th><th>Type Code</th></tr></thead><tbody>
+<tr><td><a href="protocols/debug.html#debugprint">DebugPrint</a></td><td><code>0x66c379ab0b7196ef</code></td></tr>
+<tr><td><a href="protocols/todo.html">Directory</a></td><td><code>0xc0829ee663ced008</code></td></tr>
+<tr><td><a href="protocols/heartbeat.html#ping">Ping</a></td><td><code>0x0000000000000000</code></td></tr>
+<tr><td><a href="protocols/heartbeat.html#pong">Pong</a></td><td><code>0xffffffffffffffff</code></td></tr>
+<tr><td><a href="protocols/byte-input-stream.html#readbytesdata">ReadBytesData</a></td><td><code>0x9d373588abfc316c</code></td></tr>
+<tr><td><a href="protocols/byte-input-stream.html#readbytes">ReadBytes</a></td><td><code>0x453fbbee6bd6a904</code></td></tr>
+<tr><td><a href="protocols/byte-input-stream.html#readeof">ReadEOF</a></td><td><code>0x66822efd36030ee1</code></td></tr>
+<tr><td><a href="protocols/todo.html">Register</a></td><td><code>0x2c15b9b13a3e2a80</code></td></tr>
+<tr><td><a href="protocols/byte-output-stream.html#writebytesdone">WriteBytesDone</a></td><td><code>0xfa2df296436c000b</code></td></tr>
+<tr><td><a href="protocols/byte-output-stream.html#writebytes">WriteBytes</a></td><td><code>0xa80817401471655f</code></td></tr>
+<tr><td><a href="protocols/byte-output-stream.html#writeeof">WriteEOF</a></td><td><code>0xd43aa3d9caaf192e</code></td></tr>
+</tbody></table>
+<p>(Note: In general, type codes are assigned as FNV1a hashes of the name of the message.)</p>
+<h2><a class="header" href="#protocols-1" id="protocols-1">Protocols</a></h2>
+<p>The higher-level behavioral interfaces between tasks are referred to as protocols. Currently, protocols are documented using pseudo-<a href="http://www.scribble.org/">Scribble</a>. In the future, a custom language may be used instead that takes ownership into account, and can generate Forth or Stahl code corresponding to the protocol.</p>
+<h1><a class="header" href="#byteinputstream" id="byteinputstream">ByteInputStream</a></h1>
+<p>The ByteInputStream protocol is an abstraction for reading a stream of input bytes from an I/O device.</p>
+<pre><code class="language-scribble">global protocol ByteInputStream(role C, role S) {
+	choice at C {
+		ReadBytes(usize) from C to S;
+		choice at S {
+			ReadBytesData(bytes) from S to C;
+			do ByteInputStream(C, S);
+		} or {
+			ReadEOF() from S to C;
+		}
+	} or {
+		// The client can leave at any time.
+	}
+}
+</code></pre>
+<h2><a class="header" href="#messages-1" id="messages-1">Messages</a></h2>
+<h3><a class="header" href="#readbytes" id="readbytes">ReadBytes</a></h3>
+<h3><a class="header" href="#readbytesdata" id="readbytesdata">ReadBytesData</a></h3>
+<h3><a class="header" href="#readeof" id="readeof">ReadEOF</a></h3>
+<h1><a class="header" href="#byteoutputstream" id="byteoutputstream">ByteOutputStream</a></h1>
+<p>The ByteOutputStream protocol is an abstraction for reading a stream of input bytes from an I/O device.</p>
+<pre><code class="language-scribble">global protocol ByteOutputStream(role C, role S) {
+	choice at C {
+		WriteBytes(bytes) from C to S;
+		choice at S {
+			WriteBytesDone() from S to C;
+			do ByteOutputStream(C, S);
+		} or {
+			WriteEOF() from S to C;
+		}
+	} or {
+		// The client can leave at any time.
+	}
+}
+</code></pre>
+<h2><a class="header" href="#messages-2" id="messages-2">Messages</a></h2>
+<h3><a class="header" href="#writebytes" id="writebytes">WriteBytes</a></h3>
+<h3><a class="header" href="#writebytesdone" id="writebytesdone">WriteBytesDone</a></h3>
+<h3><a class="header" href="#writeeof" id="writeeof">WriteEOF</a></h3>
+<h1><a class="header" href="#debug" id="debug">Debug</a></h1>
+<p>The Debug protocol exists for debugging purposes, as the name would indicate.</p>
+<pre><code class="language-scribble">global protocol Debug(role C, role S) {
+	choice at C {
+		DebugPrint(bytes) from C to S;
+		do Debug(C, S);
+	} or {
+		// The client can leave at any time.
+	}
+}
+</code></pre>
+<h2><a class="header" href="#messages-3" id="messages-3">Messages</a></h2>
+<h3><a class="header" href="#debugprint" id="debugprint">DebugPrint</a></h3>
+<p>The body is output to port <code>0xe9</code>. In Bochs and QEMU, this causes it to be printed as a debug message. Furthermore, a breakpoint will be hit in Bochs (from an <code>xchg bx, bx</code> instruction) after the message is printed.</p>
+<h1><a class="header" href="#fancyterminal" id="fancyterminal">FancyTerminal</a></h1>
+<h1><a class="header" href="#glyphfb" id="glyphfb">GlyphFB</a></h1>
+<p>The GlyphFB protocol is an abstraction over a 2D array of styled glyphs.</p>
+<p><strong>TODO</strong>: What is a glyph?</p>
+<pre><code class="language-scribble">global protocol GlyphFB(role C, role S) {
+	choice at C {
+		GetDims() from C to S;
+		Dims(usize, usize) from S to C;
+		do GlyphFB(C, S);
+	} or {
+		PutGlyph(glyph, usize, usize, style) from C to S;
+		do GlyphFB(C, S);
+	} or {
+		// The client can leave at any time.
+	}
+}
+</code></pre>
+<h2><a class="header" href="#messages-4" id="messages-4">Messages</a></h2>
+<h1><a class="header" href="#heartbeat" id="heartbeat">Heartbeat</a></h1>
+<p>The Heartbeat protocol is used to determine if a given process is &quot;up and responsive.&quot;</p>
+<pre><code class="language-scribble">global protocol Heartbeat(role C, role S) {
+	choice at C {
+		Ping(bytes) from C to S;
+		Pong(bytes) from S to C;
+		do Heartbeat(C, S);
+	}
+}
+</code></pre>
+<h2><a class="header" href="#messages-5" id="messages-5">Messages</a></h2>
+<h3><a class="header" href="#ping" id="ping">Ping</a></h3>
+<p>The body of a Ping message is sent back in the corresponding Pong message.</p>
+<h3><a class="header" href="#pong" id="pong">Pong</a></h3>
+<p>The body of a Pong message is taken from the corresponding Ping message.</p>
+<h1><a class="header" href="#pixelfb" id="pixelfb">PixelFB</a></h1>
+<h1><a class="header" href="#terminal" id="terminal">Terminal</a></h1>
+<p>The Terminal protocol facilitates interactions between a terminal and a TUI process.</p>
+<pre><code class="language-scribble">global protocol Terminal(role C, role S) {
+	choice at C {
+		ReadBytes(usize) from C to S;
+		choice at S {
+			ReadBytesData(bytes) from S to C;
+			do Terminal(C, S);
+		} or {
+			ReadEOF() from S to C;
+		}
+	} or {
+		WriteBytes(Bytes) from C to S;
+		choice at S {
+			WriteBytesDone() from S to C;
+			do ByteOutputStream(C, S);
+		} or {
+			WriteEOF() from S to C;
+		}
+	} or {
+		// The client can leave at any time.
+	}
+}
+</code></pre>
+<h2><a class="header" href="#messages-6" id="messages-6">Messages</a></h2>
+<h1><a class="header" href="#stahl" id="stahl">Stahl</a></h1>
+<p>This section documents the Stahl language and runtime system.</p>
+<h1><a class="header" href="#runtime" id="runtime">Runtime</a></h1>
+<h2><a class="header" href="#execution" id="execution">Execution</a></h2>
+<p>Since Stahl does not yet have codata, the runtime system handles the infinite looping required for an infinitely running program. Stahl takes cues from Arduino's language here; the entrypoint is defined by three items in the <code>main</code> module:</p>
+<h3><a class="header" href="#state" id="state"><code>State</code></a></h3>
+<p><code>(the Type State)</code> describes the state of the program between iterations of the main <code>loop</code>.</p>
+<h3><a class="header" href="#setup" id="setup"><code>setup</code></a></h3>
+<p><code>(the (-&gt; String PID State) setup)</code> returns the initial <code>State</code> of the program, given the program arguments and PID.</p>
+<h3><a class="header" href="#loop" id="loop"><code>loop</code></a></h3>
+<p><code>(the (-&gt; (List MessageIn) State (Option (Pair (List MessageOut) State))) loop)</code> implements the main body of the program. All messages that were received during the previous execution are passed to the function, as well as the previous state. It returns any new messages to be sent, as well as the new state.</p>
+<h1><a class="header" href="#categorical-abstract-machine" id="categorical-abstract-machine">Categorical Abstract Machine</a></h1>
+<p>These are some notes on the CAM. Read the original paper for context.</p>
+<h2><a class="header" href="#static-combinators" id="static-combinators">Static Combinators</a></h2>
+<p>Nullary:</p>
+<ul>
+<li><code>app</code></li>
+<li><code>fst</code></li>
+<li><code>snd</code></li>
+<li><code>'</code> (takes a value as argument)</li>
+</ul>
+<p>Unary: <code>Λ</code></p>
+<p>Binary: <code>_ ∘ _</code>, <code>&lt;_, _&gt;</code></p>
+<h3><a class="header" href="#translation-from-λ" id="translation-from-λ">Translation from λ</a></h3>
+<p>(where <code>0</code>, <code>1+n</code> are de Brujin indices)</p>
+<pre><code>[[0]]   → snd
+[[1+n]] → [[n]] ∘ fst
+[[c]]   → 'c
+[[f x]] → app ∘ &lt;[[f]], [[x]]&gt;
+[[λ x]] → Λ([[x]])
+</code></pre>
+<h2><a class="header" href="#dynamic-combinators" id="dynamic-combinators">Dynamic Combinators</a></h2>
+<p>At runtime (if executing by term rewriting), pairing and combinator application need to be introduced.</p>
+<ul>
+<li><code>_ $ _</code> (not to be confused with <code>app</code>, confusingly)</li>
+<li><code>(_, _)</code></li>
+</ul>
+<h3><a class="header" href="#evaluation" id="evaluation">Evaluation</a></h3>
+<p>The following evaluation rules are applied repeatedly to reduce an expression.</p>
+<pre><code>((x ∘ y) $ z)         → x $ (y $ z)
+(fst $ (x, y))        → x
+(snd $ (x, y))        → y
+(&lt;x, y&gt; $ z)          → (x $ z, y $ z)
+(app $ (Λ(x) $ y, z)) → (x $ (y, z))
+('(x) $ y)            → x
+</code></pre>
+<h2><a class="header" href="#simple-example" id="simple-example">Simple Example</a></h2>
+<p>As an example, we use the program <code>K I u v</code>, where <code>K</code> is the function with the type <code>α → β → α</code>, <code>I</code> is the function with the type <code>α → α</code>, and <code>u</code> and <code>v</code> are constants.</p>
+<h3><a class="header" href="#compiling" id="compiling">Compiling</a></h3>
+<ul>
+<li><code>K I u v</code></li>
+<li><code>(λx. λy. x) (λx. x) u v</code> (expand <code>K</code>, <code>I</code> to lambdas)</li>
+<li><code>(λλ1) (λ0) u v</code> (convert to de Brujin indices)</li>
+<li><code>[[(λλ1) (λ0) u v]]</code> (start compiling)</li>
+<li><code>app ∘ &lt;[[(λλ1) (λ0) u]], [[v]]&gt;</code></li>
+<li><code>app ∘ &lt;[[(λλ1) (λ0) u]], 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;[[(λλ1) (λ0)]], [[u]]&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;[[(λλ1) (λ0)]], 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;[[λλ1]], [[λ0]]&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;[[λλ1]], Λ([[0]])&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;[[λλ1]], Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ([[λ1]]), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ([[1]])), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ([[0]] ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+</ul>
+<h3><a class="header" href="#executing" id="executing">Executing</a></h3>
+<p>To execute, we apply a token for the empty environment, here <code>∅</code>.</p>
+<ul>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt; $ ∅</code></li>
+<li><code>app $ (&lt;app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt; $ ∅)</code></li>
+<li><code>app $ (app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt; $ ∅, 'v $ ∅)</code></li>
+<li><code>app $ (app $ (&lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt; $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt; $ ∅, 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (app $ (&lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt; $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (app $ (Λ(Λ(snd ∘ fst)) $ ∅, Λ(snd) $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (Λ(snd ∘ fst) $ (∅, Λ(snd) $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ ((snd ∘ fst) $ ((∅, Λ(snd) $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (snd $ (fst $ ((∅, Λ(snd) $ ∅), 'u $ ∅)), 'v $ ∅)</code></li>
+<li><code>app $ (snd $ (∅, Λ(snd) $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (Λ(snd) $ ∅, 'v $ ∅)</code></li>
+<li><code>snd $ (∅, 'v $ ∅)</code></li>
+<li><code>'v $ ∅</code></li>
+<li><code>v</code></li>
+</ul>
+<h2><a class="header" href="#machine-interpretation" id="machine-interpretation">Machine Interpretation</a></h2>
+<p><code>fst</code> and <code>snd</code> have an obvious interpretation as traversers on a linked list composed of <code>(_, _)</code> pairs. We compile composition as concatenation, i.e. we compile <code>x ∘ y</code> to <code>y x</code>. We can assign an interpretation to <code>&lt;_, _&gt;</code> by assigning meaning to each token:</p>
+<ul>
+<li><code>&lt;</code> -- push term to top of stack</li>
+<li><code>,</code> -- swap term with top of stack</li>
+<li><code>&gt;</code> -- make a pair out of the top of stack and the term, replacing the current term, and pop the stack</li>
+</ul>
+<p>For <code>Λ(C)</code>, we replace the current term <code>s</code> with <code>C:s</code>. (This is just a change of syntax, since <code>Λ(C)s</code> is a value if <code>s</code> is a value.)</p>
+<p><code>app</code> expects a term <code>(C:s, t)</code> and replaces it with <code>(s, t)</code>, then runs <code>C</code> before the remaining code.</p>
+<p>Lastly, <code>'</code> acts largely as before, but replaces the current term with the associated value.</p>
+<p>To summarize, the compilation rules from static combinators are:</p>
+<pre><code>[[app]]    → app
+[[fst]]    → fst
+[[snd]]    → snd
+[['x]]     → quote(x)
+[[Λ(x)]]   → lam([[x]])
+[[x ∘ y]]  → [[y]] [[x]]
+[[&lt;x, y&gt;]] → push [[x]] swap [[y]] cons
+</code></pre>
+<p>And the evaluation rules (on a <code>[Code | Term | Stack]</code> triple) are:</p>
+<pre><code>[app,     C | ((B:X), Y) |   S] → [B,C | (X, Y) |   S]
+[lam(B),  C |      X     |   S] → [  C |   B:X  |   S]
+[fst,     C |   (X, Y)   |   S] → [  C |    X   |   S]
+[snd,     C |   (X, Y)   |   S] → [  C |    Y   |   S]
+[cons,    C |      Y     | X,S] → [  C | (X, Y) |   S]
+[push,    C |      X     |   S] → [  C |    X   | X,S]
+[quote(X),C |      Y     |   S] → [  C |    X   |   S]
+[swap,    C |      X     | Y,S] → [  C |    Y   | X,S]
+</code></pre>
+<h2><a class="header" href="#optimization" id="optimization">Optimization</a></h2>
+<p>First, we notice that:</p>
+<ul>
+<li><code>fst ∘ &lt;x, y&gt; = x</code></li>
+<li><code>snd ∘ &lt;x, y&gt; = y</code></li>
+</ul>
+<p>We then introduce an identity combinator, <code>id</code>, and the rewrite rule <code>app ∘ &lt;Λ(x), y&gt; = x ∘ &lt;id, y&gt;</code>.</p>
+<p>We can compile <code>id</code> to an empty sequence of instructions. Because of this, the sequence <code>push swap</code> is now possibly present -- this can be optimized to <code>push</code>, since the top of stack will be the same as the current term.</p>
+<h1><a class="header" href="#compiling-to-forth" id="compiling-to-forth">Compiling to Forth</a></h1>
+<p>In Forth, we only have the data stack, rather than a data stack and a current term, so we use the top slot of the data stack as the current term. We also assign names to the code sequences in the <code>lam</code> instruction, which are compiled to Forth words.</p>
+<pre><code class="language-ocaml">(*********)
+(* utils *)
+(*********)
+
+let id (x: 'a) : 'a = x
+
+(****************************)
+(* Our lambda calculus term *)
+(****************************)
+
+type lam
+  = Abs of lam
+  | Add of lam * lam
+  | App of lam * lam
+  | Con of int
+  | Mul of lam * lam
+  | Var of int
+
+let ki12 = App(App(App(Abs(Abs(Var(1))), Abs(Var(0))), Con(1)), Con(2))
+let k12 = App(App(Abs(Abs(Var(1))), Con(1)), Con(2))
+let id3 = App(Abs(App(Abs(Var(0)), Var(0))), Con(3))
+let add23 = Add(Con(2), Con(3))
+
+(**********************)
+(* Static combinators *)
+(**********************)
+
+type cam
+  = SApp
+  | SFst
+  | SSnd
+  | SAdd
+  | SMul
+  | SQuote of int
+  | SLam of cam
+  | SCom of cam * cam
+  | SPair of cam * cam
+  | SId (* only used later on, in optimization *)
+
+let rec cam_of_lam : lam -&gt; cam = function
+  | Abs(b) -&gt; SLam(cam_of_lam b)
+  | Add(x, y) -&gt; SCom(SAdd, SPair(cam_of_lam x, cam_of_lam y))
+  | App(f, x) -&gt; SCom(SApp, SPair(cam_of_lam f, cam_of_lam x))
+  | Con(s) -&gt; SQuote(s)
+  | Mul(x, y) -&gt; SCom(SMul, SPair(cam_of_lam x, cam_of_lam y))
+  | Var(n) -&gt; if n &lt; 0 then
+                failwith &quot;Invalid de Brujin index&quot;
+              else if n = 0 then
+                SSnd
+              else
+                SCom(cam_of_lam(Var(n-1)), SFst)
+
+let static_ki12 =
+  let app x y = SCom(SApp, SPair(x, y)) in
+  app (app (app (SLam(SLam(SCom(SSnd, SFst)))) (SLam(SSnd))) (SQuote(1))) (SQuote(2))
+
+let static_k12 =
+  let app x y = SCom(SApp, SPair(x, y)) in
+  app (app (SLam(SLam(SCom(SSnd, SFst)))) (SQuote(1))) (SQuote(2))
+
+let static_id3 =
+  let app x y = SCom(SApp, SPair(x, y)) in
+  app (SLam(app (SLam(SSnd)) SSnd)) (SQuote(3))
+
+let static_add23 =
+  SCom(SAdd, SPair(SQuote(2), SQuote(3)))
+
+;;
+(* wtf ocaml... the ;; above seems to be necessary... *)
+
+assert (cam_of_lam ki12 = static_ki12);;
+assert (cam_of_lam k12 = static_k12);;
+assert (cam_of_lam id3 = static_id3);;
+assert (cam_of_lam add23 = static_add23)
+
+(********************************)
+(* Static + dynamic combinators *)
+(********************************)
+
+type cam_runtime
+  = CApp
+  | CFst
+  | CSnd
+  | CAdd
+  | CMul
+  | CQuote of int
+  | CLam of cam_runtime
+  | CCom of cam_runtime * cam_runtime
+  | CPair of cam_runtime * cam_runtime
+  | CId
+  (* Dynamic things below *)
+  | CEmpty
+  | CCon of int
+  | CApply of cam_runtime * cam_runtime
+  | CDPair of cam_runtime * cam_runtime
+
+let rec inj : cam -&gt; cam_runtime = function
+  | SApp -&gt; CApp
+  | SFst -&gt; CFst
+  | SSnd -&gt; CSnd
+  | SAdd -&gt; CAdd
+  | SMul -&gt; CMul
+  | SQuote(s) -&gt; CQuote(s)
+  | SLam(b) -&gt; CLam(inj b)
+  | SCom(f, g) -&gt; CCom(inj f, inj g)
+  | SPair(l, r) -&gt; CPair(inj l, inj r)
+  | SId -&gt; CId
+
+let rec eval_cam_1 : cam_runtime -&gt; cam_runtime = function
+  (* standard rules *)
+  | CApply(CCom(x, y), z) -&gt; CApply(x, CApply(y, z))
+  | CApply(CFst, CDPair(x, _)) -&gt; x
+  | CApply(CSnd, CDPair(_, y)) -&gt; y
+  | CApply(CPair(x, y), z) -&gt; CDPair(CApply(x, z), CApply(y, z))
+  | CApply(CApp, CDPair(CApply(CLam(x), y), z)) -&gt; CApply(x, CDPair(y, z))
+  | CApply(CQuote(s), _) -&gt; CCon(s)
+  (* arithmetic operators are currently curried... *)
+  | CApply(CAdd, CDPair(CCon(x), CCon(y))) -&gt; CCon(x + y)
+  | CApply(CMul, CDPair(CCon(x), CCon(y))) -&gt; CCon(x * y)
+  (* apply them recursively *)
+  | CApp -&gt; CApp
+  | CFst -&gt; CFst
+  | CSnd -&gt; CSnd
+  | CAdd -&gt; CAdd
+  | CMul -&gt; CMul
+  | CQuote(s) -&gt; CQuote(s)
+  | CLam(b) -&gt; CLam(eval_cam_1 b)
+  | CCom(f, g) -&gt; CCom(eval_cam_1 f, eval_cam_1 g)
+  | CPair(l, r) -&gt; CPair(eval_cam_1 l, eval_cam_1 r)
+  | CId -&gt; CId
+  (* also on the dynamic combinators *)
+  | CEmpty -&gt; CEmpty
+  | CCon(s) -&gt; CCon(s)
+  | CApply(f, x) -&gt; CApply(eval_cam_1 f, eval_cam_1 x)
+  | CDPair(l, r) -&gt; CDPair(eval_cam_1 l, eval_cam_1 r)
+
+let rec eval_cam' (expr: cam_runtime) : cam_runtime =
+  let next = eval_cam_1 expr in
+  if expr = next then
+    expr
+  else
+    eval_cam' next
+
+let eval_cam (expr: cam) : cam_runtime =
+  eval_cam' (CApply(inj expr, CEmpty));;
+
+assert (eval_cam (cam_of_lam ki12) = CCon(2));;
+assert (eval_cam (cam_of_lam k12) = CCon(1));;
+assert (eval_cam (cam_of_lam id3) = CCon(3));;
+assert (eval_cam (cam_of_lam add23) = CCon(5))
+
+(*********************************)
+(* High-level stack instructions *)
+(*********************************)
+
+type insn
+  = IApp
+  | ILam of insn list
+  | IFst
+  | ISnd
+  | ICons
+  | IPush
+  | IQuote of int
+  | IAdd
+  | IMul
+  | ISwap
+
+let rec insns_of_cam : cam -&gt; insn list = function
+  | SApp -&gt; [IApp]
+  | SFst -&gt; [IFst]
+  | SSnd -&gt; [ISnd]
+  | SAdd -&gt; [IAdd]
+  | SMul -&gt; [IMul]
+  | SQuote(s) -&gt; [IQuote(s)]
+  | SLam(b) -&gt; [ILam(insns_of_cam b)]
+  | SCom(f, g) -&gt; insns_of_cam g @ insns_of_cam f
+  | SPair(l, r) -&gt; [IPush] @ insns_of_cam l @ [ISwap] @ insns_of_cam r @ [ICons]
+  | SId -&gt; []
+
+(*********************)
+(* Runtime for insns *)
+(*********************)
+
+type insn_term
+  = IClo of insn list * insn_term
+  | ICon of int
+  | IPair of insn_term * insn_term
+  | IEmpty
+
+type insn_state =
+  { term : insn_term
+  ; code : insn list
+  ; stack : insn_term list
+  }
+
+type insn_status
+  = Continue of insn_state
+  | Done of insn_term * insn_term list
+
+let rec step_insn_state (state: insn_state) : insn_status =
+  let tm = state.term
+  and st = state.stack in
+  match state.code with
+  | [] -&gt; Done(state.term, state.stack)
+  | (IApp::ctl) -&gt; (match tm with
+                   | IPair(IClo(b, s), t) -&gt; Continue({term=IPair(s, t); code=b@ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at IApp&quot;)
+  | (ILam(b)::ctl) -&gt; Continue({term=IClo(b, tm); code=ctl; stack=st})
+  | (IFst::ctl) -&gt; (match tm with
+                   | IPair(s, _) -&gt; Continue({term=s; code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at IFst&quot;)
+  | (ISnd::ctl) -&gt; (match tm with
+                   | IPair(_, t) -&gt; Continue({term=t; code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at ISnd&quot;)
+  | (ICons::ctl) -&gt; (match st with
+                    | shd::stl -&gt; Continue({term=IPair(shd, tm); code=ctl; stack=stl})
+                    | [] -&gt; failwith &quot;Stack underflow at IPair&quot;)
+  | (IPush::ctl) -&gt; Continue({term=tm; code=ctl; stack=(tm::st)})
+  | (IQuote(s)::ctl) -&gt; Continue({term=ICon(s); code=ctl; stack=st})
+  | (IAdd::ctl) -&gt; (match tm with
+                   | IPair(ICon(x), ICon(y)) -&gt; Continue({term=ICon(x + y); code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at ISnd&quot;)
+  | (IMul::ctl) -&gt; (match tm with
+                   | IPair(ICon(x), ICon(y)) -&gt; Continue({term=ICon(x * y); code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at ISnd&quot;)
+  | (ISwap::ctl) -&gt; (match st with
+                    | shd::stl -&gt; Continue({term=shd; code=ctl; stack=(tm::stl)})
+                    | [] -&gt; failwith &quot;Stack underflow at ISwap&quot;)
+
+let eval_insns' (insns: insn list) : insn_term * insn_term list =
+  let rec helper (state: insn_state) : insn_term * insn_term list =
+    match step_insn_state state with
+    | Continue(state) -&gt; helper state
+    | Done(term, stack) -&gt; (term, stack)
+  in helper {term = IEmpty; code = insns; stack = []}
+
+let eval_insns (insns: insn list) : insn_term =
+  match eval_insns' insns with
+  | (out, []) -&gt; out
+  | _ -&gt; failwith &quot;nonempty stack&quot;;;
+
+assert (eval_insns (insns_of_cam (cam_of_lam ki12)) = ICon(2));;
+assert (eval_insns (insns_of_cam (cam_of_lam k12)) = ICon(1));;
+assert (eval_insns (insns_of_cam (cam_of_lam id3)) = ICon(3));;
+assert (eval_insns (insns_of_cam (cam_of_lam add23)) = ICon(5))
+
+(****************)
+(* Optimization *)
+(****************)
+
+type 'a flag_monad = { run_flag_monad : 'a * bool }
+
+let return (x: 'a) : 'a flag_monad =
+  { run_flag_monad = (x, false) }
+let (&gt;&gt;=) (x: 'a flag_monad) (f: 'a -&gt; 'b flag_monad) : 'b flag_monad =
+  let (x', flag1) = x.run_flag_monad in
+  let (y, flag2) = (f x').run_flag_monad in
+  { run_flag_monad = (y, flag1 || flag2) }
+let (&gt;&gt;) (x: 'a flag_monad) (y: 'b flag_monad) : 'b flag_monad =
+  x &gt;&gt;= fun _ -&gt; y
+
+let set : unit flag_monad =
+  { run_flag_monad = ((), true) }
+
+(* The flag is set if an optimization was performed. *)
+let rec opt_cam_1 : cam -&gt; cam flag_monad = function
+  (* The rewrite rules *)
+  | SCom(SFst, SPair(x, _)) -&gt;       set &gt;&gt; return x
+  | SCom(SSnd, SPair(_, y)) -&gt;       set &gt;&gt; return y
+  | SCom(SApp, SPair(SLam(x), y)) -&gt; set &gt;&gt; return (SCom(x, SPair(SId, y)))
+  (* Recursively apply the rewrite *)
+  | SApp        -&gt; return SApp
+  | SFst        -&gt; return SFst
+  | SSnd        -&gt; return SSnd
+  | SAdd        -&gt; return SAdd
+  | SMul        -&gt; return SMul
+  | SQuote(s)   -&gt; return (SQuote(s))
+  | SLam(b)     -&gt; opt_cam_1 b &gt;&gt;= fun b'
+                -&gt; return (SLam(b'))
+  | SCom(f, g)  -&gt; opt_cam_1 f &gt;&gt;= fun f'
+                -&gt; opt_cam_1 g &gt;&gt;= fun g'
+                -&gt; return (SCom(f', g'))
+  | SPair(l, r) -&gt; opt_cam_1 l &gt;&gt;= fun l'
+                -&gt; opt_cam_1 r &gt;&gt;= fun r'
+                -&gt; return (SPair(l', r'))
+  | SId         -&gt; return SId
+
+let rec opt_cam (expr: cam) : cam =
+  let (expr', rerun) = (opt_cam_1 expr).run_flag_monad in
+  if rerun then
+    opt_cam expr'
+  else
+    expr';;
+
+let rec opt_insns : insn list -&gt; insn list = function
+  (* Optimize no-op sequences *)
+  | IPush::ISwap::tl -&gt; opt_insns (IPush::tl)
+  (* Recursively optimize *)
+  | [] -&gt; []
+  | hd::tl -&gt; hd::opt_insns tl;;
+
+assert (eval_cam (opt_cam (cam_of_lam ki12)) = CCon(2));;
+assert (eval_cam (opt_cam (cam_of_lam k12)) = CCon(1));;
+assert (eval_cam (opt_cam (cam_of_lam id3)) = CCon(3));;
+assert (eval_cam (opt_cam (cam_of_lam add23)) = CCon(5))
+
+let size_after f g expr = List.length (f (insns_of_cam (g (cam_of_lam expr))));;
+
+assert (size_after id        opt_cam ki12  &lt;= size_after id id ki12);;
+assert (size_after opt_insns opt_cam ki12  &lt;= size_after id id ki12);;
+assert (size_after id        opt_cam k12   &lt;= size_after id id k12);;
+assert (size_after opt_insns opt_cam k12   &lt;= size_after id id k12);;
+assert (size_after id        opt_cam id3   &lt;= size_after id id id3);;
+assert (size_after opt_insns opt_cam id3   &lt;= size_after id id id3);;
+assert (size_after id        opt_cam add23 &lt;= size_after id id add23);;
+assert (size_after opt_insns opt_cam add23 &lt;= size_after id id add23);;
+</code></pre>
+<h1><a class="header" href="#notes" id="notes">Notes</a></h1>
+<p>This is a relatively unstructured set of notes about various systems' design.</p>
+<h1><a class="header" href="#low-level-notes" id="low-level-notes">Low-Level Notes</a></h1>
+<p>StahlOS runs entirely in ring 0 of long mode; the intention is to have a small base of assembly code (e.g. &lt;10k instructions) that implements the Forth system, then to implement everything else on top of that. Since the kernel is the only binary on the system, and relatively little code is hand-written in Forth, all code that would be considered &quot;user-mode&quot; can be compiled so as to enforce process isolation.</p>
+<h1><a class="header" href="#abi" id="abi">ABI</a></h1>
+<p>The pervasive use of Forth throughout the system makes the ABI less important for writing user code. Nevertheless, here it is:</p>
+<ul>
+<li><code>rbx</code> -- Top slot on Parameter Stack</li>
+<li><code>rsi</code> -- Forth instruction pointer</li>
+<li><code>rsp</code> -- Parameter Stack pointer</li>
+<li><code>rbp</code> -- Return Stack pointer</li>
+<li><code>r13</code> -- Bottom of Parameter Stack</li>
+<li><code>r14</code> -- Bottom of Return Stack</li>
+<li><code>r15</code> -- Process Pointer</li>
+<li><code>rax</code>, <code>rcx</code>, <code>rdx</code>, <code>rdi</code> -- Scratch (not preserved across yields)</li>
+<li><code>r8</code>-<code>r12</code> -- Scratch (not preserved across calls or yields)</li>
+</ul>
+<p>The segment registers (<code>cs</code>, <code>ds</code>, <code>es</code>, <code>fs</code>, <code>gs</code>) should always have the same values, <code>0x08</code> for <code>cs</code>, <code>0x10</code> for the rest.</p>
+<p>The Process Pointer points to the Process Area (see <a href="notes/low-level/../../forth/structures.html#process-area">Forth Structures</a>).</p>
+<p>When a call is performed, <code>rax</code> must contain the address of the code field of the word being called.</p>
+<h1><a class="header" href="#bootstrapping" id="bootstrapping">Bootstrapping</a></h1>
+<p>The Forth implementation is bootstrapped so as to ease porting to new architectures (the 64-bit variants of ARM and RISC-V being the main candidates). The implementation is split into four parts.</p>
+<h2><a class="header" href="#builtins" id="builtins">Builtins</a></h2>
+<p>Builtins are all code words, and must be (relatively laboriously) ported between systems. In general, these functions fall into four categories:</p>
+<ul>
+<li>wrap a single instruction, e.g. <code>!</code> or <code>/*</code></li>
+<li>wrap a variable, e.g. <code>HERE</code></li>
+<li>twiddle compiler state, e.g. <code>[</code> or <code>IMMEDIATE</code></li>
+<li>strongly depend on the compiler internals, e.g. <code>(EXIT)</code></li>
+</ul>
+<h2><a class="header" href="#pseudobuiltins" id="pseudobuiltins">Pseudobuiltins</a></h2>
+<p>Pseudobuiltins are defined as a standard Forth word defined with <code>:</code> would be. However, the parser does not yet exist (and is in fact written using pseudobuiltins), so they must be written by hand.</p>
+<p>These mainly focus on getting the parser up and running, and providing enough compiler internals to semi-manually construct words.</p>
+<h2><a class="header" href="#standard-library" id="standard-library">Standard Library</a></h2>
+<p>This is currently <code>src/amd64/forth/std.fth</code>. Words mentioned in the core word set of the Forth 2012 standard are generally defined here. This file should be portable between different architectures that share the same cell size, word layout, etc.</p>
+<h2><a class="header" href="#init" id="init">Init</a></h2>
+<p>This is currently <code>src/amd64/forth/init.fth</code>. This file finishes initializing hardware, and begins loading startup programs (as specified as Multiboot2 modules).</p>
+<h1><a class="header" href="#forth-naming" id="forth-naming">Forth Naming</a></h1>
+<p>Most commonly-used words' names are taken from the Forth 2012 standard at <a href="https://forth-standard.org/">forth-standard.org</a>. Some other names have been changed in an attempt to make the naming more intuitive and consistent.</p>
+<p>If a word shouldn't be used by the programmer, but is instead likely to be inserted by <code>[COMPILE]</code> or the like, it is surrounded by parentheses, for example <code>(EXIT)</code>.</p>
+<p>If a word is an immediate version of a normally non-immediate word, it is surrounded by brackets, for example <code>[']</code>.</p>
+<p>If a word writes directly to the data space, it should be suffixed with a comma, for example <code>HEADER,</code>.</p>
+<h1><a class="header" href="#garbage-collector" id="garbage-collector">Garbage Collector</a></h1>
+<p>Roots:</p>
+<ul>
+<li>Process Areas</li>
+<li>Mailboxes</li>
+<li>Stacks</li>
+<li>Return Stacks</li>
+</ul>
+<p><strong>TODO</strong>:</p>
+<ul>
+<li>How to GC code?</li>
+<li>CFA when code is &gt;4G away
+<ul>
+<li>Become an ITC Forth?</li>
+</ul>
+</li>
+</ul>
+<h1><a class="header" href="#multitasking" id="multitasking">Multitasking</a></h1>
+<p>Currently, StahlOS is designed to allow multitasking on a single CPU. Eventually this will probably be extended to support SMP systems, but for now, this isn't an immediate priority.</p>
+<p>The overall model is inspired by the Tokio model. A global bitset is maintained, mapping process IDs to readiness, where an unset bit corresponds to a blocked process and vice versa. When a process executes a call that cannot be completed immediately, the process' corresponding bit is unset. An action to register the queued work should then be performed (e.g. putting an IO request in a queue). Once the work actually occurs (e.g. in response to an interrupt), the process' bit is set. Typically once work is enqueued, the process yields. (The Stahl compiler may also insert yields, to prevent a CPU-heavy function from impacting system responsivity.)</p>
+<p>On yield, the scheduler finds the next set bit in the bitset, wrapping around. If none could be found, puts the CPU into an idle state, and resumes searching the bitset once an interrupt is received.</p>
+<h1><a class="header" href="#stahlnet" id="stahlnet">StahlNet</a></h1>
+<p>Since writing a TCP stack is annoying, and supporting application-layer protocols is even more so, StahlNet exists. StahlNet is a UDP-based lightweight networking system. &quot;Eventually,&quot; StahlOS' IPC primitives will be extended to be able to send over StahlNet. Since the StahlNet protocol has simple semantics, writing implementations in other languages is fairly simple.</p>
+<h2><a class="header" href="#implementations" id="implementations">Implementations</a></h2>
+<ul>
+<li>Rust: <a href="https://github.com/remexre/stahlnet-rs">stahlnet-rs</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

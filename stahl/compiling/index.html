@@ -1,0 +1,321 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Compiling - StahlOS</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../../";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="../../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="../../building-and-installing.html"><strong aria-hidden="true">2.</strong> Building and Installing</a></li><li><a href="../../forth/index.html"><strong aria-hidden="true">3.</strong> Forth Documentation</a></li><li><ol class="section"><li><a href="../../forth/structures.html"><strong aria-hidden="true">3.1.</strong> Structures</a></li><li><a href="../../forth/words.html"><strong aria-hidden="true">3.2.</strong> Words</a></li></ol></li><li><a href="../../protocols/index.html"><strong aria-hidden="true">4.</strong> Protocols</a></li><li><ol class="section"><li><a href="../../protocols/byte-input-stream.html"><strong aria-hidden="true">4.1.</strong> ByteInputStream</a></li><li><a href="../../protocols/byte-output-stream.html"><strong aria-hidden="true">4.2.</strong> ByteOutputStream</a></li><li><a href="../../protocols/debug.html"><strong aria-hidden="true">4.3.</strong> Debug</a></li><li><a href="../../protocols/fancy-terminal.html"><strong aria-hidden="true">4.4.</strong> FancyTerminal</a></li><li><a href="../../protocols/glyphfb.html"><strong aria-hidden="true">4.5.</strong> GlyphFB</a></li><li><a href="../../protocols/heartbeat.html"><strong aria-hidden="true">4.6.</strong> Heartbeat</a></li><li><a href="../../protocols/pixelfb.html"><strong aria-hidden="true">4.7.</strong> PixelFB</a></li><li><a href="../../protocols/terminal.html"><strong aria-hidden="true">4.8.</strong> Terminal</a></li></ol></li><li><a href="../../stahl/index.html"><strong aria-hidden="true">5.</strong> Stahl</a></li><li><ol class="section"><li><a href="../../stahl/runtime/index.html"><strong aria-hidden="true">5.1.</strong> Runtime</a></li><li><a href="../../stahl/compiling/index.html" class="active"><strong aria-hidden="true">5.2.</strong> Compiling</a></li><li><ol class="section"><li><a href="../../stahl/compiling/example.html"><strong aria-hidden="true">5.2.1.</strong> Example Compiler</a></li></ol></li></ol></li><li><a href="../../notes/index.html"><strong aria-hidden="true">6.</strong> Notes</a></li><li><ol class="section"><li><a href="../../notes/low-level/index.html"><strong aria-hidden="true">6.1.</strong> Low-Level</a></li><li><ol class="section"><li><a href="../../notes/low-level/abi.html"><strong aria-hidden="true">6.1.1.</strong> ABI</a></li><li><a href="../../notes/low-level/bootstrapping.html"><strong aria-hidden="true">6.1.2.</strong> Bootstrapping</a></li><li><a href="../../notes/low-level/forth-naming.html"><strong aria-hidden="true">6.1.3.</strong> Forth Naming</a></li><li><a href="../../notes/low-level/garbage-collector.html"><strong aria-hidden="true">6.1.4.</strong> Garbage Collector</a></li><li><a href="../../notes/low-level/multitasking.html"><strong aria-hidden="true">6.1.5.</strong> Multitasking</a></li></ol></li><li><a href="../../notes/stahlnet.html"><strong aria-hidden="true">6.2.</strong> StahlNet</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">StahlOS</h1>
+
+                        <div class="right-buttons">
+                            <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1><a class="header" href="#categorical-abstract-machine" id="categorical-abstract-machine">Categorical Abstract Machine</a></h1>
+<p>These are some notes on the CAM. Read the original paper for context.</p>
+<h2><a class="header" href="#static-combinators" id="static-combinators">Static Combinators</a></h2>
+<p>Nullary:</p>
+<ul>
+<li><code>app</code></li>
+<li><code>fst</code></li>
+<li><code>snd</code></li>
+<li><code>'</code> (takes a value as argument)</li>
+</ul>
+<p>Unary: <code>Λ</code></p>
+<p>Binary: <code>_ ∘ _</code>, <code>&lt;_, _&gt;</code></p>
+<h3><a class="header" href="#translation-from-λ" id="translation-from-λ">Translation from λ</a></h3>
+<p>(where <code>0</code>, <code>1+n</code> are de Brujin indices)</p>
+<pre><code>[[0]]   → snd
+[[1+n]] → [[n]] ∘ fst
+[[c]]   → 'c
+[[f x]] → app ∘ &lt;[[f]], [[x]]&gt;
+[[λ x]] → Λ([[x]])
+</code></pre>
+<h2><a class="header" href="#dynamic-combinators" id="dynamic-combinators">Dynamic Combinators</a></h2>
+<p>At runtime (if executing by term rewriting), pairing and combinator application need to be introduced.</p>
+<ul>
+<li><code>_ $ _</code> (not to be confused with <code>app</code>, confusingly)</li>
+<li><code>(_, _)</code></li>
+</ul>
+<h3><a class="header" href="#evaluation" id="evaluation">Evaluation</a></h3>
+<p>The following evaluation rules are applied repeatedly to reduce an expression.</p>
+<pre><code>((x ∘ y) $ z)         → x $ (y $ z)
+(fst $ (x, y))        → x
+(snd $ (x, y))        → y
+(&lt;x, y&gt; $ z)          → (x $ z, y $ z)
+(app $ (Λ(x) $ y, z)) → (x $ (y, z))
+('(x) $ y)            → x
+</code></pre>
+<h2><a class="header" href="#simple-example" id="simple-example">Simple Example</a></h2>
+<p>As an example, we use the program <code>K I u v</code>, where <code>K</code> is the function with the type <code>α → β → α</code>, <code>I</code> is the function with the type <code>α → α</code>, and <code>u</code> and <code>v</code> are constants.</p>
+<h3><a class="header" href="#compiling" id="compiling">Compiling</a></h3>
+<ul>
+<li><code>K I u v</code></li>
+<li><code>(λx. λy. x) (λx. x) u v</code> (expand <code>K</code>, <code>I</code> to lambdas)</li>
+<li><code>(λλ1) (λ0) u v</code> (convert to de Brujin indices)</li>
+<li><code>[[(λλ1) (λ0) u v]]</code> (start compiling)</li>
+<li><code>app ∘ &lt;[[(λλ1) (λ0) u]], [[v]]&gt;</code></li>
+<li><code>app ∘ &lt;[[(λλ1) (λ0) u]], 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;[[(λλ1) (λ0)]], [[u]]&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;[[(λλ1) (λ0)]], 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;[[λλ1]], [[λ0]]&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;[[λλ1]], Λ([[0]])&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;[[λλ1]], Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ([[λ1]]), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ([[1]])), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ([[0]] ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt;</code></li>
+</ul>
+<h3><a class="header" href="#executing" id="executing">Executing</a></h3>
+<p>To execute, we apply a token for the empty environment, here <code>∅</code>.</p>
+<ul>
+<li><code>app ∘ &lt;app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt; $ ∅</code></li>
+<li><code>app $ (&lt;app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt;, 'v&gt; $ ∅)</code></li>
+<li><code>app $ (app ∘ &lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt; $ ∅, 'v $ ∅)</code></li>
+<li><code>app $ (app $ (&lt;app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt;, 'u&gt; $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (app ∘ &lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt; $ ∅, 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (app $ (&lt;Λ(Λ(snd ∘ fst)), Λ(snd)&gt; $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (app $ (Λ(Λ(snd ∘ fst)) $ ∅, Λ(snd) $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (app $ (Λ(snd ∘ fst) $ (∅, Λ(snd) $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ ((snd ∘ fst) $ ((∅, Λ(snd) $ ∅), 'u $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (snd $ (fst $ ((∅, Λ(snd) $ ∅), 'u $ ∅)), 'v $ ∅)</code></li>
+<li><code>app $ (snd $ (∅, Λ(snd) $ ∅), 'v $ ∅)</code></li>
+<li><code>app $ (Λ(snd) $ ∅, 'v $ ∅)</code></li>
+<li><code>snd $ (∅, 'v $ ∅)</code></li>
+<li><code>'v $ ∅</code></li>
+<li><code>v</code></li>
+</ul>
+<h2><a class="header" href="#machine-interpretation" id="machine-interpretation">Machine Interpretation</a></h2>
+<p><code>fst</code> and <code>snd</code> have an obvious interpretation as traversers on a linked list composed of <code>(_, _)</code> pairs. We compile composition as concatenation, i.e. we compile <code>x ∘ y</code> to <code>y x</code>. We can assign an interpretation to <code>&lt;_, _&gt;</code> by assigning meaning to each token:</p>
+<ul>
+<li><code>&lt;</code> -- push term to top of stack</li>
+<li><code>,</code> -- swap term with top of stack</li>
+<li><code>&gt;</code> -- make a pair out of the top of stack and the term, replacing the current term, and pop the stack</li>
+</ul>
+<p>For <code>Λ(C)</code>, we replace the current term <code>s</code> with <code>C:s</code>. (This is just a change of syntax, since <code>Λ(C)s</code> is a value if <code>s</code> is a value.)</p>
+<p><code>app</code> expects a term <code>(C:s, t)</code> and replaces it with <code>(s, t)</code>, then runs <code>C</code> before the remaining code.</p>
+<p>Lastly, <code>'</code> acts largely as before, but replaces the current term with the associated value.</p>
+<p>To summarize, the compilation rules from static combinators are:</p>
+<pre><code>[[app]]    → app
+[[fst]]    → fst
+[[snd]]    → snd
+[['x]]     → quote(x)
+[[Λ(x)]]   → lam([[x]])
+[[x ∘ y]]  → [[y]] [[x]]
+[[&lt;x, y&gt;]] → push [[x]] swap [[y]] cons
+</code></pre>
+<p>And the evaluation rules (on a <code>[Code | Term | Stack]</code> triple) are:</p>
+<pre><code>[app,     C | ((B:X), Y) |   S] → [B,C | (X, Y) |   S]
+[lam(B),  C |      X     |   S] → [  C |   B:X  |   S]
+[fst,     C |   (X, Y)   |   S] → [  C |    X   |   S]
+[snd,     C |   (X, Y)   |   S] → [  C |    Y   |   S]
+[cons,    C |      Y     | X,S] → [  C | (X, Y) |   S]
+[push,    C |      X     |   S] → [  C |    X   | X,S]
+[quote(X),C |      Y     |   S] → [  C |    X   |   S]
+[swap,    C |      X     | Y,S] → [  C |    Y   | X,S]
+</code></pre>
+<h2><a class="header" href="#optimization" id="optimization">Optimization</a></h2>
+<p>First, we notice that:</p>
+<ul>
+<li><code>fst ∘ &lt;x, y&gt; = x</code></li>
+<li><code>snd ∘ &lt;x, y&gt; = y</code></li>
+</ul>
+<p>We then introduce an identity combinator, <code>id</code>, and the rewrite rule <code>app ∘ &lt;Λ(x), y&gt; = x ∘ &lt;id, y&gt;</code>.</p>
+<p>We can compile <code>id</code> to an empty sequence of instructions. Because of this, the sequence <code>push swap</code> is now possibly present -- this can be optimized to <code>push</code>, since the top of stack will be the same as the current term.</p>
+<h1><a class="header" href="#compiling-to-forth" id="compiling-to-forth">Compiling to Forth</a></h1>
+<p>In Forth, we only have the data stack, rather than a data stack and a current term, so we use the top slot of the data stack as the current term. We also assign names to the code sequences in the <code>lam</code> instruction, which are compiled to Forth words.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../../stahl/runtime/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../../stahl/compiling/example.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="../../stahl/runtime/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="../../stahl/compiling/example.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

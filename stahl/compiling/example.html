@@ -1,0 +1,525 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Example Compiler - StahlOS</title>
+        
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../../";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li><a href="../../introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="../../building-and-installing.html"><strong aria-hidden="true">2.</strong> Building and Installing</a></li><li><a href="../../forth/index.html"><strong aria-hidden="true">3.</strong> Forth Documentation</a></li><li><ol class="section"><li><a href="../../forth/structures.html"><strong aria-hidden="true">3.1.</strong> Structures</a></li><li><a href="../../forth/words.html"><strong aria-hidden="true">3.2.</strong> Words</a></li></ol></li><li><a href="../../protocols/index.html"><strong aria-hidden="true">4.</strong> Protocols</a></li><li><ol class="section"><li><a href="../../protocols/byte-input-stream.html"><strong aria-hidden="true">4.1.</strong> ByteInputStream</a></li><li><a href="../../protocols/byte-output-stream.html"><strong aria-hidden="true">4.2.</strong> ByteOutputStream</a></li><li><a href="../../protocols/debug.html"><strong aria-hidden="true">4.3.</strong> Debug</a></li><li><a href="../../protocols/fancy-terminal.html"><strong aria-hidden="true">4.4.</strong> FancyTerminal</a></li><li><a href="../../protocols/glyphfb.html"><strong aria-hidden="true">4.5.</strong> GlyphFB</a></li><li><a href="../../protocols/heartbeat.html"><strong aria-hidden="true">4.6.</strong> Heartbeat</a></li><li><a href="../../protocols/pixelfb.html"><strong aria-hidden="true">4.7.</strong> PixelFB</a></li><li><a href="../../protocols/terminal.html"><strong aria-hidden="true">4.8.</strong> Terminal</a></li></ol></li><li><a href="../../stahl/index.html"><strong aria-hidden="true">5.</strong> Stahl</a></li><li><ol class="section"><li><a href="../../stahl/runtime/index.html"><strong aria-hidden="true">5.1.</strong> Runtime</a></li><li><a href="../../stahl/compiling/index.html"><strong aria-hidden="true">5.2.</strong> Compiling</a></li><li><ol class="section"><li><a href="../../stahl/compiling/example.html" class="active"><strong aria-hidden="true">5.2.1.</strong> Example Compiler</a></li></ol></li></ol></li><li><a href="../../notes/index.html"><strong aria-hidden="true">6.</strong> Notes</a></li><li><ol class="section"><li><a href="../../notes/low-level/index.html"><strong aria-hidden="true">6.1.</strong> Low-Level</a></li><li><ol class="section"><li><a href="../../notes/low-level/abi.html"><strong aria-hidden="true">6.1.1.</strong> ABI</a></li><li><a href="../../notes/low-level/bootstrapping.html"><strong aria-hidden="true">6.1.2.</strong> Bootstrapping</a></li><li><a href="../../notes/low-level/forth-naming.html"><strong aria-hidden="true">6.1.3.</strong> Forth Naming</a></li><li><a href="../../notes/low-level/garbage-collector.html"><strong aria-hidden="true">6.1.4.</strong> Garbage Collector</a></li><li><a href="../../notes/low-level/multitasking.html"><strong aria-hidden="true">6.1.5.</strong> Multitasking</a></li></ol></li><li><a href="../../notes/stahlnet.html"><strong aria-hidden="true">6.2.</strong> StahlNet</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">StahlOS</h1>
+
+                        <div class="right-buttons">
+                            <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <pre><code class="language-ocaml">(*********)
+(* utils *)
+(*********)
+
+let id (x: 'a) : 'a = x
+
+(****************************)
+(* Our lambda calculus term *)
+(****************************)
+
+type lam
+  = Abs of lam
+  | Add of lam * lam
+  | App of lam * lam
+  | Con of int
+  | Mul of lam * lam
+  | Var of int
+
+let ki12 = App(App(App(Abs(Abs(Var(1))), Abs(Var(0))), Con(1)), Con(2))
+let k12 = App(App(Abs(Abs(Var(1))), Con(1)), Con(2))
+let id3 = App(Abs(App(Abs(Var(0)), Var(0))), Con(3))
+let add23 = Add(Con(2), Con(3))
+
+(**********************)
+(* Static combinators *)
+(**********************)
+
+type cam
+  = SApp
+  | SFst
+  | SSnd
+  | SAdd
+  | SMul
+  | SQuote of int
+  | SLam of cam
+  | SCom of cam * cam
+  | SPair of cam * cam
+  | SId (* only used later on, in optimization *)
+
+let rec cam_of_lam : lam -&gt; cam = function
+  | Abs(b) -&gt; SLam(cam_of_lam b)
+  | Add(x, y) -&gt; SCom(SAdd, SPair(cam_of_lam x, cam_of_lam y))
+  | App(f, x) -&gt; SCom(SApp, SPair(cam_of_lam f, cam_of_lam x))
+  | Con(s) -&gt; SQuote(s)
+  | Mul(x, y) -&gt; SCom(SMul, SPair(cam_of_lam x, cam_of_lam y))
+  | Var(n) -&gt; if n &lt; 0 then
+                failwith &quot;Invalid de Brujin index&quot;
+              else if n = 0 then
+                SSnd
+              else
+                SCom(cam_of_lam(Var(n-1)), SFst)
+
+let static_ki12 =
+  let app x y = SCom(SApp, SPair(x, y)) in
+  app (app (app (SLam(SLam(SCom(SSnd, SFst)))) (SLam(SSnd))) (SQuote(1))) (SQuote(2))
+
+let static_k12 =
+  let app x y = SCom(SApp, SPair(x, y)) in
+  app (app (SLam(SLam(SCom(SSnd, SFst)))) (SQuote(1))) (SQuote(2))
+
+let static_id3 =
+  let app x y = SCom(SApp, SPair(x, y)) in
+  app (SLam(app (SLam(SSnd)) SSnd)) (SQuote(3))
+
+let static_add23 =
+  SCom(SAdd, SPair(SQuote(2), SQuote(3)))
+
+;;
+(* wtf ocaml... the ;; above seems to be necessary... *)
+
+assert (cam_of_lam ki12 = static_ki12);;
+assert (cam_of_lam k12 = static_k12);;
+assert (cam_of_lam id3 = static_id3);;
+assert (cam_of_lam add23 = static_add23)
+
+(********************************)
+(* Static + dynamic combinators *)
+(********************************)
+
+type cam_runtime
+  = CApp
+  | CFst
+  | CSnd
+  | CAdd
+  | CMul
+  | CQuote of int
+  | CLam of cam_runtime
+  | CCom of cam_runtime * cam_runtime
+  | CPair of cam_runtime * cam_runtime
+  | CId
+  (* Dynamic things below *)
+  | CEmpty
+  | CCon of int
+  | CApply of cam_runtime * cam_runtime
+  | CDPair of cam_runtime * cam_runtime
+
+let rec inj : cam -&gt; cam_runtime = function
+  | SApp -&gt; CApp
+  | SFst -&gt; CFst
+  | SSnd -&gt; CSnd
+  | SAdd -&gt; CAdd
+  | SMul -&gt; CMul
+  | SQuote(s) -&gt; CQuote(s)
+  | SLam(b) -&gt; CLam(inj b)
+  | SCom(f, g) -&gt; CCom(inj f, inj g)
+  | SPair(l, r) -&gt; CPair(inj l, inj r)
+  | SId -&gt; CId
+
+let rec eval_cam_1 : cam_runtime -&gt; cam_runtime = function
+  (* standard rules *)
+  | CApply(CCom(x, y), z) -&gt; CApply(x, CApply(y, z))
+  | CApply(CFst, CDPair(x, _)) -&gt; x
+  | CApply(CSnd, CDPair(_, y)) -&gt; y
+  | CApply(CPair(x, y), z) -&gt; CDPair(CApply(x, z), CApply(y, z))
+  | CApply(CApp, CDPair(CApply(CLam(x), y), z)) -&gt; CApply(x, CDPair(y, z))
+  | CApply(CQuote(s), _) -&gt; CCon(s)
+  (* arithmetic operators are currently curried... *)
+  | CApply(CAdd, CDPair(CCon(x), CCon(y))) -&gt; CCon(x + y)
+  | CApply(CMul, CDPair(CCon(x), CCon(y))) -&gt; CCon(x * y)
+  (* apply them recursively *)
+  | CApp -&gt; CApp
+  | CFst -&gt; CFst
+  | CSnd -&gt; CSnd
+  | CAdd -&gt; CAdd
+  | CMul -&gt; CMul
+  | CQuote(s) -&gt; CQuote(s)
+  | CLam(b) -&gt; CLam(eval_cam_1 b)
+  | CCom(f, g) -&gt; CCom(eval_cam_1 f, eval_cam_1 g)
+  | CPair(l, r) -&gt; CPair(eval_cam_1 l, eval_cam_1 r)
+  | CId -&gt; CId
+  (* also on the dynamic combinators *)
+  | CEmpty -&gt; CEmpty
+  | CCon(s) -&gt; CCon(s)
+  | CApply(f, x) -&gt; CApply(eval_cam_1 f, eval_cam_1 x)
+  | CDPair(l, r) -&gt; CDPair(eval_cam_1 l, eval_cam_1 r)
+
+let rec eval_cam' (expr: cam_runtime) : cam_runtime =
+  let next = eval_cam_1 expr in
+  if expr = next then
+    expr
+  else
+    eval_cam' next
+
+let eval_cam (expr: cam) : cam_runtime =
+  eval_cam' (CApply(inj expr, CEmpty));;
+
+assert (eval_cam (cam_of_lam ki12) = CCon(2));;
+assert (eval_cam (cam_of_lam k12) = CCon(1));;
+assert (eval_cam (cam_of_lam id3) = CCon(3));;
+assert (eval_cam (cam_of_lam add23) = CCon(5))
+
+(*********************************)
+(* High-level stack instructions *)
+(*********************************)
+
+type insn
+  = IApp
+  | ILam of insn list
+  | IFst
+  | ISnd
+  | ICons
+  | IPush
+  | IQuote of int
+  | IAdd
+  | IMul
+  | ISwap
+
+let rec insns_of_cam : cam -&gt; insn list = function
+  | SApp -&gt; [IApp]
+  | SFst -&gt; [IFst]
+  | SSnd -&gt; [ISnd]
+  | SAdd -&gt; [IAdd]
+  | SMul -&gt; [IMul]
+  | SQuote(s) -&gt; [IQuote(s)]
+  | SLam(b) -&gt; [ILam(insns_of_cam b)]
+  | SCom(f, g) -&gt; insns_of_cam g @ insns_of_cam f
+  | SPair(l, r) -&gt; [IPush] @ insns_of_cam l @ [ISwap] @ insns_of_cam r @ [ICons]
+  | SId -&gt; []
+
+(*********************)
+(* Runtime for insns *)
+(*********************)
+
+type insn_term
+  = IClo of insn list * insn_term
+  | ICon of int
+  | IPair of insn_term * insn_term
+  | IEmpty
+
+type insn_state =
+  { term : insn_term
+  ; code : insn list
+  ; stack : insn_term list
+  }
+
+type insn_status
+  = Continue of insn_state
+  | Done of insn_term * insn_term list
+
+let rec step_insn_state (state: insn_state) : insn_status =
+  let tm = state.term
+  and st = state.stack in
+  match state.code with
+  | [] -&gt; Done(state.term, state.stack)
+  | (IApp::ctl) -&gt; (match tm with
+                   | IPair(IClo(b, s), t) -&gt; Continue({term=IPair(s, t); code=b@ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at IApp&quot;)
+  | (ILam(b)::ctl) -&gt; Continue({term=IClo(b, tm); code=ctl; stack=st})
+  | (IFst::ctl) -&gt; (match tm with
+                   | IPair(s, _) -&gt; Continue({term=s; code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at IFst&quot;)
+  | (ISnd::ctl) -&gt; (match tm with
+                   | IPair(_, t) -&gt; Continue({term=t; code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at ISnd&quot;)
+  | (ICons::ctl) -&gt; (match st with
+                    | shd::stl -&gt; Continue({term=IPair(shd, tm); code=ctl; stack=stl})
+                    | [] -&gt; failwith &quot;Stack underflow at IPair&quot;)
+  | (IPush::ctl) -&gt; Continue({term=tm; code=ctl; stack=(tm::st)})
+  | (IQuote(s)::ctl) -&gt; Continue({term=ICon(s); code=ctl; stack=st})
+  | (IAdd::ctl) -&gt; (match tm with
+                   | IPair(ICon(x), ICon(y)) -&gt; Continue({term=ICon(x + y); code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at ISnd&quot;)
+  | (IMul::ctl) -&gt; (match tm with
+                   | IPair(ICon(x), ICon(y)) -&gt; Continue({term=ICon(x * y); code=ctl; stack=st})
+                   | _ -&gt; failwith &quot;Type error at ISnd&quot;)
+  | (ISwap::ctl) -&gt; (match st with
+                    | shd::stl -&gt; Continue({term=shd; code=ctl; stack=(tm::stl)})
+                    | [] -&gt; failwith &quot;Stack underflow at ISwap&quot;)
+
+let eval_insns' (insns: insn list) : insn_term * insn_term list =
+  let rec helper (state: insn_state) : insn_term * insn_term list =
+    match step_insn_state state with
+    | Continue(state) -&gt; helper state
+    | Done(term, stack) -&gt; (term, stack)
+  in helper {term = IEmpty; code = insns; stack = []}
+
+let eval_insns (insns: insn list) : insn_term =
+  match eval_insns' insns with
+  | (out, []) -&gt; out
+  | _ -&gt; failwith &quot;nonempty stack&quot;;;
+
+assert (eval_insns (insns_of_cam (cam_of_lam ki12)) = ICon(2));;
+assert (eval_insns (insns_of_cam (cam_of_lam k12)) = ICon(1));;
+assert (eval_insns (insns_of_cam (cam_of_lam id3)) = ICon(3));;
+assert (eval_insns (insns_of_cam (cam_of_lam add23)) = ICon(5))
+
+(****************)
+(* Optimization *)
+(****************)
+
+type 'a flag_monad = { run_flag_monad : 'a * bool }
+
+let return (x: 'a) : 'a flag_monad =
+  { run_flag_monad = (x, false) }
+let (&gt;&gt;=) (x: 'a flag_monad) (f: 'a -&gt; 'b flag_monad) : 'b flag_monad =
+  let (x', flag1) = x.run_flag_monad in
+  let (y, flag2) = (f x').run_flag_monad in
+  { run_flag_monad = (y, flag1 || flag2) }
+let (&gt;&gt;) (x: 'a flag_monad) (y: 'b flag_monad) : 'b flag_monad =
+  x &gt;&gt;= fun _ -&gt; y
+
+let set : unit flag_monad =
+  { run_flag_monad = ((), true) }
+
+(* The flag is set if an optimization was performed. *)
+let rec opt_cam_1 : cam -&gt; cam flag_monad = function
+  (* The rewrite rules *)
+  | SCom(SFst, SPair(x, _)) -&gt;       set &gt;&gt; return x
+  | SCom(SSnd, SPair(_, y)) -&gt;       set &gt;&gt; return y
+  | SCom(SApp, SPair(SLam(x), y)) -&gt; set &gt;&gt; return (SCom(x, SPair(SId, y)))
+  (* Recursively apply the rewrite *)
+  | SApp        -&gt; return SApp
+  | SFst        -&gt; return SFst
+  | SSnd        -&gt; return SSnd
+  | SAdd        -&gt; return SAdd
+  | SMul        -&gt; return SMul
+  | SQuote(s)   -&gt; return (SQuote(s))
+  | SLam(b)     -&gt; opt_cam_1 b &gt;&gt;= fun b'
+                -&gt; return (SLam(b'))
+  | SCom(f, g)  -&gt; opt_cam_1 f &gt;&gt;= fun f'
+                -&gt; opt_cam_1 g &gt;&gt;= fun g'
+                -&gt; return (SCom(f', g'))
+  | SPair(l, r) -&gt; opt_cam_1 l &gt;&gt;= fun l'
+                -&gt; opt_cam_1 r &gt;&gt;= fun r'
+                -&gt; return (SPair(l', r'))
+  | SId         -&gt; return SId
+
+let rec opt_cam (expr: cam) : cam =
+  let (expr', rerun) = (opt_cam_1 expr).run_flag_monad in
+  if rerun then
+    opt_cam expr'
+  else
+    expr';;
+
+let rec opt_insns : insn list -&gt; insn list = function
+  (* Optimize no-op sequences *)
+  | IPush::ISwap::tl -&gt; opt_insns (IPush::tl)
+  (* Recursively optimize *)
+  | [] -&gt; []
+  | hd::tl -&gt; hd::opt_insns tl;;
+
+assert (eval_cam (opt_cam (cam_of_lam ki12)) = CCon(2));;
+assert (eval_cam (opt_cam (cam_of_lam k12)) = CCon(1));;
+assert (eval_cam (opt_cam (cam_of_lam id3)) = CCon(3));;
+assert (eval_cam (opt_cam (cam_of_lam add23)) = CCon(5))
+
+let size_after f g expr = List.length (f (insns_of_cam (g (cam_of_lam expr))));;
+
+assert (size_after id        opt_cam ki12  &lt;= size_after id id ki12);;
+assert (size_after opt_insns opt_cam ki12  &lt;= size_after id id ki12);;
+assert (size_after id        opt_cam k12   &lt;= size_after id id k12);;
+assert (size_after opt_insns opt_cam k12   &lt;= size_after id id k12);;
+assert (size_after id        opt_cam id3   &lt;= size_after id id id3);;
+assert (size_after opt_insns opt_cam id3   &lt;= size_after id id id3);;
+assert (size_after id        opt_cam add23 &lt;= size_after id id add23);;
+assert (size_after opt_insns opt_cam add23 &lt;= size_after id id add23);;
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../../stahl/compiling/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../../notes/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a href="../../stahl/compiling/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a href="../../notes/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
