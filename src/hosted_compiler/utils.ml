@@ -46,6 +46,19 @@ let rec last : 'a list -> 'a = function
   | [x] -> x
   | _::tl -> last tl
 
+let log_enabled = ref false
+
+let logf fmt =
+  if !log_enabled then
+    Printf.eprintf fmt
+  else
+    Printf.ifprintf stdout fmt
+
+let logln s = logf "%s\n" s
+  
+let log_set_enabled e = log_enabled := e
+
+
 let map_string (f: char -> 'a) (s: string) : 'a list =
   let rec helper (i: int) (acc : 'a list) : 'a list =
     if i = 0 then
@@ -95,3 +108,18 @@ let read_file_string (path: string) : string =
     s
   with
     e -> close_in f; raise e
+
+let with_output path k =
+  match path with
+  | Some(p) ->
+      let f = open_out p in
+      begin
+        try
+          k f
+        with
+          e ->
+            close_out f;
+            raise e
+      end;
+      close_out f
+  | None -> k stdout

@@ -20,6 +20,12 @@ val join_with : string -> string list -> string
 
 val last : 'a list -> 'a
 
+val logf : ('a, out_channel, unit) format -> 'a
+
+val logln : string -> unit
+
+val log_set_enabled : bool -> unit
+
 val map_string : (char -> 'a) -> string -> 'a list
 
 val must : ('b -> string) -> ('a, 'b) result -> 'a
@@ -29,3 +35,5 @@ val opt_parens : string -> int -> int -> string
 val read_all_string : in_channel -> string
 
 val read_file_string : string -> string
+
+val with_output : string option -> (out_channel -> unit) -> unit

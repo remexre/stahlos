@@ -37,8 +37,8 @@
 (defun the ((T Type) (x T)) T
   x)
 
-(defun id ((T Type) @ (x T)) T
-  x)
+(defun id ((T Type) @) (-> T T)
+  (@ the T))
 
 
 

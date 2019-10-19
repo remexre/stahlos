@@ -119,9 +119,7 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
   | App(_, _) as e ->
       let (f, xs) = decompose_apps e in
       List(List.map sexpr_of_expr (f::xs))
-  | AppI(_, _) as e ->
-      let (f, xs) = decompose_apps e in
-      List(Atom("@") :: List.map sexpr_of_expr (f::xs))
+  | AppI(f, x) -> List([Atom("@"); sexpr_of_expr f; sexpr_of_expr x])
   | Global(s) -> Atom(s)
   | Hole -> Atom("_")
   | Lam(_, _) as e ->
@@ -185,15 +183,15 @@ let make_ctor (def: defty) (name: string) (ty: Sexpr.t) : ctor =
   assert (def.iargs = []);
   let (args, ty') = decompose_pis (expr_of_sexpr ctx ty) in
   let (ty', tyargs) = decompose_apps ty' in
-  prerr_endline "ctor";
-  prerr_endline ("  def.name: " ^ def.name);
-  prerr_endline ("  def.pargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) def.pargs) ^ "]");
-  prerr_endline ("  def.iargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) def.iargs) ^ "]");
-  prerr_endline ("  name: " ^ name);
-  prerr_endline ("  ty: " ^ string_of_expr ty');
-  prerr_endline ("  args: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) args) ^ "]");
-  prerr_endline ("  tyargs: [" ^ join_with ", " (List.map string_of_expr tyargs) ^ "]");
-  prerr_endline "---------";
+  Utils.logln "ctor";
+  Utils.logln ("  def.name: " ^ def.name);
+  Utils.logln ("  def.pargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) def.pargs) ^ "]");
+  Utils.logln ("  def.iargs: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) def.iargs) ^ "]");
+  Utils.logln ("  name: " ^ name);
+  Utils.logln ("  ty: " ^ string_of_expr ty');
+  Utils.logln ("  args: [" ^ join_with ", " (List.map (fun (s, e) -> s ^ ":" ^ string_of_expr e) args) ^ "]");
+  Utils.logln ("  tyargs: [" ^ join_with ", " (List.map string_of_expr tyargs) ^ "]");
+  Utils.logln "---------";
   if ty' <> Global(def.name) then
     raise (Invalid_ast("Invalid return type for constructor", ty));
   { name = name; args = args; tyargs = tyargs }

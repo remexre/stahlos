@@ -152,7 +152,7 @@ tmp/hosted_compiler/default/stahl_hosted.exe:
 
 tmp/stahl/%.fth: src/stahl/%.stahl tmp/stahl_hosted
 	@mkdir -p $(dir $@)
-	tmp/stahl_hosted < $< > $@
+	tmp/stahl_hosted $< -o $@
 
 tmp/amd64/start.o: src/amd64/forth/std/basic.fth \
 	src/amd64/forth/std/buffer.fth \
