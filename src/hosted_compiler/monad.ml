@@ -12,6 +12,7 @@ end
 module type Monad = sig
   include Monad_minimal
 
+  val map : ('a -> 'b) -> 'a t -> 'b t
   val (>>) : 'a t -> 'b t -> 'b t
 
   val (let+) : 'a t -> ('a -> 'b t) -> 'b t
@@ -26,6 +27,8 @@ end
 
 module Extend (M: Monad_minimal) = struct
   include M
+
+  let map f x = M.(>>=) x (fun x' -> M.return (f x'))
 
   let (>>) x y =
     x >>= const y
@@ -73,6 +76,14 @@ module type Fresh = sig
   val fresh : f t
 end
 
+module type Reader = sig
+  include Monad
+
+  type r
+
+  val ask : r t
+end
+
 module type State = sig
   include Monad
 
@@ -91,48 +102,92 @@ module type Writer = sig
   val tell : w -> unit t
 end
 
+module type RWS = sig
+  include Monad
+  include Reader with type 'a t := 'a t
+  include State with type 'a t := 'a t
+  include Writer with type 'a t := 'a t
+end
+
+module type Lift = sig
+  include Monad
+
+  type 'a m
+
+  val lift : 'a m -> 'a t
+end
+
 module Monoid_bool_or = struct
   type t = bool
   let op = (||)
   let id = false
 end
 
-module State_pure (T: Type) = struct
-  type 'a m = { run : T.t -> 'a * T.t }
-  include Extend(struct
-    type 'a t = 'a m
-
-    let return x = { run = fun s -> (x, s) }
-
-    let (>>=) x f =
-      { run = fun s -> let (x', s') = x.run s in (f x').run s' }
-  end)
-
-  let get = { run = fun s -> (s, s) }
-  let put s = { run = fun _ -> ((), s) }
-  let modify f = get >>= put %% f
-
-  let run s x = x.run s
-  let eval s x = fst (run s x)
-  let exec s x = snd (run s x)
+module Monoid_list_append (T : Type) = struct
+  type t = T.t list
+  let op = (@)
+  let id = []
 end
 
-module Writer_pure (M: Monoid) = struct
-  type 'a m = { run : 'a * M.t }
+module Monoid_unit = struct
+  type t = unit
+  let op () () = ()
+  let id = ()
+end
+
+module Identity = Extend(struct
+  type 'a t = 'a
+
+  let return x = x
+
+  let (>>=) x f = f x
+end)
+
+module RWS_t (R: Type) (W: Monoid) (S: Type) (M: Monad) = struct
+  type 'a m = { run : R.t -> S.t -> ('a * S.t * W.t) M.t }
   include Extend(struct
     type 'a t = 'a m
 
-    let return x = { run = (x, M.id) }
+    let return x = { run = fun _ s -> M.return (x, s, W.id) }
 
     let (>>=) x f =
-      let (x', w) = x.run in
-      let (y', w') = (f x').run in
-      { run = (y', M.op w w') }
+      { run = fun r s -> M.(>>=) (x.run r s)
+             (fun (x', s', w) -> M.map
+               (fun (y, s'', w') -> (y, s'', W.op w w'))
+               ((f x').run r s')) }
   end)
 
-  let tell w = { run = ((), w) }
+  let ask = { run = fun r s -> M.return (r, s, W.id) }
 
-  let run x = x.run
-  let eval x = fst (x.run)
-  let exec x = snd (x.run)
+  let tell w = { run = fun _ s -> M.return ((), s, w) }
+
+  let get = { run = fun _ s -> M.return (s, s, W.id) }
+  let put s = { run = fun _ _ -> M.return ((), s, W.id) }
+  let modify f = { run = fun _ s -> M.return ((), f s, W.id) }
+
+  let lift x = { run = fun _ s -> M.map (fun x' -> (x', s, W.id)) x }
+
+  let run x r s = x.run r s
+end
+
+module Reader_t (T: Type) (M: Monad) = struct
+  include RWS_t(T)(Monoid_unit)(Monoid_unit)(M)
+
+  let run r x = M.map (fun (x, _, _) -> x) (x.run r ())
+end
+
+module State_t (T: Type) (M: Monad) = struct
+  include RWS_t(Monoid_unit)(Monoid_unit)(T)(M)
+
+  let run s x = M.map (fun (x, s, ()) -> (x, s)) (x.run () s)
+  let eval s x = M.map (fun (x, _, ()) -> x) (x.run () s)
+  let exec s x = M.map (fun (_, s, ()) -> s) (x.run () s)
+end
+
+module Writer_t (T: Monoid) (M: Monad) = struct
+  include RWS_t(Monoid_unit)(T)(Monoid_unit)(M)
+
+  let run x = M.map (fun (x, (), w) -> (x, w)) (x.run () ())
+  let eval x = M.map (fun (x, (), _) -> x) (x.run () ())
+  let exec x = M.map (fun (_, (), w) -> w) (x.run () ())
 end

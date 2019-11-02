@@ -7,7 +7,7 @@ type expr
   = App of expr * expr
   | AppI of expr * expr
   | Global of string
-  | Hole
+  | Hole of string
   | Lam of string * expr
   | LamI of string * expr
   | Lit of Sexpr.t
@@ -99,7 +99,7 @@ let rec expr_of_sexpr (ctx: string list) : Sexpr.t -> expr = function
           Pi(name, expr_of_sexpr ctx ty, helper (name::ctx) tl)
       | e::_ -> raise (Invalid_ast("Invalid argument", e))
       in helper ctx args
-  | Atom("_") -> Hole
+  | Atom("_") -> Hole("") (* TODO: Named holes? *)
   | Atom("Type") -> Universe
   | Atom(n) ->
       check_name n;
@@ -121,7 +121,7 @@ let rec sexpr_of_expr : expr -> Sexpr.t = function
       List(List.map sexpr_of_expr (f::xs))
   | AppI(f, x) -> List([Atom("@"); sexpr_of_expr f; sexpr_of_expr x])
   | Global(s) -> Atom(s)
-  | Hole -> Atom("_")
+  | Hole(s) -> Atom("_" ^ s)
   | Lam(_, _) as e ->
       let (args, body) = decompose_lams e in
       let atom s = Atom(s) in

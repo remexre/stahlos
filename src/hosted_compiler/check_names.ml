@@ -28,7 +28,7 @@ let for_module (m: Ast.module_) : unit =
       | App(f, x) -> for_expr f; for_expr x
       | AppI(f, x) -> for_expr f; for_expr x
       | Global(n) -> find_name n
-      | Hole -> ()
+      | Hole(_) -> ()
       | Lam(_, b) -> for_expr b
       | LamI(_, b) -> for_expr b
       | Lit(_) -> ()

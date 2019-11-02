@@ -4,7 +4,7 @@ type expr
   = App of expr * expr
   | AppI of expr * expr
   | Global of string
-  | Hole
+  | Hole of string
   | Lam of string * expr
   | LamI of string * expr
   | Lit of Sexpr.t

@@ -8,7 +8,7 @@ and expr_inner
   | Global of string
   | Lam of string * expr
   | Lit of Sexpr.t
-  | LitTy
+  | LitTy of string
   | Local of int
   | Pi of string * expr * expr
   | Universe of int
@@ -18,7 +18,11 @@ val string_of_expr : expr -> string
 
 type module_ =
   { name : string
-  ; defs : (string * expr * int) list
+  ; defs : (string * expr) list
   }
 
 val string_of_module : module_ -> string
+
+module Show : sig
+  module Expr : Utils.Showable with type t = expr
+end

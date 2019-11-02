@@ -29,7 +29,7 @@ let rec to_string_prec : t -> int -> string = function
 let to_string (expr: t) : string =
   to_string_prec expr 1
 
-module M = Monad.Writer_pure(Monad.Monoid_bool_or)
+module M = Monad.Writer_t(Monad.Monoid_bool_or)(Monad.Identity)
 
 (* The flag is set if an optimization was performed. *)
 let rec optimize1 : t -> t M.t =

@@ -55,18 +55,21 @@ let rec skip_whitespace (ctx: string * int ref) : unit =
   | Some('#') ->
       begin
         advance ctx;
-        let rec skip_block_comment (last_was_bar: bool) : unit =
-          match peek ctx with
-          | Some('#') when last_was_bar -> advance ctx; skip_whitespace ctx
-          | Some('|') -> advance ctx; skip_block_comment true
-          | Some(_) -> advance ctx; skip_block_comment false
-          | None -> expectation_failed ctx "|#"
+        let rec skip_block_comment (depth: int) (last: char) : unit =
+          if depth > 0 then
+            match peek ctx with
+            | Some('#') when last = '|' -> advance ctx; skip_block_comment (depth-1) '#'
+            | Some('|') when last = '#' -> advance ctx; skip_block_comment (depth+1) '|'
+            | Some(c) -> advance ctx; skip_block_comment depth c
+            | None -> expectation_failed ctx "|#"
+          else
+            skip_whitespace ctx
         and skip_line_comment () : unit =
           match peek ctx with
           | Some('\n') | None -> skip_whitespace ctx
           | _ -> advance ctx; skip_line_comment ()
         in match peek ctx with
-        | Some('|') -> skip_block_comment false
+        | Some('|') -> skip_block_comment 1 ' '
         | _ -> skip_line_comment ()
       end
   | Some(c) when String.contains " \n" c -> advance ctx; skip_whitespace ctx

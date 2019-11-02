@@ -36,4 +36,17 @@ val read_all_string : in_channel -> string
 
 val read_file_string : string -> string
 
+val second : ('b -> 'c) -> 'a * 'b -> 'a * 'c
+
 val with_output : string option -> (out_channel -> unit) -> unit
+
+module type Showable = sig
+  type t
+  val show : t -> string
+end
+
+module Show : sig
+  module List : functor (T : Showable) -> Showable with type t = T.t list
+  module Pair : functor (T : Showable) (U : Showable) -> Showable with type t = T.t * U.t
+  module String : Showable with type t = string
+end

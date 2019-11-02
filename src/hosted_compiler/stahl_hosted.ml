@@ -7,19 +7,18 @@ let main' (input_path: string) (output_path: string option) (verbose: bool) : un
   with_output output_path (fun out ->
     begin
       try
+        Utils.logln "--------------------";
         let m = Ast.load_module_from_path input_path in
-        Utils.logln "---\nAst:";
+        Utils.logln "Ast:";
         Utils.logln (Ast.string_of_module m);
         Check_names.for_module m;
+        Utils.logln "--------------------";
         let m = Nast.resolve_names_for_module m in
-        Utils.logln "---\nNast:";
+        Utils.logln "Nast:";
         Utils.logln (Nast.string_of_module m);
-        let _ = m in
-        (*
+        Utils.logln "--------------------";
         let m = Tyck.tyck_module m in
-        print_endline "---";
-        print_endline (Tast.string_of_module m);
-        *)
+        Utils.logln (Tast.string_of_module m);
         output_string out "\n";
         output_string out (read_file_string "src/hosted_compiler/runtime.fth")
       with
@@ -28,6 +27,9 @@ let main' (input_path: string) (output_path: string option) (verbose: bool) : un
             prerr_endline msg;
             prerr_endline (Sexpr.to_string sexpr);
             exit 2
+        (* TODO 3 exception Invalid_defined_name of string * Ast.def *)
+        (* TODO 4 exception Invalid_name of string *)
+        (* TODO 5 exception Redefined_name of string * Ast.def *)
         | Check_names.Unbound_name(name, es) ->
             prerr_string "Unbound name: ";
             prerr_endline name;
@@ -36,7 +38,12 @@ let main' (input_path: string) (output_path: string option) (verbose: bool) : un
                 prerr_string "In expression ";
                 prerr_endline (Ast.string_of_expr e))
               (List.rev es);
-            exit 3
+            exit 6
+        | Tyck_solve.Failed_to_solve(c) ->
+            prerr_string "Failed to solve constraint: ";
+            prerr_endline (Tyck_solve.string_of_constraint c);
+            exit 7
+        (* TODO 8 exception Unsolved_variable of string * int * expr list *)
     end)
 
 let main argv =

@@ -109,6 +109,8 @@ let read_file_string (path: string) : string =
   with
     e -> close_in f; raise e
 
+let second f (x, y) = (x, f y)
+
 let with_output path k =
   match path with
   | Some(p) ->
@@ -123,3 +125,30 @@ let with_output path k =
       end;
       close_out f
   | None -> k stdout
+
+module type Showable = sig
+  type t
+  val show : t -> string
+end
+
+module Show = struct
+  module List (T : Showable) = struct
+    type t = T.t list
+    let show = function
+      | [] -> "[]"
+      | hd::tl -> let rec helper = function
+                  | [] -> "]"
+                  | hd::tl -> "; " ^ T.show hd ^ helper tl
+                  in "[" ^ T.show hd ^ helper tl
+  end
+
+  module Pair (T : Showable) (U : Showable) = struct
+    type t = T.t * U.t
+    let show (x, y) = Printf.sprintf "(%s, %s)" (T.show x) (U.show y)
+  end
+
+  module String = struct
+    type t = string
+    let show s = s
+  end
+end

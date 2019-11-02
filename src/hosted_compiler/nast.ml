@@ -3,7 +3,7 @@ open Utils
 type expr
   = App of expr * expr
   | Global of string
-  | Hole
+  | Hole of string
   | Lam of string * expr
   | Lit of Sexpr.t
   | Local of int
@@ -13,7 +13,7 @@ type expr
 let rec ast_of_expr = function
   | App(f, x) -> Ast.App(ast_of_expr f, ast_of_expr x)
   | Global(n) -> Ast.Global(n)
-  | Hole -> Ast.Hole
+  | Hole(n) -> Ast.Hole(n)
   | Lam(n, b) -> Ast.Lam(n, ast_of_expr b)
   | Lit(l) -> Ast.Lit(l)
   | Local(n) -> Ast.Local(n)
@@ -32,11 +32,11 @@ let rec resolve_names_for_expr defs depth expr =
           if n <= 0 then
             expr
           else
-            add_holes (App(expr, Hole)) (n-1)
+            add_holes (App(expr, Hole(""))) (n-1)
         in
         add_holes (Global(n)) (List.assoc n defs - depth)
       end
-  | Ast.Hole -> Hole
+  | Ast.Hole(n) -> Hole(n)
   | Ast.Lam(n, b) | Ast.LamI(n, b) -> Lam(n, resolve_names_for_expr defs 0 b)
   | Ast.Lit(l) -> Lit(l)
   | Ast.Local(n) -> Local(n)
@@ -71,6 +71,8 @@ let ast_of_def =
   in function
   | Def(n, _, t, e) -> Ast.Def(n, ast_of_expr t, ast_of_expr e)
   | Deftype(dt, cs) -> Ast.Deftype(ast_of_defty dt, List.map ast_of_ctor cs)
+
+let string_of_def = Ast.string_of_def %% ast_of_def
 
 let rec count_pii = function
   | Ast.PiI(_, _, b) -> 1 + count_pii b

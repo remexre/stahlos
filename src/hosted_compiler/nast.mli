@@ -1,7 +1,7 @@
 type expr
   = App of expr * expr
   | Global of string
-  | Hole
+  | Hole of string
   | Lam of string * expr
   | Lit of Sexpr.t
   | Local of int
@@ -23,6 +23,8 @@ type ctor =
 type def
   = Def of string * int * expr * expr
   | Deftype of defty * ctor list
+
+val string_of_def : def -> string
 
 type module_ =
   { name : string
