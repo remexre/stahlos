@@ -65,7 +65,7 @@ let rec tyck_defs ctx = function
   | [] -> []
   | hd::tl -> let defs = tyck_def ctx hd in
               let module S = Show.List(Show.Pair(Show.String)(Tast.Show.Expr)) in
-              prerr_endline (S.show defs);
+              logln (S.show defs);
               defs @ tyck_defs (List.map (second tast_type) defs @ ctx) tl
 
 let tyck_module m =
