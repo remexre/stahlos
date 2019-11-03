@@ -13,11 +13,10 @@ and expr_inner
   | LitTy of string
   | Local of int
   | Pi of string * expr * expr
-  | Universe of int
-  | VarE of string * int
-  | VarU of string * int
+  | Universe
+  | Var of string * int
 
-type subst = (int * [`E of expr_inner | `U of int]) list
+type subst = (int * expr_inner) list
 
 let rec walk subst expr =
   { type_ = walk_inner subst expr.type_
@@ -31,25 +30,22 @@ and walk_inner subst = function
   | LitTy(n) -> LitTy(n)
   | Local(n) -> Local(n)
   | Pi(n, t, b) -> Pi(n, walk subst t, walk subst b)
-  | Universe(n) -> Universe(n)
-  | VarE(n, i) -> (match List.assoc_opt i subst with
-                  | Some(`E(e)) -> walk_inner subst e
-                  | _ -> VarE(n, i))
-  | VarU(n, i) -> (match List.assoc_opt i subst with
-                  | Some(`U(n)) -> Universe(n)
-                  | _ -> VarU(n, i))
+  | Universe -> Universe
+  | Var(n, i) -> (match List.assoc_opt i subst with
+                 | Some(e) -> walk_inner subst e
+                 | _ -> Var(n, i))
 
 let rec from_nast = function
   | Nast.App(f, x) -> App(expr_from_nast f, expr_from_nast x)
   | Nast.Global(s) -> Global(s)
-  | Nast.Hole(n) -> VarE(n, genint ())
+  | Nast.Hole(n) -> Var(n, genint ())
   | Nast.Lam(n, b) -> Lam(n, expr_from_nast b)
   | Nast.Lit(l) -> Lit(l)
   | Nast.Local(n) -> Local(n)
   | Nast.Pi(n, t, b) -> Pi(n, expr_from_nast t, expr_from_nast b)
-  | Nast.Universe -> Universe(0)
+  | Nast.Universe -> Universe
 and expr_from_nast nast =
-  { type_ = VarE("", genint ())
+  { type_ = Var("", genint ())
   ; value = from_nast nast
   }
 
@@ -65,7 +61,7 @@ and from_tast_inner = function
   | Tast.LitTy(n) -> LitTy(n)
   | Tast.Local(n) -> Local(n)
   | Tast.Pi(n, t, b) -> Pi(n, from_tast t, from_tast b)
-  | Tast.Universe(n) -> Universe(n)
+  | Tast.Universe -> Universe
 
 exception Unsolved_variable of string * int * expr list
 
@@ -84,13 +80,10 @@ and tast_of_expr_inner subst = function
   | LitTy(n) -> Tast.LitTy(n)
   | Local(n) -> Tast.Local(n)
   | Pi(n, t, b) -> Tast.Pi(n, tast_of_expr subst t, tast_of_expr subst b)
-  | Universe(n) -> Tast.Universe(n)
-  | VarE(n, i) -> (match List.assoc_opt i subst with
-                  | Some(`E(e)) -> tast_of_expr_inner subst e
-                  | _ -> raise (Unsolved_variable(n, i, [])))
-  | VarU(n, i) -> (match List.assoc_opt i subst with
-                  | Some(`U(n)) -> Tast.Universe(n)
-                  | _ -> raise (Unsolved_variable(n, i, [])))
+  | Universe -> Tast.Universe
+  | Var(n, i) -> (match List.assoc_opt i subst with
+                 | Some(e) -> tast_of_expr_inner subst e
+                 | _ -> raise (Unsolved_variable(n, i, [])))
 
 let rec string_of_expr expr =
   string_of_expr_inner expr.value
@@ -103,6 +96,5 @@ and string_of_expr_inner = function
   | LitTy(n) -> "ErasedType%" ^ n
   | Local(n) -> "$" ^ string_of_int n
   | Pi(n, t, b) -> Printf.sprintf "(pi %s %s %s)" n (string_of_expr t) (string_of_expr b)
-  | Universe(n) -> "Type%" ^ string_of_int n
-  | VarE(n, i) -> Printf.sprintf "Var%%_%s.%d" n i
-  | VarU(n, i) -> Printf.sprintf "Type%%Var%%_%s.%d" n i
+  | Universe -> "Type"
+  | Var(n, i) -> Printf.sprintf "Var%%_%s.%d" n i

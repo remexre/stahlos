@@ -13,16 +13,13 @@ and collect_constraints_inner cs e =
   match e with
   | Global(_) -> ()
   | Lam(_, b) -> collect_constraints cs b
-  | LitTy(_) -> push cs (Ty(e, Universe(0)))
+  | LitTy(_) -> push cs (Ty(e, Universe))
   | Local(_) -> ()
   | Pi(_, t, b) ->
       collect_constraints cs t;
-      collect_constraints cs b;
-      let t' = VarU("", genint ()) in
-      push cs (Lub(t', b.type_, t.type_))
-  | Universe(_) -> ()
-  | VarE(_, _) -> ()
-  | VarU(_, _) -> ()
+      collect_constraints cs b
+  | Universe -> ()
+  | Var(_, _) -> ()
   | e -> failwith ("TODO collect_constraints_inner: " ^ Uast.string_of_expr_inner e)
 
 let tyck_expr ctx expr =
@@ -36,15 +33,15 @@ let tyck_expr ctx expr =
 let rec make_pi args ret =
   match args with
   | [] -> ret
-  | (n, t)::tl -> Pi(n, { type_ = VarU(n, genint())
+  | (n, t)::tl -> Pi(n, { type_ = Universe
                         ; value = from_nast t
                         }
-                      , { type_ = VarU("", genint ())
+                      , { type_ = Universe
                         ; value = make_pi tl ret
                         })
 
 let tyck_defty ctx (dt: Nast.defty) =
-  [ (dt.name, tyck_expr ctx { type_ = make_pi dt.args (Universe(0))
+  [ (dt.name, tyck_expr ctx { type_ = make_pi dt.args (Universe)
                             ; value = LitTy(dt.name)
                             })
   (* ; ("elim-" ^ dt.name, TODO) *)
@@ -59,7 +56,6 @@ let tyck_def ctx def = match def with
       tyck_defty ctx dt
 
 let tast_type e = let open Tast in e.type_
-let tast_value e = let open Tast in e.value
 
 let rec tyck_defs ctx = function
   | [] -> []
@@ -71,5 +67,5 @@ let rec tyck_defs ctx = function
 let tyck_module m =
   let open Nast in
   { Tast.name = m.name
-  ; Tast.defs = tyck_defs (List.map (second tast_value) Builtins.builtins) m.defs
+  ; Tast.defs = tyck_defs Builtins.builtins m.defs
   }

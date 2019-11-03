@@ -11,7 +11,7 @@ and expr_inner
   | LitTy of string
   | Local of int
   | Pi of string * expr * expr
-  | Universe of int
+  | Universe
 
 val string_of_expr_inner : expr_inner -> string
 val string_of_expr : expr -> string

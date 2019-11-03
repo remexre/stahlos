@@ -11,11 +11,10 @@ and expr_inner
   | LitTy of string
   | Local of int
   | Pi of string * expr * expr
-  | Universe of int
-  | VarE of string * int
-  | VarU of string * int
+  | Universe
+  | Var of string * int
 
-type subst = (int * [`E of expr_inner | `U of int]) list
+type subst = (int * expr_inner) list
 
 val walk_inner : subst -> expr_inner -> expr_inner
 

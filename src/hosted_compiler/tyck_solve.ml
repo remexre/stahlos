@@ -33,19 +33,15 @@ let solve_one c =
   let+ (_, subst) = get in
   match walk subst c with
   (* Direct variable setting *)
-  | Eq(VarE(_, i), VarE(_, j)) when i = j -> return ()
-  | Eq(VarE(_, i), j) -> pushS i (`E(j))
-  | Eq(i, VarE(_, j)) -> pushS j (`E(i))
-  | Eq(VarU(_, i), VarU(_, j)) when i = j -> return ()
-  | Eq(VarU(_, i), Universe(j)) -> pushS i (`U(j))
-  | Eq(Universe(i), VarU(_, j)) -> pushS j (`U(i))
+  | Eq(Var(_, i), Var(_, j)) when i = j -> return ()
+  | Eq(Var(_, i), j) -> pushS i j
+  | Eq(i, Var(_, j)) -> pushS j i
   (* Simple type cases *)
   | Ty(Global(s), t) ->
       let+ ctx = ask in
       let t' = List.assoc s ctx in
       pushC (Eq(from_tast_inner t', t))
-  | Ty(LitTy(_), t) -> pushC (Eq(Universe(0), t))
-  | Ty(Universe(n), t) -> pushC (Eq(Universe(n + 1), t))
+  | Ty(LitTy(_), t) -> pushC (Eq(Universe, t))
   (* Final fallbacks. *)
   | Eq(l, r) when l = r -> return ()
   | _ -> raise (Failed_to_solve(c))

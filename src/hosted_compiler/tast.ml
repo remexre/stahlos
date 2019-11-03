@@ -13,7 +13,7 @@ and expr_inner
   | LitTy of string
   | Local of int
   | Pi of string * expr * expr
-  | Universe of int
+  | Universe
 
 let rec string_of_expr (expr: expr) : string =
   string_of_expr_inner expr.value
@@ -26,7 +26,7 @@ and string_of_expr_inner : expr_inner -> string = function
   | LitTy(n) -> "ErasedType%" ^ n
   | Local(n) -> "$" ^ string_of_int n
   | Pi(n, t, b) -> let _ = (n, t, b) in failwith "TODO Tast.string_of_expr_inner Pi"
-  | Universe(n) -> "Type%" ^ string_of_int n
+  | Universe -> "Type"
 
 type module_ =
   { name : string
