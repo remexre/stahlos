@@ -1,12 +1,12 @@
+TARGET_ARCH?=$(shell uname -m)
 DESTDIR?=out
 TMPDIR?=tmp
-WATCH_TARGET=all
-
-TARGET_ARCH=$(shell uname -m)
+WATCH_TARGET?=all
 
 ARCHES+=aarch64
+ARCHES+=hosted
 
-EXPS+=aarch64-simple
+# EXPS+=aarch64-simple
 
 all: help
 clean:
@@ -21,16 +21,18 @@ help:
 	@echo >&2 'Targets:'
 	@echo >&2 '  clean  - Removes temporary and output files'
 	@echo >&2 '  exp    - Builds experiments (this may not, in general, work)'
-	@echo >&2 '  kernel - Builds the kernel for TARGET_ARCH (default: $(TARGET_ARCH))'
-	@echo >&2 '  watch  - Watches source files, recompiling on changes'
-kernel: $(DESTDIR)/stahlos.elf
+	@echo >&2 '  kernel - Builds the kernel for TARGET_ARCH)'
+	@echo >&2 '  watch  - Watches source files, running WATCH_TARGET on changes'
+	@echo >&2 ''
+	@echo >&2 'Environment Variables:'
+	@echo >&2 '  TARGET_ARCH=$(TARGET_ARCH)'
+	@echo >&2 '  DESTDIR=$(DESTDIR)'
+	@echo >&2 '  TMPDIR=$(TMPDIR)'
+	@echo >&2 '  WATCH_TARGET=$(WATCH_TARGET)'
+kernel: $(DESTDIR)/kernel-$(TARGET_ARCH)/stahlos.elf
 watch:
 	watchexec -r -w Makefile -w exp -w src $(MAKE) $(WATCH_TARGET)
 .PHONY: all clean exp help kernel watch
-
-$(DESTDIR)/stahlos.elf: $(DESTDIR)/kernel-$(TARGET_ARCH)/stahlos.elf
-	@mkdir -p $(dir $@)
-	@cp $< $@
 
 # Despite "recursive make considered harmful," we actually want to isolate
 # both experiments and each arch's kernel from the rest of the source tree.
@@ -42,9 +44,9 @@ exp/$(1):
 	@$(MAKE) -C exp/$(1) CALLED_FROM_MAIN_MAKEFILE=1 \
 		DESTDIR=$(abspath $(DESTDIR)/exp/$(1)) \
 		TMPDIR=$(abspath $(TMPDIR)/exp/$(1))
+.PHONY: exp/$(1)
 endef
 $(foreach EXP,$(EXPS),$(eval $(call build-exp,$(EXP))))
-$(foreach EXP,$(EXPS),.PHONY: exp/$(EXP))
 
 define build-kernel-arch =
 $(DESTDIR)/kernel-$(1)/stahlos.elf:
@@ -52,6 +54,6 @@ $(DESTDIR)/kernel-$(1)/stahlos.elf:
 	@$(MAKE) -C src/kernel-$(1) CALLED_FROM_MAIN_MAKEFILE=1 \
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
 		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1))
+.PHONY: $(DESTDIR)/kernel-$(1)/stahlos.elf
 endef
 $(foreach ARCH,$(ARCHES),$(eval $(call build-kernel-arch,$(ARCH))))
-$(foreach ARCH,$(ARCHES),.PHONY: $(DESTDIR)/kernel-$(ARCH)/stahlos.elf)
