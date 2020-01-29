@@ -1,7 +1,7 @@
 TARGET_ARCH?=$(shell uname -m)
 DESTDIR?=out
 TMPDIR?=tmp
-WATCH_TARGET?=all
+WATCH_TARGET?=help
 
 ARCHES+=aarch64
 ARCHES+=hosted
