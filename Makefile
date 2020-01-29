@@ -3,7 +3,7 @@ DESTDIR?=out
 TMPDIR?=tmp
 WATCH_TARGET?=help
 
-AARCH64_AS?=$(or $(shell which aarch64-none-elf-as 2>/dev/null),cc)
+AARCH64_AS?=$(or $(shell which aarch64-none-elf-as 2>/dev/null),as)
 AARCH64_LD?=$(or $(shell which aarch64-none-elf-ld 2>/dev/null),ld)
 
 ARCHES+=aarch64
@@ -59,7 +59,9 @@ $(DESTDIR)/kernel-$(1)/stahlos.elf:
 	@mkdir -p $$(dir $$@)
 	@$(MAKE) -C src/kernel-$(1) CALLED_FROM_MAIN_MAKEFILE=1 \
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
-		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1))
+		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1)) \
+		AARCH64_AS=$(AARCH64_AS) \
+		AARCH64_LD=$(AARCH64_LD)
 .PHONY: $(DESTDIR)/kernel-$(1)/stahlos.elf
 endef
 $(foreach ARCH,$(ARCHES),$(eval $(call build-kernel-arch,$(ARCH))))
