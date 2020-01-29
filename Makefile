@@ -3,6 +3,9 @@ DESTDIR?=out
 TMPDIR?=tmp
 WATCH_TARGET?=help
 
+AARCH64_AS?=$(or $(shell which aarch64-none-elf-as 2>/dev/null),cc)
+AARCH64_LD?=$(or $(shell which aarch64-none-elf-ld 2>/dev/null),ld)
+
 ARCHES+=aarch64
 ARCHES+=hosted
 
@@ -29,6 +32,9 @@ help:
 	@echo >&2 '  DESTDIR=$(DESTDIR)'
 	@echo >&2 '  TMPDIR=$(TMPDIR)'
 	@echo >&2 '  WATCH_TARGET=$(WATCH_TARGET)'
+	@echo >&2 ''
+	@echo >&2 '  AARCH64_AS=$(AARCH64_AS)'
+	@echo >&2 '  AARCH64_LD=$(AARCH64_LD)'
 kernel: $(DESTDIR)/kernel-$(TARGET_ARCH)/stahlos.elf
 watch:
 	watchexec -r -w Makefile -w exp -w src $(MAKE) $(WATCH_TARGET)

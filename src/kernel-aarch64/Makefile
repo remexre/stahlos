@@ -12,8 +12,8 @@ all: $(DESTDIR)/stahlos.elf
 
 $(DESTDIR)/stahlos.elf: linker.ld $(patsubst %,$(TMPDIR)/%.o,$(UNITS))
 	@mkdir -p $(dir $@)
-	$(LD) -o $@ -T $^
+	$(AARCH64_LD) -o $@ -T $^
 
 $(TMPDIR)/%.o: %.s
 	@mkdir -p $(dir $@)
-	$(AS) -o $@ $^
+	$(AARCH64_AS) -o $@ $^
