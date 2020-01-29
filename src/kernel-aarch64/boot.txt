@@ -1,0 +1,4 @@
+echo Booting StahlOS...
+load mmc 1:1 0x00800000 /boot/rk3399-pinebook-pro.dtb
+load mmc 1:1 0x00880000 /boot/stahlos.elf
+bootelf 0x00880000

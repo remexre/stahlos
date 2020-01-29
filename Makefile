@@ -3,8 +3,9 @@ DESTDIR?=out
 TMPDIR?=tmp
 WATCH_TARGET?=help
 
-AARCH64_AS?=$(or $(shell which aarch64-none-elf-as 2>/dev/null),as)
-AARCH64_LD?=$(or $(shell which aarch64-none-elf-ld 2>/dev/null),ld)
+AARCH64_AS?=$(or $(shell which aarch64-none-elf-as 2>/dev/null),$(CROSS_COMPILE)as)
+AARCH64_LD?=$(or $(shell which aarch64-none-elf-ld 2>/dev/null),$(CROSS_COMPILE)ld)
+AARCH64_OBJCOPY?=$(or $(shell which aarch64-none-elf-objcopy 2>/dev/null),$(CROSS_COMPILE)objcopy)
 
 ARCHES+=aarch64
 ARCHES+=hosted
@@ -35,6 +36,7 @@ help:
 	@echo >&2 ''
 	@echo >&2 '  AARCH64_AS=$(AARCH64_AS)'
 	@echo >&2 '  AARCH64_LD=$(AARCH64_LD)'
+	@echo >&2 '  AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)'
 kernel: $(DESTDIR)/kernel-$(TARGET_ARCH)/stahlos.elf
 watch:
 	watchexec -r -w Makefile -w exp -w src $(MAKE) $(WATCH_TARGET)
@@ -61,7 +63,8 @@ $(DESTDIR)/kernel-$(1)/stahlos.elf:
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
 		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1)) \
 		AARCH64_AS=$(AARCH64_AS) \
-		AARCH64_LD=$(AARCH64_LD)
+		AARCH64_LD=$(AARCH64_LD) \
+		AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
 .PHONY: $(DESTDIR)/kernel-$(1)/stahlos.elf
 endef
 $(foreach ARCH,$(ARCHES),$(eval $(call build-kernel-arch,$(ARCH))))
