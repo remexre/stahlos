@@ -7,8 +7,31 @@ ifneq ($(CALLED_FROM_MAIN_MAKEFILE),1)
 $(error This Makefile should be called from the top-level Makefile)
 endif
 
-all: $(DESTDIR)/stahlos.bin $(DESTDIR)/stahlos.elf
-.PHONY: all
+ifeq ($(shell which mke2fs 2>/dev/null),)
+$(error mke2fs not found (install e2fsprogs))
+endif
+
+ifeq ($(shell which mkimage 2>/dev/null),)
+$(error mkimage not found (install uboot-tools))
+endif
+
+all: image
+image: $(DESTDIR)/stahlos.img
+kernel: $(DESTDIR)/stahlos.bin $(DESTDIR)/stahlos.elf
+.PHONY: all image kernel
+
+$(DESTDIR)/stahlos.img: $(TMPDIR)/image/boot/boot.scr $(TMPDIR)/image/boot/stahlos.bin
+	@mkdir -p $(dir $@)
+	truncate -s 64M $@
+	mke2fs -d $(TMPDIR)/image -L StahlOS $@
+
+$(TMPDIR)/image/boot/boot.scr: boot.txt
+	@mkdir -p $(dir $@)
+	mkimage -A arm64 -T script -C None -n StahlOS -d $< $@
+
+$(TMPDIR)/image/boot/stahlos.bin: $(DESTDIR)/stahlos.bin
+	@mkdir -p $(dir $@)
+	@cp $< $@
 
 $(DESTDIR)/stahlos.bin: $(DESTDIR)/stahlos.elf
 	@mkdir -p $(dir $@)
