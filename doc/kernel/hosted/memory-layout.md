@@ -1,4 +1,5 @@
-# Memory Layout
+Memory Layout
+=============
 
 In the hosted "kernel," the Forth interpreter is implemented on top of an array as a VM, with a single 128-bit register for the current process' PID.
 
@@ -32,7 +33,8 @@ A process table link just facilitates the process hashmap:
 0x20 +-----------------------+
 ```
 
-## Process Table
+Process Table
+-------------
 
 ```
 0x0000 +---------------------+---------------------+---------------------+---------------------+
@@ -48,4 +50,10 @@ A process table link just facilitates the process hashmap:
 0x0200 +---------------------+---------------------+---------------------+---------------------+
        |                                       Data Stack                                      |
 0x0400 +---------------------+---------------------+---------------------+---------------------+
+```
+
+Word Header
+-----------
+
+```
 ```
