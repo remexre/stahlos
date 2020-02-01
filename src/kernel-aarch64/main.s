@@ -2,6 +2,9 @@
 
 .global _start
 _start:
+	bl uart_init
+
+loop:
 	ldr x1, =0xff1a0000
 	mov x0, 'o'
 	bl write
@@ -31,13 +34,18 @@ _start:
 	bl write
 	mov x0, #10
 	bl write
-	b _start
+
+	mov x0, xzr
+	mov x1, xzr
+	bl uart_get_line
+
+	b loop
 
 write:
 	ldr w2, [x1,0x18]
 	tbz w2, 5, write.do
 write.do:
 	str w0, [x1]
-	br lr
+	ret
 
 /* vi: set ft=arm64asm : */

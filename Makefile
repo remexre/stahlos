@@ -51,9 +51,14 @@ watch:
 # arches, since the user probably doesn't want all of them.)
 define build-exp =
 exp/$(1):
-	@$(MAKE) -C exp/$(1) CALLED_FROM_MAIN_MAKEFILE=1 \
+	@$(MAKE) -C exp/$(1) \
+		CALLED_FROM_MAIN_MAKEFILE=1 \
+		IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS) \
 		DESTDIR=$(abspath $(DESTDIR)/exp/$(1)) \
-		TMPDIR=$(abspath $(TMPDIR)/exp/$(1))
+		TMPDIR=$(abspath $(TMPDIR)/exp/$(1)) \
+		AARCH64_AS=$(AARCH64_AS) \
+		AARCH64_LD=$(AARCH64_LD) \
+		AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
 .PHONY: exp/$(1)
 endef
 $(foreach EXP,$(EXPS),$(eval $(call build-exp,$(EXP))))
@@ -62,6 +67,7 @@ define build-arch =
 image-$(1):
 	@$(MAKE) -C src/kernel-$(1) image \
 		CALLED_FROM_MAIN_MAKEFILE=1 \
+		IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS) \
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
 		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1)) \
 		AARCH64_AS=$(AARCH64_AS) \
@@ -70,6 +76,7 @@ image-$(1):
 kernel-$(1):
 	@$(MAKE) -C src/kernel-$(1) kernel \
 		CALLED_FROM_MAIN_MAKEFILE=1 \
+		IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS) \
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
 		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1)) \
 		AARCH64_AS=$(AARCH64_AS) \

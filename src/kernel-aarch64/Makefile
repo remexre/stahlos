@@ -7,12 +7,18 @@ ifneq ($(CALLED_FROM_MAIN_MAKEFILE),1)
 $(error This Makefile should be called from the top-level Makefile)
 endif
 
+ifeq ($(IGNORE_MISSING_PROGRAMS),)
 ifeq ($(shell which mke2fs 2>/dev/null),)
 $(error mke2fs not found (install e2fsprogs))
 endif
 
 ifeq ($(shell which mkimage 2>/dev/null),)
 $(error mkimage not found (install uboot-tools))
+endif
+
+ifeq ($(shell which sgdisk 2>/dev/null),)
+$(error sgdisk not found (install gptfdisk))
+endif
 endif
 
 all: image
