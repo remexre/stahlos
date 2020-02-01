@@ -20,9 +20,14 @@ image: $(DESTDIR)/stahlos.img
 kernel: $(DESTDIR)/stahlos.bin $(DESTDIR)/stahlos.elf
 .PHONY: all image kernel
 
-$(DESTDIR)/stahlos.img: $(TMPDIR)/image/boot/boot.scr $(TMPDIR)/image/boot/stahlos.bin
+$(DESTDIR)/stahlos.img: $(TMPDIR)/partition.img
 	@mkdir -p $(dir $@)
 	truncate -s 64M $@
+	dd if=$< of=$@ seek=1 bs=1M conv=notrunc
+	sgdisk -n 1:2048:131038 $@
+$(TMPDIR)/partition.img: $(TMPDIR)/image/boot/boot.scr $(TMPDIR)/image/boot/stahlos.bin
+	@mkdir -p $(dir $@)
+	truncate -s 64495K $@
 	mke2fs -d $(TMPDIR)/image -L StahlOS $@
 
 $(TMPDIR)/image/boot/boot.scr: boot.txt
