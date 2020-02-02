@@ -2,7 +2,7 @@
 
 .global _start
 _start:
-	bl uart_init
+	/*bl uart_init*/
 
 loop:
 	ldr x1, =0xff1a0000
@@ -37,7 +37,7 @@ loop:
 
 	mov x0, xzr
 	mov x1, xzr
-	bl uart_get_line
+	/*bl uart_get_line*/
 
 	b loop
 

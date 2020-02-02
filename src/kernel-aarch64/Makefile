@@ -28,11 +28,13 @@ kernel: $(DESTDIR)/stahlos.bin $(DESTDIR)/stahlos.elf
 
 $(DESTDIR)/stahlos.img: $(TMPDIR)/partition.img
 	@mkdir -p $(dir $@)
+	@[[ ! -f $@ ]] || rm $@
 	truncate -s 64M $@
 	dd if=$< of=$@ seek=1 bs=1M conv=notrunc
 	sgdisk -n 1:2048:131038 $@
-$(TMPDIR)/partition.img: $(TMPDIR)/image/boot/boot.scr $(TMPDIR)/image/boot/stahlos.bin
+$(TMPDIR)/partition.img: $(TMPDIR)/image/boot/boot.scr $(TMPDIR)/image/boot/stahlos.elf
 	@mkdir -p $(dir $@)
+	@[[ ! -f $@ ]] || rm $@
 	truncate -s 64495K $@
 	mke2fs -d $(TMPDIR)/image -L StahlOS $@
 
@@ -40,7 +42,7 @@ $(TMPDIR)/image/boot/boot.scr: boot.txt
 	@mkdir -p $(dir $@)
 	mkimage -A arm64 -T script -C None -n StahlOS -d $< $@
 
-$(TMPDIR)/image/boot/stahlos.bin: $(DESTDIR)/stahlos.bin
+$(TMPDIR)/image/boot/stahlos.elf: $(DESTDIR)/stahlos.elf
 	@mkdir -p $(dir $@)
 	@cp $< $@
 
