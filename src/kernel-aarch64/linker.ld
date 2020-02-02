@@ -7,4 +7,5 @@ MEMORY {
 
 SECTIONS {
 	.text : { *(.text) } > kernel
+	.rodata : { *(.rodata) } > kernel
 }

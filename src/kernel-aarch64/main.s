@@ -2,50 +2,23 @@
 
 .global _start
 _start:
-	/*bl uart_init*/
+	bl uart_init
 
 loop:
-	ldr x1, =0xff1a0000
-	mov x0, 'o'
-	bl write
-	mov x0, 's'
-	bl write
-	mov x0, 'u'
-	bl write
-	mov x0, '!'
-	bl write
-	mov x0, ' '
-	bl write
-	mov x0, '-'
-	bl write
-	mov x0, '-'
-	bl write
-	mov x0, ' '
-	bl write
-	mov x0, 'S'
-	bl write
-	mov x0, 't'
-	bl write
-	mov x0, 'a'
-	bl write
-	mov x0, 'h'
-	bl write
-	mov x0, 'l'
-	bl write
-	mov x0, #10
-	bl write
+	/*ldr x0, =osu*/
+	/*mov x1, osu.len*/
+	/*bl uart_write*/
 
-	mov x0, xzr
-	mov x1, xzr
-	/*bl uart_get_line*/
+	ldr x0, =0xff1a0000
+	ldrb w1, [x0, #0x14]
+	/*mov x1, '!'*/
+	strb w1, [x0]
 
 	b loop
 
-write:
-	ldr w2, [x1,0x18]
-	tbz w2, 5, write.do
-write.do:
-	str w0, [x1]
-	ret
+.section .rodata
+
+osu: .string "osu! -- StahlOS\n"
+.equ osu.len, . - osu
 
 /* vi: set ft=arm64asm : */
