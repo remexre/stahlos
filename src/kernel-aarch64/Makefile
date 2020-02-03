@@ -1,7 +1,9 @@
-UNITS+=builtins
 UNITS+=main
 
-UNITS+=devices/rk3399/uart
+UNITS+=format
+UNITS+=panic
+
+UNITS+=devices/rk3399/uart2
 
 ifneq ($(CALLED_FROM_MAIN_MAKEFILE),1)
 $(error This Makefile should be called from the top-level Makefile)
@@ -52,7 +54,7 @@ $(DESTDIR)/stahlos.bin: $(DESTDIR)/stahlos.elf
 
 $(DESTDIR)/stahlos.elf: linker.ld $(patsubst %,$(TMPDIR)/%.o,$(UNITS))
 	@mkdir -p $(dir $@)
-	$(AARCH64_LD) -o $@ -T $^
+	$(AARCH64_LD) -o $@ -T $^ -N -z max-page-size=4096
 
 $(TMPDIR)/%.o: %.s
 	@mkdir -p $(dir $@)

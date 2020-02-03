@@ -2,23 +2,37 @@
 
 .global _start
 _start:
-	bl uart_init
+	bl format_init
 
-loop:
-	/*ldr x0, =osu*/
-	/*mov x1, osu.len*/
-	/*bl uart_write*/
+	ldr x0, =msg
+	mov x1, len
+	bl format_write_string
 
-	ldr x0, =0xff1a0000
-	ldrb w1, [x0, #0x14]
-	/*mov x1, '!'*/
-	strb w1, [x0]
+_start.loop:
+	ldr x0, =prompt
+	mov x1, prompt.len
+	bl format_write_string
 
-	b loop
+	ldr x0, =buf
+	mov x1, 256
+	bl format_read_line
+
+	ldr x0, =buf
+	bl format_write_string
+	bl format_write_newline
+
+	b _start.loop
 
 .section .rodata
 
-osu: .string "osu! -- StahlOS\n"
-.equ osu.len, . - osu
+msg: .string "Hello, world!\r\n"
+.equ len, . - msg
+
+prompt: .string "\r\n> "
+.equ prompt.len, . - prompt
+
+.section .bss
+
+.comm buf, 256
 
 /* vi: set ft=arm64asm : */

@@ -6,6 +6,11 @@ MEMORY {
 }
 
 SECTIONS {
-	.text : { *(.text) } > kernel
-	.rodata : { *(.rodata) } > kernel
+	.text : {
+		. += SIZEOF_HEADERS;
+		*(.text)
+		*(.rodata)
+	} > kernel
+	.data : { *(.data) } > kernel
+	.bss : { *(.bss) } > kernel
 }
