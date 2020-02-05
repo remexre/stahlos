@@ -24,9 +24,16 @@ endif
 endif
 
 all: image
+emu: $(DESTDIR)/stahlos.elf $(DESTDIR)/stahlos.img
+	qemu-system-aarch64 $(AARCH64_QEMU_FLAGS) \
+		-machine virt \
+		-cpu cortex-a53 \
+		-serial stdio \
+		-display none \
+		-kernel $(DESTDIR)/stahlos.elf 
 image: $(DESTDIR)/stahlos.img
 kernel: $(DESTDIR)/stahlos.bin $(DESTDIR)/stahlos.elf
-.PHONY: all image kernel
+.PHONY: all emu image kernel
 
 $(DESTDIR)/stahlos.img: $(TMPDIR)/partition.img
 	@mkdir -p $(dir $@)

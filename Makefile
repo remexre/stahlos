@@ -20,10 +20,12 @@ endif
 ifeq ($(TMPDIR),tmp)
 	[[ ! -d tmp ]] || rm -r tmp
 endif
+emu: emu-$(TARGET_ARCH)
 exp: $(patsubst %,exp/%,$(EXPS))
 help:
 	@echo >&2 'Targets:'
 	@echo >&2 '  clean  - Removes temporary and output files'
+	@echo >&2 '  emu    - Runs for TARGET_ARCH, typically in QEMU'
 	@echo >&2 '  exp    - Builds experiments (this may not, in general, work)'
 	@echo >&2 '  image  - Builds a disk image for TARGET_ARCH'
 	@echo >&2 '  kernel - Builds the kernel for TARGET_ARCH'
@@ -42,46 +44,46 @@ image: image-$(TARGET_ARCH)
 kernel: kernel-$(TARGET_ARCH)
 watch:
 	watchexec -r -w Makefile -w exp -w src $(MAKE) $(WATCH_TARGET)
-.PHONY: all clean exp help kernel watch
+.PHONY: all clean emu exp help kernel watch
 
 # Despite "recursive make considered harmful," we actually want to isolate
 # both experiments and each arch's kernel from the rest of the source tree.
 # (And furthermore, we want to allow separate compilation of each of these:
 # experiments, since they may be arbitrarily broken at any given moment, and
 # arches, since the user probably doesn't want all of them.)
+SUBMAKE_FLAGS += CALLED_FROM_MAIN_MAKEFILE=1
+SUBMAKE_FLAGS += IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS)
+SUBMAKE_FLAGS += AARCH64_AS=$(AARCH64_AS)
+SUBMAKE_FLAGS += AARCH64_LD=$(AARCH64_LD)
+SUBMAKE_FLAGS += AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
+SUBMAKE_FLAGS += AARCH64_QEMU_FLAGS=$(AARCH64_QEMU_FLAGS)
+
 define build-exp =
 exp/$(1):
 	@$(MAKE) -C exp/$(1) \
-		CALLED_FROM_MAIN_MAKEFILE=1 \
-		IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS) \
+		$(SUBMAKE_FLAGS) \
 		DESTDIR=$(abspath $(DESTDIR)/exp/$(1)) \
 		TMPDIR=$(abspath $(TMPDIR)/exp/$(1)) \
-		AARCH64_AS=$(AARCH64_AS) \
-		AARCH64_LD=$(AARCH64_LD) \
-		AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
 .PHONY: exp/$(1)
 endef
 $(foreach EXP,$(EXPS),$(eval $(call build-exp,$(EXP))))
 
 define build-arch =
+emu-$(1):
+	@$(MAKE) -C src/kernel-$(1) emu \
+		$(SUBMAKE_FLAGS) \
+		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
+		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1))
 image-$(1):
 	@$(MAKE) -C src/kernel-$(1) image \
-		CALLED_FROM_MAIN_MAKEFILE=1 \
-		IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS) \
+		$(SUBMAKE_FLAGS) \
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
-		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1)) \
-		AARCH64_AS=$(AARCH64_AS) \
-		AARCH64_LD=$(AARCH64_LD) \
-		AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
+		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1))
 kernel-$(1):
 	@$(MAKE) -C src/kernel-$(1) kernel \
-		CALLED_FROM_MAIN_MAKEFILE=1 \
-		IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS) \
+		$(SUBMAKE_FLAGS) \
 		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
-		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1)) \
-		AARCH64_AS=$(AARCH64_AS) \
-		AARCH64_LD=$(AARCH64_LD) \
-		AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
+		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1))
 .PHONY: image-$(1) kernel-$(1)
 endef
 $(foreach ARCH,$(ARCHES),$(eval $(call build-arch,$(ARCH))))
