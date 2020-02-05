@@ -40,6 +40,7 @@ help:
 	@echo >&2 '  AARCH64_AS=$(AARCH64_AS)'
 	@echo >&2 '  AARCH64_LD=$(AARCH64_LD)'
 	@echo >&2 '  AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)'
+	@echo >&2 '  AARCH64_QEMU_FLAGS=$(AARCH64_QEMU_FLAGS)'
 image: image-$(TARGET_ARCH)
 kernel: kernel-$(TARGET_ARCH)
 watch:
