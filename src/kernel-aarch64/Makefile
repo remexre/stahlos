@@ -3,6 +3,8 @@ UNITS+=main
 UNITS+=format
 UNITS+=panic
 
+UNITS+=forth/builtins
+
 UNITS+=devices/qemuvirt/uart
 UNITS+=devices/rk3399/uart2
 

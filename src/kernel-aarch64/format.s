@@ -127,7 +127,7 @@ format_write_string:
 
 format_write_num_ux.table: .string "0123456789abcdef"
 
-newline: .string "\r\n"
+newline: .string "\n"
 .equ newline.len, . - newline
 
 .section .bss

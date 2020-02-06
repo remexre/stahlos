@@ -7,36 +7,33 @@ _start:
 	ldr x2, =qemuvirt_uart_write_string
 	bl format_init
 
-_start.loop:
-	ldr x0, =prompt
-	mov x1, prompt.len
-	bl format_write_string
+	ldr x25, =init_proctbl
 
-	ldr x0, =buf
-	mov x1, 256
-	bl format_read_line
+	mov x10, xzr
+	add x11, x25, #0x200
+	mov x12, xzr
+	mov x13, #0x200
 
-	mov x10, x1
+	mov x14, xzr
+	add x15, x25, #0x80
+	mov x16, xzr
+	mov x17, #0x180
 
-	ldr x0, =buf
-	bl format_write_string
-	bl format_write_newline
+	ldr x18, =preinit
 
-	mov x0, x10
-	bl format_write_num_ux
-
-	b _start.loop
+	ldr x0, [x18], #8
+	br x0
 
 .section .rodata
 
-msg: .string "Hello, world!\r\n"
-.equ len, . - msg
-
-prompt: .string "\r\n> "
-.equ prompt.len, . - prompt
+preinit:
+	.quad forth_literal_impl
+	.quad 42
+	.quad forth_dot
+	.quad forth_panic
 
 .section .bss
 
-.comm buf, 256
+.comm init_proctbl, 1024, 8
 
 /* vi: set ft=arm64asm : */

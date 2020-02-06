@@ -96,13 +96,14 @@ qemuvirt_uart_read_line.backspace:
  * Effects:
  * - Blocks until the write is complete
  * - Writes to UART2
- * - Trashes x0, x1, x2, x3
+ * - Trashes x0, x1, x2, x3, x4
  *
  * Temporaries:
  *   x0: Address of the character to be written next
  *   x1: Number of bytes remaining to write
  *   x2: UART base address
- *   x3: UART_LSR contents or character being written
+ *   x3: UART_LSR contents
+ *   x4: character being written
  */
 .global qemuvirt_uart_write_string
 qemuvirt_uart_write_string:
@@ -110,17 +111,24 @@ qemuvirt_uart_write_string:
 
 qemuvirt_uart_write_string.loop:
 	cbz x1, qemuvirt_uart_write_string.end
+	ldrb w4, [x0], #1
+	sub x1, x1, 1
 
 qemuvirt_uart_write_string.wait_for_tx_ok:
 	ldrb w3, [x2, #0x18]
 	tbz w3, 7, qemuvirt_uart_write_string.wait_for_tx_ok
 
-	ldrb w3, [x0], #1
-	sub x1, x1, 1
-	strb w3, [x2]
+	strb w4, [x2]
+
+	cmp w4, '\n'
+	b.eq qemuvirt_uart_write_string.newline
 
 	b qemuvirt_uart_write_string.loop
 qemuvirt_uart_write_string.end:
 	ret
+
+qemuvirt_uart_write_string.newline:
+	mov w4, '\r'
+	b qemuvirt_uart_write_string.wait_for_tx_ok
 
 /* vi: set ft=arm64asm : */

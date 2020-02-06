@@ -110,6 +110,9 @@ rk3399_uart2_read_line.backspace:
  *   x1: Number of bytes remaining to write
  *   x2: UART base address
  *   x3: UART_LSR contents or character being written
+ *
+ * TODOs:
+ * - Newline translation
  */
 .global rk3399_uart2_write_string
 rk3399_uart2_write_string:
