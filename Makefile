@@ -4,8 +4,10 @@ TMPDIR?=tmp
 WATCH_TARGET?=help
 
 AARCH64_AS?=$(or $(shell which aarch64-none-elf-as 2>/dev/null),$(CROSS_COMPILE)as)
+AARCH64_GDB?=$(or $(shell which aarch64-none-elf-gdb 2>/dev/null),$(CROSS_COMPILE)gdb)
 AARCH64_LD?=$(or $(shell which aarch64-none-elf-ld 2>/dev/null),$(CROSS_COMPILE)ld)
 AARCH64_OBJCOPY?=$(or $(shell which aarch64-none-elf-objcopy 2>/dev/null),$(CROSS_COMPILE)objcopy)
+AARCH64_STRIP?=$(or $(shell which aarch64-none-elf-strip 2>/dev/null),$(CROSS_COMPILE)strip)
 
 ARCHES+=aarch64
 ARCHES+=hosted
@@ -20,11 +22,13 @@ endif
 ifeq ($(TMPDIR),tmp)
 	[[ ! -d tmp ]] || rm -r tmp
 endif
+debug: debug-$(TARGET_ARCH)
 emu: emu-$(TARGET_ARCH)
 exp: $(patsubst %,exp/%,$(EXPS))
 help:
 	@echo >&2 'Targets:'
 	@echo >&2 '  clean  - Removes temporary and output files'
+	@echo >&2 '  debug  - Runs a debugger, typically gdb attached to QEMU'
 	@echo >&2 '  emu    - Runs for TARGET_ARCH, typically in QEMU'
 	@echo >&2 '  exp    - Builds experiments (this may not, in general, work)'
 	@echo >&2 '  image  - Builds a disk image for TARGET_ARCH'
@@ -38,14 +42,16 @@ help:
 	@echo >&2 '  WATCH_TARGET=$(WATCH_TARGET)'
 	@echo >&2 ''
 	@echo >&2 '  AARCH64_AS=$(AARCH64_AS)'
+	@echo >&2 '  AARCH64_GDB=$(AARCH64_GDB)'
 	@echo >&2 '  AARCH64_LD=$(AARCH64_LD)'
 	@echo >&2 '  AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)'
+	@echo >&2 '  AARCH64_STRIP=$(AARCH64_STRIP)'
 	@echo >&2 '  AARCH64_QEMU_FLAGS=$(AARCH64_QEMU_FLAGS)'
 image: image-$(TARGET_ARCH)
 kernel: kernel-$(TARGET_ARCH)
 watch:
 	watchexec -r -w Makefile -w exp -w src $(MAKE) $(WATCH_TARGET)
-.PHONY: all clean emu exp help kernel watch
+.PHONY: all clean debug emu exp help kernel watch
 
 # Despite "recursive make considered harmful," we actually want to isolate
 # both experiments and each arch's kernel from the rest of the source tree.
@@ -53,11 +59,13 @@ watch:
 # experiments, since they may be arbitrarily broken at any given moment, and
 # arches, since the user probably doesn't want all of them.)
 SUBMAKE_FLAGS += CALLED_FROM_MAIN_MAKEFILE=1
-SUBMAKE_FLAGS += IGNORE_MISSING_PROGRAMS=$(IGNORE_MISSING_PROGRAMS)
-SUBMAKE_FLAGS += AARCH64_AS=$(AARCH64_AS)
-SUBMAKE_FLAGS += AARCH64_LD=$(AARCH64_LD)
-SUBMAKE_FLAGS += AARCH64_OBJCOPY=$(AARCH64_OBJCOPY)
-SUBMAKE_FLAGS += AARCH64_QEMU_FLAGS=$(AARCH64_QEMU_FLAGS)
+SUBMAKE_FLAGS += IGNORE_MISSING_PROGRAMS="$(IGNORE_MISSING_PROGRAMS)"
+SUBMAKE_FLAGS += AARCH64_AS="$(AARCH64_AS)"
+SUBMAKE_FLAGS += AARCH64_GDB="$(AARCH64_GDB)"
+SUBMAKE_FLAGS += AARCH64_LD="$(AARCH64_LD)"
+SUBMAKE_FLAGS += AARCH64_OBJCOPY="$(AARCH64_OBJCOPY)"
+SUBMAKE_FLAGS += AARCH64_STRIP="$(AARCH64_STRIP)"
+SUBMAKE_FLAGS += AARCH64_QEMU_FLAGS="$(AARCH64_QEMU_FLAGS)"
 
 define build-exp =
 exp/$(1):
@@ -70,6 +78,11 @@ endef
 $(foreach EXP,$(EXPS),$(eval $(call build-exp,$(EXP))))
 
 define build-arch =
+debug-$(1):
+	@$(MAKE) -C src/kernel-$(1) debug \
+		$(SUBMAKE_FLAGS) \
+		DESTDIR=$(abspath $(DESTDIR)/kernel-$(1)) \
+		TMPDIR=$(abspath $(TMPDIR)/kernel-$(1))
 emu-$(1):
 	@$(MAKE) -C src/kernel-$(1) emu \
 		$(SUBMAKE_FLAGS) \

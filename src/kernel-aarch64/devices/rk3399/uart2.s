@@ -1,5 +1,7 @@
 .section .text
 
+.equ rk3399_uart2_base_addr, 0xff1a0000
+
 /** rk3399_uart2_init: Initializes UART2 as expected by other functions
  *
  * Effects:
@@ -8,7 +10,7 @@
  */
 .global rk3399_uart2_init
 rk3399_uart2_init:
-	ldr x0, =0xff1a0000
+	ldr x0, =rk3399_uart2_base_addr
 	strb wzr, [x0, #0x04]
 	strb wzr, [x0, #0x08]
 	ret
@@ -26,7 +28,7 @@ rk3399_uart2_init:
  * - Blocks until a newline is received or the buffer is filled
  * - Reads from UART2
  * - Writes to the provided buffer
- * - Trashes x0, x2, x3, x4, x5
+ * - Trashes x2, x3, x4, x5
  *
  * Temporaries:
  *   x0: Address of next location to write to
@@ -38,7 +40,7 @@ rk3399_uart2_init:
  */
 .global rk3399_uart2_read_line
 rk3399_uart2_read_line:
-	ldr x3, =0xff1a0000
+	ldr x3, =rk3399_uart2_base_addr
 	mov x2, x1
 	mov x1, xzr
 
@@ -51,7 +53,7 @@ rk3399_uart2_read_line.wait_for_rx_ok:
 	tbz w5, 0, rk3399_uart2_read_line.wait_for_rx_ok
 
 	ldrb w4, [x3]
-	strb w4, [x0], #1
+	strb w4, [x0, x1]
 
 rk3399_uart2_read_line.wait_for_tx_ok:
 	ldrb w5, [x3, #0x14]
@@ -89,7 +91,6 @@ rk3399_uart2_read_line.wait_for_tx_ok_3:
 	ret
 
 rk3399_uart2_read_line.backspace:
-	sub x0, x0, #1
 	sub x1, x1, #1
 	b rk3399_uart2_read_line.loop
 
@@ -99,7 +100,7 @@ rk3399_uart2_read_line.backspace:
  *   x0: Address of first character of string
  *   x1: Length of string
  *
- * Side Effects:
+ * Effects:
  * - Blocks until the write is complete
  * - Writes to UART2
  * - Trashes x0, x1, x2, x3
@@ -112,7 +113,7 @@ rk3399_uart2_read_line.backspace:
  */
 .global rk3399_uart2_write_string
 rk3399_uart2_write_string:
-	ldr x2, =0xff1a0000
+	ldr x2, =rk3399_uart2_base_addr
 
 rk3399_uart2_write_string.loop:
 	cbz x1, rk3399_uart2_write_string.end

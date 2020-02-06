@@ -3,6 +3,7 @@ UNITS+=main
 UNITS+=format
 UNITS+=panic
 
+UNITS+=devices/qemuvirt/uart
 UNITS+=devices/rk3399/uart2
 
 ifneq ($(CALLED_FROM_MAIN_MAKEFILE),1)
@@ -23,14 +24,20 @@ $(error sgdisk not found (install gptfdisk))
 endif
 endif
 
+EMU = qemu-system-aarch64 $(AARCH64_QEMU_FLAGS)
+EMU += -machine virt -cpu cortex-a53
+EMU += -m 4G
+EMU += -kernel $(DESTDIR)/stahlos.elf
+# TODO: stahlos.img
+
 all: image
+debug: $(DESTDIR)/stahlos.elf $(TMPDIR)/stahlos-unstripped.elf
+	$(AARCH64_GDB) \
+		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
+		-ex "target remote | $(EMU) -S -gdb stdio" \
+		-ex "layout regs"
 emu: $(DESTDIR)/stahlos.elf $(DESTDIR)/stahlos.img
-	qemu-system-aarch64 $(AARCH64_QEMU_FLAGS) \
-		-machine virt \
-		-cpu cortex-a53 \
-		-serial stdio \
-		-display none \
-		-kernel $(DESTDIR)/stahlos.elf 
+	$(EMU) -serial stdio -display none
 image: $(DESTDIR)/stahlos.img
 kernel: $(DESTDIR)/stahlos.bin $(DESTDIR)/stahlos.elf
 .PHONY: all emu image kernel
@@ -59,10 +66,14 @@ $(DESTDIR)/stahlos.bin: $(DESTDIR)/stahlos.elf
 	@mkdir -p $(dir $@)
 	$(AARCH64_OBJCOPY) $< -O binary $@
 
-$(DESTDIR)/stahlos.elf: linker.ld $(patsubst %,$(TMPDIR)/%.o,$(UNITS))
+$(DESTDIR)/stahlos.elf: $(TMPDIR)/stahlos-unstripped.elf
+	@mkdir -p $(dir $@)
+	$(AARCH64_STRIP) -o $@ $<
+
+$(TMPDIR)/stahlos-unstripped.elf: linker.ld $(patsubst %,$(TMPDIR)/%.o,$(UNITS))
 	@mkdir -p $(dir $@)
 	$(AARCH64_LD) -o $@ -T $^ -N -z max-page-size=4096
 
 $(TMPDIR)/%.o: %.s
 	@mkdir -p $(dir $@)
-	$(AARCH64_AS) -o $@ $^
+	$(AARCH64_AS) -g -o $@ $^
