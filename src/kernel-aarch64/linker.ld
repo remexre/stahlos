@@ -10,8 +10,8 @@ SECTIONS {
 	.text : {
 		. += SIZEOF_HEADERS;
 		*(.text)
-		*(.rodata)
 	} > kernel
+	.rodata : { *(.rodata) } > kernel
 	.data : { *(.data) } > kernel
 	.bss : { *(.bss) } > kernel
 }

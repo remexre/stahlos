@@ -4,6 +4,7 @@ UNITS+=format
 UNITS+=panic
 
 UNITS+=forth/builtins
+UNITS+=forth/pseudobuiltins
 
 UNITS+=devices/qemuvirt/uart
 UNITS+=devices/rk3399/uart2
@@ -37,7 +38,8 @@ debug: $(DESTDIR)/stahlos.elf $(TMPDIR)/stahlos-unstripped.elf
 	$(AARCH64_GDB) \
 		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
 		-ex "target remote | $(EMU) -S -gdb stdio" \
-		-ex "layout regs"
+		-ex "layout regs" \
+		-x misc/gdb_extensions.py
 emu: $(DESTDIR)/stahlos.elf $(DESTDIR)/stahlos.img
 	$(EMU) -serial stdio -display none
 image: $(DESTDIR)/stahlos.img

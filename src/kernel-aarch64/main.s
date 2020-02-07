@@ -7,30 +7,43 @@ _start:
 	ldr x2, =qemuvirt_uart_write_string
 	bl format_init
 
-	ldr x25, =init_proctbl
+	/* Set up process table pointer, init process table */
+	ldr x19, =init_proctbl
+	mov x0, 0 /* TODO: Dictionary Pointer */
+	str x0, [x19]
+	/* Source gets set up by init */
 
+	/* Set up data stack */
 	mov x10, xzr
-	add x11, x25, #0x200
+	add x11, x19, #0x200
 	mov x12, xzr
 	mov x13, #0x200
 
+	/* Set up return stack */
 	mov x14, xzr
-	add x15, x25, #0x80
+	add x15, x19, #0x80
 	mov x16, xzr
 	mov x17, #0x180
 
-	ldr x18, =preinit
-
+	/* Set up instruction pointer, and run NEXT */
+	ldr x18, =init
 	ldr x0, [x18], #8
 	br x0
 
 .section .rodata
 
-preinit:
-	.quad forth_literal_impl
-	.quad 42
-	.quad forth_dot
+init:
+	.quad forth_impl_literal
+	.quad init.start
+	.quad forth_impl_literal
+	.quad init.end - init.start
+	.quad forth_set_source
+	.quad forth_evaluate
 	.quad forth_panic
+
+init.start:
+.incbin "init.fth"
+init.end:
 
 .section .bss
 
