@@ -9,7 +9,7 @@ _start:
 
 	/* Set up process table pointer, init process table */
 	ldr x19, =init_proctbl
-	mov x0, 0 /* TODO: Dictionary Pointer */
+	ldr x0, =forth.last_pseudobuiltin_header
 	str x0, [x19]
 	/* Source gets set up by init */
 
@@ -35,6 +35,7 @@ _start:
 init:
 	.quad forth_impl_literal, init.start
 	.quad forth_impl_literal, (init.end - init.start)
+	.quad forth_false
 	.quad forth_evaluate
 	.quad forth_panic
 

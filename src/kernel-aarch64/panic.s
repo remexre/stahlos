@@ -16,6 +16,7 @@ panic:
 	ldr x30, =loop_forever
 	b format_write_string
 defpanic forth
+defpanic todo
 defpanic out_of_data_stack
 defpanic out_of_return_stack
 defpanic underflow_data_stack
@@ -27,22 +28,25 @@ loop_forever:
 
 .section .rodata
 
-panic_str: .string "panic!\n"
+panic_str: .ascii "panic!\n"
 .equ panic_str.len, . - panic_str
 
-forth: .string "forth panic\n"
+forth: .ascii "forth panic\n"
 .equ forth.len, . - forth
 
-out_of_data_stack: .string "out of data stack\n"
+todo: .ascii "TODO\n"
+.equ todo.len, . - todo
+
+out_of_data_stack: .ascii "out of data stack\n"
 .equ out_of_data_stack.len, . - out_of_data_stack
 
-out_of_return_stack: .string "out of return stack\n"
+out_of_return_stack: .ascii "out of return stack\n"
 .equ out_of_return_stack.len, . - out_of_return_stack
 
-underflow_data_stack: .string "data stack underflow\n"
+underflow_data_stack: .ascii "data stack underflow\n"
 .equ underflow_data_stack.len, . - underflow_data_stack
 
-underflow_return_stack: .string "return stack underflow\n"
+underflow_return_stack: .ascii "return stack underflow\n"
 .equ underflow_return_stack.len, . - underflow_return_stack
 
 /* vi: set ft=arm64asm : */

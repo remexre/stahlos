@@ -5,15 +5,15 @@
 \label\().padding:
 .fill (258 - (\label - \label\().name)) % 4
 \label\().header:
-	.quad forth_builtins_last_defword
+	.quad last_defword
 	.byte \flags
 	.byte \label - \label\().name
 \label\().name:
 	.ascii "\name"
 \label:
-.set forth_builtins_last_defword, \label\().header
+.set last_defword, \label\().header
 .endm
-.set forth_builtins_last_defword, 0
+.set last_defword, 0
 
 .macro pop
 	cbz x12, panic.underflow_data_stack
@@ -81,6 +81,50 @@ defword forth_emit, "EMIT"
 defword forth_false, "FALSE"
 	push
 	mov x10, 0
+	next
+
+defword forth_find_header, "FIND-HEADER"
+	/* TODO(safety): Check stack depth
+	 * x0: target name length
+	 * x1: target name pointer
+	 * x2: current header name chars remaining
+	 * x3: target name current position
+	 * x4: current header name current position
+	 * x5: target current char
+	 * x6: current header name current char
+	 * x10: current dictionary link pointer
+	 */
+	mov x0, x10
+	pop
+	mov x1, x10
+	mov x10, x19
+forth_find_header.next_header:
+	cbz x10, forth_find_header.end
+	ldr x10, [x10]
+
+	ldrb w2, [x10, #9]
+	cmp x2, x0
+	b.ne forth_find_header.next_header
+
+	mov x3, x1
+	add x4, x10, #10
+
+forth_find_header.strcmp_loop:
+	cbz x2, forth_find_header.end
+	ldrb w5, [x3], #1
+	ldrb w6, [x4], #1
+	cmp w5, w6
+	b.ne forth_find_header.next_header
+	sub x2, x2, 1
+	b forth_find_header.strcmp_loop
+
+forth_find_header.end:
+	next
+
+defword forth_from_rstack, "R>"
+	push
+	mov x10, x14
+	rpop
 	next
 
 defword forth_impl_branch, "(BRANCH)"
@@ -175,12 +219,12 @@ forth_parse.end:
 	next
 
 defword forth_set_source, "SET-SOURCE"
-	mov x0, x10
+	str x10, [x19, #24]
 	pop
-	mov x1, x10
+	str x10, [x19, #16]
 	pop
-	str x0, [x19, #16]
-	str x1, [x19, #8]
+	str x10, [x19, #8]
+	pop
 	next
 
 defword forth_skip_spaces, "SKIP-SPACES"
@@ -205,13 +249,12 @@ forth_skip_spaces.end:
 	next
 
 defword forth_source, "SOURCE"
-	/* TODO(optimize) */
 	push
+	ldr x10, [x19, #8]
 	push
-	ldr x0, [x19, #8]
 	ldr x10, [x19, #16]
-	add x1, x11, x12
-	str x0, [x1, #-8]
+	push
+	ldr x10, [x19, #24]
 	next
 
 defword forth_swap, "SWAP"
@@ -220,6 +263,12 @@ defword forth_swap, "SWAP"
 	ldr x1, [x2, #-8]
 	str x10, [x2, #-8]
 	mov x10, x1
+	next
+
+defword forth_to_rstack, ">R"
+	rpush
+	mov x14, x10
+	pop
 	next
 
 defword forth_true, "TRUE"
@@ -246,5 +295,8 @@ defword forth_two_to_rstack, "2>R"
 	pop
 	mov x14, x0
 	next
+
+.global forth.last_builtin_header
+.equiv forth.last_builtin_header, last_defword
 
 /* vi: set ft=arm64asm : */

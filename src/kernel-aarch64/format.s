@@ -125,9 +125,9 @@ format_write_string:
 
 .section .rodata
 
-format_write_num_ux.table: .string "0123456789abcdef"
+format_write_num_ux.table: .ascii "0123456789abcdef"
 
-newline: .string "\n"
+newline: .ascii "\n"
 .equ newline.len, . - newline
 
 .section .bss
