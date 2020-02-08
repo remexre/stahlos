@@ -132,6 +132,13 @@ defword forth_one_plus, "1+"
 	add x10, x10, 1
 	next
 
+defword forth_over, "OVER"
+	/* TODO(safety): Check stack depth */
+	push
+	add x0, x11, x12
+	ldr x10, [x0, #-16]
+	next
+
 defword forth_panic, "PANIC"
 	b panic.forth
 
@@ -176,6 +183,27 @@ defword forth_set_source, "SET-SOURCE"
 	str x1, [x19, #8]
 	next
 
+defword forth_skip_spaces, "SKIP-SPACES"
+	/* x0: string base
+	 * x1: string total length
+	 * x2: string initial offset
+	 * x3: current character
+	 */
+	ldr x0, [x19, #8]
+	ldr x1, [x19, #16]
+	ldr x2, [x19, #24]
+forth_skip_spaces.loop:
+	cmp x1, x2
+	b.eq forth_skip_spaces.end
+	ldrb w3, [x0, x2]
+	cmp w3, #0x20
+	b.ne forth_skip_spaces.end
+	add x2, x2, 1
+	b forth_skip_spaces.loop
+forth_skip_spaces.end:
+	str x2, [x19, #24]
+	next
+
 defword forth_source, "SOURCE"
 	/* TODO(optimize) */
 	push
@@ -197,6 +225,26 @@ defword forth_swap, "SWAP"
 defword forth_true, "TRUE"
 	push
 	mvn x10, xzr
+	next
+
+defword forth_two_from_rstack, "2R>"
+	push
+	mov x0, x14
+	rpop
+	mov x10, x14
+	push
+	rpop
+	mov x10, x0
+	next
+
+defword forth_two_to_rstack, "2>R"
+	rpush
+	mov x0, x10
+	pop
+	mov x14, x10
+	rpush
+	pop
+	mov x14, x0
 	next
 
 /* vi: set ft=arm64asm : */
