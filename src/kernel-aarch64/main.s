@@ -33,10 +33,8 @@ _start:
 .section .rodata
 
 init:
-	.quad forth_impl_literal
-	.quad init.start
-	.quad forth_impl_literal
-	.quad init.end - init.start
+	.quad forth_impl_literal, init.start
+	.quad forth_impl_literal, (init.end - init.start)
 	.quad forth_set_source
 	.quad forth_evaluate
 	.quad forth_panic

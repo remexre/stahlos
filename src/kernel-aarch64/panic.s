@@ -22,7 +22,7 @@ defpanic underflow_data_stack
 defpanic underflow_return_stack
 
 loop_forever:
-	wfe
+	wfi
 	b loop_forever
 
 .section .rodata

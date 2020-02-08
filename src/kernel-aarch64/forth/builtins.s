@@ -70,9 +70,21 @@ defword forth_dup, "DUP"
 	push
 	next
 
+defword forth_emit, "EMIT"
+	str x10, [x11]
+	pop
+	mov x0, x11
+	mov x1, 1
+	bl format_write_string
+	next
+
 defword forth_false, "FALSE"
 	push
 	mov x10, 0
+	next
+
+defword forth_impl_branch, "(BRANCH)"
+	ldr x18, [x18]
 	next
 
 defword forth_impl_branch_zero, "(BRANCH0)"
@@ -80,7 +92,7 @@ defword forth_impl_branch_zero, "(BRANCH0)"
 	ldr x1, [x18], #8
 	pop
 	cbnz x0, forth_impl_branch_zero.end
-	mov x18, x0
+	mov x18, x1
 forth_impl_branch_zero.end:
 	next
 
@@ -100,6 +112,10 @@ defword forth_impl_semicolon, "(;)" /* aka exit */
 	rpop
 	next
 
+defword forth_load_char, "C@"
+	ldrb w10, [x10]
+	next
+
 defword forth_not, "NOT"
 	tst x10, x10
 	mov x10, xzr /* NZCV-preserving */
@@ -108,12 +124,48 @@ defword forth_not, "NOT"
 forth_not.zero:
 	next
 
+defword forth_one_minus, "1-"
+	sub x10, x10, 1
+	next
+
 defword forth_one_plus, "1+"
 	add x10, x10, 1
 	next
 
 defword forth_panic, "PANIC"
 	b panic.forth
+
+defword forth_parse, "PARSE"
+	/* x0: delim char
+	 * x1: string base
+	 * x2: string total length
+	 * x3: string initial offset
+	 * x4: current string pointer
+	 * x5: characters remaining in string
+	 * x6: current character
+	 */
+	and x0, x10, #0xff
+	ldr x1, [x19, #8]
+	ldr x2, [x19, #16]
+	ldr x3, [x19, #24]
+	add x4, x1, x3
+	sub x5, x2, x3
+	mov x10, x4
+	push
+forth_parse.loop:
+	cbz x5, forth_parse.loopend
+	sub x5, x5, #1
+	ldrb w6, [x4], #1
+	cmp w6, w0
+	b.ne forth_parse.loop
+forth_parse.loopend:
+	sub x10, x4, x10
+	add x3, x3, x10
+	str x3, [x19, #24]
+	cbz x10, forth_parse.end
+	sub x10, x10, #1
+forth_parse.end:
+	next
 
 defword forth_set_source, "SET-SOURCE"
 	mov x0, x10
@@ -125,7 +177,7 @@ defword forth_set_source, "SET-SOURCE"
 	next
 
 defword forth_source, "SOURCE"
-	/* TODO: Optimize? */
+	/* TODO(optimize) */
 	push
 	push
 	ldr x0, [x19, #8]
@@ -135,6 +187,7 @@ defword forth_source, "SOURCE"
 	next
 
 defword forth_swap, "SWAP"
+	/* TODO(safety): Check stack depth */
 	add x2, x11, x12
 	ldr x1, [x2, #-8]
 	str x10, [x2, #-8]

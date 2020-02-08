@@ -17,11 +17,18 @@
 .endm
 
 defword forth_evaluate, "EVALUATE"
-	.quad forth_source
-	.quad forth_dot_hex
+forth_evaluate.loop:
+	.quad forth_impl_literal, 0x20
+	.quad forth_parse
+
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_evaluate.end
+
+	.quad forth_type
 	.quad forth_cr
-	.quad forth_dot_hex
-	.quad forth_cr
+
+	.quad forth_impl_branch, forth_evaluate.loop
+forth_evaluate.end:
 	.quad forth_panic
 
 defword forth_foo, "FOO"
@@ -31,6 +38,21 @@ defword forth_foo, "FOO"
 	.quad forth_cr
 	.quad forth_dot_hex
 	.quad forth_cr
+	.quad forth_impl_semicolon
+
+defword forth_type, "TYPE"
+forth_type.loop:
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_type.end
+	.quad forth_swap
+	.quad forth_dup
+	.quad forth_load_char
+	.quad forth_emit
+	.quad forth_one_plus
+	.quad forth_swap
+	.quad forth_one_minus
+	.quad forth_impl_branch, forth_type.loop
+forth_type.end:
 	.quad forth_impl_semicolon
 
 /* vi: set ft=arm64asm : */
