@@ -33,8 +33,31 @@ forth_evaluate.loop:
 	.quad forth_two_dup
 	.quad forth_find_header
 
-	.quad forth_dot_hex
-	.quad forth_cr
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_evaluate.loop.try_as_number
+
+	.quad forth_to_rstack
+	.quad forth_two_drop
+	.quad forth_from_rstack
+	.quad forth_dup
+	.quad forth_header_to_xt
+	.quad forth_swap
+	.quad forth_header_to_immediate
+	.quad forth_flags
+	.quad forth_impl_literal, 1
+	.quad forth_and
+	.quad forth_or
+
+	.quad forth_impl_branch_zero, forth_evaluate.loop.compile_word
+	.quad forth_execute
+	.quad forth_impl_branch, forth_evaluate.loop
+forth_evaluate.loop.compile_word:
+	.quad forth_compile_comma
+	.quad forth_impl_branch, forth_evaluate.loop
+
+forth_evaluate.loop.try_as_number:
+
+	.quad forth_panic
 
 	.quad forth_impl_branch, forth_evaluate.loop
 
@@ -45,11 +68,28 @@ forth_evaluate.end:
 	.quad forth_set_source
 	.quad forth_impl_semicolon
 
+defword forth_header_to_immediate, "HEADER>IMMEDIATE?"
+	.quad forth_header_to_flags
+	.quad forth_impl_literal, 1
+	.quad forth_and
+	.quad forth_boolify
+	.quad forth_impl_semicolon
+
 defword forth_parse_name, "PARSE-NAME"
 	.quad forth_skip_spaces
 	.quad forth_impl_literal, 0x20
 	.quad forth_parse
 	.quad forth_impl_semicolon
+
+defword forth_quote, "'"
+	.quad forth_impl_debug
+	.quad forth_parse_name
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_quote.error
+	.quad forth_find_header
+	.quad forth_impl_semicolon
+forth_quote.error:
+	.quad panic.end_of_source_when_parsing
 
 defword forth_two_drop, "2DROP"
 	.quad forth_drop

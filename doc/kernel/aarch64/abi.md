@@ -18,7 +18,9 @@ x17 - Max Depth of Return Stack (in bytes)
 
 x18 - Forth Instruction Pointer
 x19 - Process Table Pointer
+
 x20-x29 - Reserved
+
 x30 - Link Register
 ```
 
@@ -29,9 +31,9 @@ Process Table
 0x0000 +---------------------+---------------------+---------------------+---------------------+
        | Dictionary Pointer  | Source Pointer      | Source Length       | Source Offset       |
 0x0020 +---------------------+---------------------+---------------------+---------------------+
-       | Instruction Pointer | Stack Depth         | RStack Depth        | Mailbox Pointer     |
+       | Mailbox Pointer     | Flags               | Reserved            | Reserved            |
 0x0040 +---------------------+---------------------+---------------------+---------------------+
-       | Reserved            | Reserved            | Reserved            | Reserved            |
+       | Instruction Pointer | Stack Depth         | RStack Depth        | Reserved            |
 0x0060 +---------------------+---------------------+---------------------+---------------------+
        | Reserved            | Reserved            | Reserved            | Reserved            |
 0x0080 +---------------------+---------------------+---------------------+---------------------+
@@ -48,6 +50,19 @@ Process Table
        |                                                                                       |
 0x0400 +---------------------+---------------------+---------------------+---------------------+
 ```
+
+Process Flags
+-------------
+
+```
+MSB  LSB
+0000000M
+```
+
+|   | Name     | Description                |
+|---|----------|----------------------------|
+| 0 | Reserved | Should be 0                |
+| M | Mode     | 0 = compile, 1 = interpret |
 
 Word Header
 -----------

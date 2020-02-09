@@ -21,6 +21,7 @@ defpanic out_of_data_stack
 defpanic out_of_return_stack
 defpanic underflow_data_stack
 defpanic underflow_return_stack
+defpanic end_of_source_when_parsing
 
 loop_forever:
 	wfi
@@ -48,5 +49,8 @@ underflow_data_stack: .ascii "data stack underflow\n"
 
 underflow_return_stack: .ascii "return stack underflow\n"
 .equ underflow_return_stack.len, . - underflow_return_stack
+
+end_of_source_when_parsing: .ascii "end of source when parsing\n"
+.equ end_of_source_when_parsing.len, . - end_of_source_when_parsing
 
 /* vi: set ft=arm64asm : */

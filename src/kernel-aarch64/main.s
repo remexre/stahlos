@@ -11,6 +11,8 @@ _start:
 	ldr x19, =init_proctbl
 	ldr x0, =forth.last_pseudobuiltin_header
 	str x0, [x19]
+	mov x1, 1
+	str x1, [x19, #0x28]
 	/* Source gets set up by init */
 
 	/* Set up data stack */
@@ -33,6 +35,10 @@ _start:
 .section .rodata
 
 init:
+	.quad forth_impl_literal, forth_dot_hex.header
+	.quad forth_header_to_xt
+	.quad forth_impl_debug
+
 	.quad forth_impl_literal, init.start
 	.quad forth_impl_literal, (init.end - init.start)
 	.quad forth_false

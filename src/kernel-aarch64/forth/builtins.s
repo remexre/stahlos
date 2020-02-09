@@ -46,6 +46,26 @@
 	br x0
 .endm
 
+defword forth_and, "AND"
+	mov x0, x10
+	pop
+	and x10, x10, x0
+	next
+
+defword forth_boolify, "BOOLIFY"
+	/* TODO(safety): Check stack depth */
+	cbz x10, forth_boolify.zero
+	mvn x10, xzr
+forth_boolify.zero:
+	next
+
+defword forth_compile_comma, "COMPILE,"
+	ldr x0, data_space_ptr
+	str x10, [x0], #8
+	pop
+	/* str x0, [xzr, data_space_ptr] */
+	next
+
 defword forth_cr, "CR"
 	bl format_write_newline
 	next
@@ -56,6 +76,7 @@ defword forth_dot_dec, ".DEC"
 	bl format_write_num_sd
 	next
 
+.global forth_dot_hex.header /* TODO(housekeeping): remove me */
 defword forth_dot_hex, ".HEX"
 	mov x0, x10
 	pop
@@ -77,6 +98,11 @@ defword forth_emit, "EMIT"
 	mov x1, 1
 	bl format_write_string
 	next
+
+defword forth_execute, "EXECUTE"
+	mov x0, x10
+	pop
+	br x0
 
 defword forth_false, "FALSE"
 	push
@@ -121,10 +147,27 @@ forth_find_header.strcmp_loop:
 forth_find_header.end:
 	next
 
+defword forth_flags, "FLAGS"
+	push
+	ldr x10, [x19, #0x28]
+	next
+
 defword forth_from_rstack, "R>"
 	push
 	mov x10, x14
 	rpop
+	next
+
+defword forth_header_to_flags, "HEADER>FLAGS"
+	/* TODO(safety): Check stack depth */
+	ldrb w10, [x10, #8]
+	next
+
+defword forth_header_to_xt, "HEADER>XT"
+	/* TODO(safety): Check stack depth */
+	ldrb w0, [x10, #9]
+	add x10, x10, x0
+	add x10, x10, #10
 	next
 
 defword forth_impl_branch, "(BRANCH)"
@@ -144,6 +187,9 @@ defword forth_impl_colon, "(:)" /* aka enter, aka docolon */
 	rpush
 	mov x14, x18
 	add x18, x0, 4
+	next
+
+defword forth_impl_debug, "(DEBUG)"
 	next
 
 defword forth_impl_literal, "(LITERAL)"
@@ -174,6 +220,12 @@ defword forth_one_minus, "1-"
 
 defword forth_one_plus, "1+"
 	add x10, x10, 1
+	next
+
+defword forth_or, "OR"
+	mov x0, x10
+	pop
+	orr x10, x10, x0
 	next
 
 defword forth_over, "OVER"
@@ -298,5 +350,9 @@ defword forth_two_to_rstack, "2>R"
 
 .global forth.last_builtin_header
 .equiv forth.last_builtin_header, last_defword
+
+.section .bss
+
+.comm data_space_ptr, 8
 
 /* vi: set ft=arm64asm : */

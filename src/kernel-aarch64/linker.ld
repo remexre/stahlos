@@ -14,4 +14,5 @@ SECTIONS {
 	.rodata : { *(.rodata) } > kernel
 	.data : { *(.data) } > kernel
 	.bss : { *(.bss) } > kernel
+	data_space_start = .;
 }

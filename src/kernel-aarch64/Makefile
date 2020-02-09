@@ -38,6 +38,7 @@ debug: $(DESTDIR)/stahlos.elf $(TMPDIR)/stahlos-unstripped.elf
 	$(AARCH64_GDB) \
 		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
 		-ex "target remote | $(EMU) -S -gdb stdio" \
+		-ex "break forth_impl_debug" \
 		-ex "layout regs" \
 		-x misc/gdb_extensions.py
 emu: $(DESTDIR)/stahlos.elf $(DESTDIR)/stahlos.img
