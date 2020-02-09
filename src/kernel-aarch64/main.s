@@ -35,15 +35,11 @@ _start:
 .section .rodata
 
 init:
-	.quad forth_impl_literal, forth_dot_hex.header
-	.quad forth_header_to_xt
-	.quad forth_impl_debug
-
 	.quad forth_impl_literal, init.start
 	.quad forth_impl_literal, (init.end - init.start)
 	.quad forth_false
 	.quad forth_evaluate
-	.quad forth_panic
+	.quad panic.init_exited
 
 init.start:
 .incbin "init.fth"

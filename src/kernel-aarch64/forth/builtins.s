@@ -70,13 +70,6 @@ defword forth_cr, "CR"
 	bl format_write_newline
 	next
 
-defword forth_dot_dec, ".DEC"
-	mov x0, x10
-	pop
-	bl format_write_num_sd
-	next
-
-.global forth_dot_hex.header /* TODO(housekeeping): remove me */
 defword forth_dot_hex, ".HEX"
 	mov x0, x10
 	pop
@@ -204,6 +197,25 @@ defword forth_impl_semicolon, "(;)" /* aka exit */
 
 defword forth_load_char, "C@"
 	ldrb w10, [x10]
+	next
+
+defword forth_minus, "-"
+	/* TODO(safety): Check stack depth */
+	mov x0, x10
+	pop
+	sub x10, x0, x10
+	next
+
+defword forth_mode_compile, "]"
+	ldr x0, [x19, #0x28]
+	and x0, x0, 254
+	str x0, [x19, #0x28]
+	next
+
+defword forth_mode_interpret, "["
+	ldr x0, [x19, #0x28]
+	orr x0, x0, 1
+	str x0, [x19, #0x28]
 	next
 
 defword forth_not, "NOT"

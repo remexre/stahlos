@@ -54,21 +54,6 @@ format_write_newline:
 	mov x1, newline.len
 	b format_write_string
 
-/** format_write_num_sd: Writes a signed number in base 10 to the output device.
- *
- * Input:
- *   x0: The number to print
- *
- * Effects:
- * - Blocks until the write is complete
- * - Writes to the output device
- * - Trashes x0-x9
- * - Uses temporary storage; is NOT re-entrant
- */
-.global format_write_num_sd
-format_write_num_sd:
-	b panic
-
 /** format_write_num_ux: Writes an unsigned number in base 16 to the output device.
  *
  * Input:

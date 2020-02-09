@@ -17,6 +17,19 @@
 .set last_defword, \label\().header
 .endm
 
+defword forth_create, "CREATE"
+	.quad forth_parse_name
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_create.error
+	.quad forth_dup
+	.quad forth_impl_literal, 2
+	.quad forth_swap
+	.quad forth_minus
+	/* todo */
+	.quad forth_impl_semicolon
+forth_create.error:
+	.quad panic.end_of_source_when_parsing
+
 defword forth_evaluate, "EVALUATE"
 	.quad forth_source
 	.quad forth_to_rstack
@@ -82,7 +95,6 @@ defword forth_parse_name, "PARSE-NAME"
 	.quad forth_impl_semicolon
 
 defword forth_quote, "'"
-	.quad forth_impl_debug
 	.quad forth_parse_name
 	.quad forth_dup
 	.quad forth_impl_branch_zero, forth_quote.error

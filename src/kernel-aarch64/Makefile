@@ -39,6 +39,7 @@ debug: $(DESTDIR)/stahlos.elf $(TMPDIR)/stahlos-unstripped.elf
 		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
 		-ex "target remote | $(EMU) -S -gdb stdio" \
 		-ex "break forth_impl_debug" \
+		-ex "break panic" \
 		-ex "layout regs" \
 		-x misc/gdb_extensions.py
 emu: $(DESTDIR)/stahlos.elf $(DESTDIR)/stahlos.img
@@ -81,4 +82,6 @@ $(TMPDIR)/stahlos-unstripped.elf: linker.ld $(patsubst %,$(TMPDIR)/%.o,$(UNITS))
 
 $(TMPDIR)/%.o: %.s
 	@mkdir -p $(dir $@)
-	$(AARCH64_AS) -g -o $@ $^
+	$(AARCH64_AS) -g -o $@ $<
+
+$(TMPDIR)/main.o: init.fth

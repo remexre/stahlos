@@ -17,6 +17,7 @@ panic:
 	b format_write_string
 defpanic forth
 defpanic todo
+defpanic init_exited
 defpanic out_of_data_stack
 defpanic out_of_return_stack
 defpanic underflow_data_stack
@@ -37,6 +38,9 @@ forth: .ascii "forth panic\n"
 
 todo: .ascii "TODO\n"
 .equ todo.len, . - todo
+
+init_exited: .ascii "init exited\n"
+.equ init_exited.len, . - init_exited
 
 out_of_data_stack: .ascii "out of data stack\n"
 .equ out_of_data_stack.len, . - out_of_data_stack
