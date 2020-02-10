@@ -75,6 +75,14 @@ defword forth_comma, ","
 	str x1, [x0]
 	next
 
+defword forth_comma_char, "C,"
+	ldr x0, =data_space_ptr
+	ldr x1, [x0]
+	strb w10, [x1], #1
+	pop
+	str x1, [x0]
+	next
+
 defword forth_compile_comma, "COMPILE,"
 	ldr x0, =data_space_ptr
 	ldr x1, [x0]
@@ -180,6 +188,12 @@ defword forth_header_to_xt, "HEADER>XT"
 	add x10, x10, #10
 	next
 
+defword forth_here, "HERE"
+	push
+	ldr x0, =data_space_ptr
+	ldr x10, [x0]
+	next
+
 defword forth_impl_branch, "(BRANCH)"
 	ldr x18, [x18]
 	next
@@ -210,6 +224,12 @@ defword forth_impl_literal, "(LITERAL)"
 defword forth_impl_semicolon, "(;)" /* aka exit */
 	mov x18, x14
 	rpop
+	next
+
+defword forth_impl_variable, "(VARIABLE)"
+	push
+	mov x10, x18
+	/* TODO: Correctness? */
 	next
 
 defword forth_load_char, "C@"
@@ -309,6 +329,20 @@ defword forth_process_table, "PROCESS-TABLE"
 	mov x10, x19
 	next
 
+defword forth_set_does, "SET-DOES"
+	/* x0: Address of DOES word's CFA / DOES word's XT
+	 * x1: Snippet to do jump to absolute addr
+	 * x2: Address of word, later addr of CFA
+	 * x3: Length of word name
+	 */
+	mov x0, x10
+	pop
+	ldr x1, =0xd61f000058000040 /* ldr x0, [pc+8]; br x0 */
+	ldr x2, [x19]
+	ldrb w3, [x2, #9]!
+	add x2, x2, x3
+	b forth_impl_debug
+
 defword forth_set_source, "SET-SOURCE"
 	str x10, [x19, #24]
 	pop
@@ -346,6 +380,14 @@ defword forth_source, "SOURCE"
 	ldr x10, [x19, #16]
 	push
 	ldr x10, [x19, #24]
+	next
+
+defword forth_store_qword, "!"
+	mov x0, x10
+	pop
+	mov x1, x10
+	pop
+	str x0, [x1]
 	next
 
 defword forth_swap, "SWAP"

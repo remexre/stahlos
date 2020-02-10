@@ -31,8 +31,31 @@ defword forth_create, "CREATE"
 
 	.quad forth_process_table
 	.quad forth_load_qword
+	.quad forth_here
+	.quad forth_process_table
+	.quad forth_store_qword
 	.quad forth_comma
-	/* todo */
+	.quad forth_impl_literal, 0
+	.quad forth_comma_char
+
+	.quad forth_dup
+	.quad forth_comma_char
+
+forth_create.write_name:
+	.quad forth_swap
+	.quad forth_dup
+	.quad forth_load_char
+	.quad forth_comma_char
+	.quad forth_one_plus
+	.quad forth_swap
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_create.write_cfa
+	.quad forth_one_minus
+	.quad forth_impl_branch, forth_create.write_name
+
+forth_create.write_cfa:
+	.quad forth_impl_literal, forth_impl_variable
+	.quad forth_set_does
 	.quad forth_impl_semicolon
 forth_create.error:
 	.quad panic.end_of_source_when_parsing
