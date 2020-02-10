@@ -7,6 +7,11 @@ _start:
 	ldr x2, =qemuvirt_uart_write_string
 	bl format_init
 
+	/* Set up the data space pointer. */
+	ldr x0, =data_space_start
+	ldr x1, =data_space_ptr
+	str x0, [x1]
+
 	/* Set up process table pointer, init process table */
 	ldr x19, =init_proctbl
 	ldr x0, =forth.last_pseudobuiltin_header

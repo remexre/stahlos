@@ -46,6 +46,14 @@
 	br x0
 .endm
 
+defword forth_allot, "ALLOT"
+	ldr x0, =data_space_ptr
+	ldr x1, [x0]
+	add x1, x10, x1
+	pop
+	str x1, [x0]
+	next
+
 defword forth_and, "AND"
 	mov x0, x10
 	pop
@@ -59,11 +67,20 @@ defword forth_boolify, "BOOLIFY"
 forth_boolify.zero:
 	next
 
-defword forth_compile_comma, "COMPILE,"
-	ldr x0, data_space_ptr
-	str x10, [x0], #8
+defword forth_comma, ","
+	ldr x0, =data_space_ptr
+	ldr x1, [x0]
+	str x10, [x1], #8
 	pop
-	/* str x0, [xzr, data_space_ptr] */
+	str x1, [x0]
+	next
+
+defword forth_compile_comma, "COMPILE,"
+	ldr x0, =data_space_ptr
+	ldr x1, [x0]
+	str x10, [x1], #8
+	pop
+	str x1, [x0]
 	next
 
 defword forth_cr, "CR"
@@ -199,6 +216,11 @@ defword forth_load_char, "C@"
 	ldrb w10, [x10]
 	next
 
+defword forth_load_qword, "@"
+	/* TODO(safety): Check stack depth */
+	ldr x10, [x10]
+	next
+
 defword forth_minus, "-"
 	/* TODO(safety): Check stack depth */
 	mov x0, x10
@@ -280,6 +302,11 @@ forth_parse.loopend:
 	cbz x10, forth_parse.end
 	sub x10, x10, #1
 forth_parse.end:
+	next
+
+defword forth_process_table, "PROCESS-TABLE"
+	push
+	mov x10, x19
 	next
 
 defword forth_set_source, "SET-SOURCE"

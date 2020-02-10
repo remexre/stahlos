@@ -25,6 +25,13 @@ defword forth_create, "CREATE"
 	.quad forth_impl_literal, 2
 	.quad forth_swap
 	.quad forth_minus
+	.quad forth_impl_literal, 3
+	.quad forth_and
+	.quad forth_allot
+
+	.quad forth_process_table
+	.quad forth_load_qword
+	.quad forth_comma
 	/* todo */
 	.quad forth_impl_semicolon
 forth_create.error:
