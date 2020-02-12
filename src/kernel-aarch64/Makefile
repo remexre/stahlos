@@ -36,8 +36,8 @@ EMU += -kernel $(DESTDIR)/stahlos.elf
 all: image
 debug: $(DESTDIR)/stahlos.elf $(TMPDIR)/stahlos-unstripped.elf
 	$(AARCH64_GDB) \
-		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
 		-ex "target remote | $(EMU) -S -gdb stdio" \
+		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
 		-ex "break forth_impl_debug" \
 		-ex "break panic" \
 		-ex "layout regs" \

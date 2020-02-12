@@ -194,6 +194,14 @@ defword forth_here, "HERE"
 	ldr x10, [x0]
 	next
 
+defword forth_immediate, "IMMEDIATE"
+	ldr x0, =data_space_ptr
+	ldr x1, [x0]
+	ldrb w3, [x1, #8]
+	orr w3, w3, #1
+	strb w3, [x1, #8]
+	next
+
 defword forth_impl_branch, "(BRANCH)"
 	ldr x18, [x18]
 	next
@@ -254,7 +262,7 @@ defword forth_mode_compile, "]"
 	str x0, [x19, #0x28]
 	next
 
-defword forth_mode_interpret, "["
+defword forth_mode_interpret, "[", 1
 	ldr x0, [x19, #0x28]
 	orr x0, x0, 1
 	str x0, [x19, #0x28]
@@ -324,6 +332,49 @@ forth_parse.loopend:
 forth_parse.end:
 	next
 
+defword forth_parse_name, "PARSE-NAME"
+	/* x0: string base
+	 * x1: string total length
+	 * x2: string initial offset
+	 * x3: current character
+	 */
+	ldr x0, [x19, #8]
+	ldr x1, [x19, #16]
+	ldr x2, [x19, #24]
+forth_parse_name.skip_space_loop:
+	cmp x1, x2
+	b.eq forth_parse_name.spaces_skipped
+	ldrb w3, [x0, x2]
+	cmp w3, #0x21
+	b.hs forth_parse_name.spaces_skipped
+	add x2, x2, 1
+	b forth_parse_name.skip_space_loop
+forth_parse_name.spaces_skipped:
+	/* x0: start of string
+	 * x1: remaining length
+	 * x2: offset of start of string
+	 * x3: current character
+	 * x10: length so far
+	 */
+	sub x1, x1, x2
+	push
+	add x10, x0, x2
+	mov x0, x10
+	push
+	mov x10, xzr
+forth_parse_name.loop:
+	cbz x1, forth_parse_name.end
+	ldrb w3, [x0], #1
+	cmp w3, #0x21
+	b.lo forth_parse_name.end
+	sub x1, x1, 1
+	add x10, x10, 1
+	b forth_parse_name.loop
+forth_parse_name.end:
+	add x2, x2, x10
+	str x2, [x19, #24]
+	bl forth_impl_debug
+
 defword forth_process_table, "PROCESS-TABLE"
 	push
 	mov x10, x19
@@ -350,27 +401,6 @@ defword forth_set_source, "SET-SOURCE"
 	pop
 	str x10, [x19, #8]
 	pop
-	next
-
-defword forth_skip_spaces, "SKIP-SPACES"
-	/* x0: string base
-	 * x1: string total length
-	 * x2: string initial offset
-	 * x3: current character
-	 */
-	ldr x0, [x19, #8]
-	ldr x1, [x19, #16]
-	ldr x2, [x19, #24]
-forth_skip_spaces.loop:
-	cmp x1, x2
-	b.eq forth_skip_spaces.end
-	ldrb w3, [x0, x2]
-	cmp w3, #0x20
-	b.ne forth_skip_spaces.end
-	add x2, x2, 1
-	b forth_skip_spaces.loop
-forth_skip_spaces.end:
-	str x2, [x19, #24]
 	next
 
 defword forth_source, "SOURCE"

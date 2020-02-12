@@ -100,10 +100,16 @@ def proctbl(args, frame, stack, rstack):
     print('SrcPtr:  0x{:016x}'.format(read_u64(ptp + 8)))
     print('SrcLen:  0x{:016x}'.format(read_u64(ptp + 16)))
     print('SrcOff:  0x{:016x}'.format(read_u64(ptp + 24)))
-    print('SavedIP: 0x{:016x}'.format(read_u64(ptp + 32)))
-    print('SavedSD: 0x{:016x}'.format(read_u64(ptp + 40)))
-    print('SavedRD: 0x{:016x}'.format(read_u64(ptp + 48)))
-    print('Mailbox: 0x{:016x}'.format(read_u64(ptp + 56)))
+    print('Mailbox: 0x{:016x}'.format(read_u64(ptp + 32)))
+
+    flag_bits = read_u64(ptp + 40)
+    flags = []
+    flags.append('Interpret' if (flag_bits & 1) != 0 else 'Compile')
+    print('Flags:   {}'.format(', '.join(flags)))
+
+    print('SavedIP: 0x{:016x}'.format(read_u64(ptp + 64)))
+    print('SavedSD: 0x{:016x}'.format(read_u64(ptp + 72)))
+    print('SavedRD: 0x{:016x}'.format(read_u64(ptp + 80)))
 
 
 @command

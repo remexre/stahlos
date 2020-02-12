@@ -74,6 +74,10 @@ forth_evaluate.loop:
 	.quad forth_impl_branch_zero, forth_evaluate.end
 
 	.quad forth_two_dup
+	.quad forth_type
+	.quad forth_cr
+
+	.quad forth_two_dup
 	.quad forth_find_header
 
 	.quad forth_dup
@@ -100,7 +104,7 @@ forth_evaluate.loop.compile_word:
 
 forth_evaluate.loop.try_as_number:
 
-	.quad forth_panic
+	.quad panic.todo
 
 	.quad forth_impl_branch, forth_evaluate.loop
 
@@ -116,12 +120,6 @@ defword forth_header_to_immediate, "HEADER>IMMEDIATE?"
 	.quad forth_impl_literal, 1
 	.quad forth_and
 	.quad forth_boolify
-	.quad forth_impl_semicolon
-
-defword forth_parse_name, "PARSE-NAME"
-	.quad forth_skip_spaces
-	.quad forth_impl_literal, 0x20
-	.quad forth_parse
 	.quad forth_impl_semicolon
 
 defword forth_quote, "'"
