@@ -12,7 +12,9 @@
 \label\().name:
 	.ascii "\name"
 \label:
-	b \cfa
+	ldr x1, .+8
+	br x1
+	.quad \cfa
 \label\().pfa:
 .set last_defword, \label\().header
 .endm
@@ -22,6 +24,8 @@ defword forth_create, "CREATE"
 	.quad forth_dup
 	.quad forth_impl_branch_zero, forth_create.error
 	.quad forth_dup
+	.quad forth_impl_literal, 3
+	.quad forth_and
 	.quad forth_impl_literal, 2
 	.quad forth_swap
 	.quad forth_minus
@@ -42,18 +46,20 @@ defword forth_create, "CREATE"
 	.quad forth_comma_char
 
 forth_create.write_name:
+	.quad forth_dup
+	.quad forth_impl_branch_zero, forth_create.write_cfa
 	.quad forth_swap
 	.quad forth_dup
 	.quad forth_load_char
 	.quad forth_comma_char
 	.quad forth_one_plus
 	.quad forth_swap
-	.quad forth_dup
-	.quad forth_impl_branch_zero, forth_create.write_cfa
 	.quad forth_one_minus
 	.quad forth_impl_branch, forth_create.write_name
 
 forth_create.write_cfa:
+	.quad forth_impl_literal, 16
+	.quad forth_allot
 	.quad forth_impl_literal, forth_impl_variable
 	.quad forth_set_does
 	.quad forth_impl_semicolon

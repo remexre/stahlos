@@ -18,6 +18,10 @@ def read(addr, length, fmt=None):
         return struct.unpack(fmt, mem)
 
 
+def read_u8(addr):
+    return read(addr, 1, 'b')[0]
+
+
 def read_u64(addr):
     return read(addr, 8, 'Q')[0]
 
@@ -121,3 +125,18 @@ def stack(args, frame, stack, rstack):
     print(
         'rstack [{}]'.format(
             ', '.join('0x{:016x}'.format(x) for x in rstack)))
+
+
+@command
+def words(args, frame, stack, rstack):
+    assert len(args) == 0
+    ptp = read_reg(frame, 'x19')
+    header = read_u64(ptp)
+    while header != 0:
+        next_header = read_u64(header)
+        flags = read_u8(header + 8)
+        name_len = read_u8(header + 9)
+        name = read(header + 10, name_len).decode('utf-8')
+        cfa = header + 10 + name_len
+        print('0x{:016x} {: <16} cfa=0x{:016x}'.format(header, name, cfa))
+        header = next_header

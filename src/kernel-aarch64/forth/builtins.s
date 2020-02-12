@@ -200,6 +200,7 @@ defword forth_immediate, "IMMEDIATE"
 	ldrb w3, [x1, #8]
 	orr w3, w3, #1
 	strb w3, [x1, #8]
+	b forth_impl_debug
 	next
 
 defword forth_impl_branch, "(BRANCH)"
@@ -218,7 +219,7 @@ forth_impl_branch_zero.end:
 defword forth_impl_colon, "(:)" /* aka enter, aka docolon */
 	rpush
 	mov x14, x18
-	add x18, x0, 4
+	add x18, x0, #16
 	next
 
 defword forth_impl_debug, "(DEBUG)"
@@ -253,7 +254,7 @@ defword forth_minus, "-"
 	/* TODO(safety): Check stack depth */
 	mov x0, x10
 	pop
-	sub x10, x0, x10
+	sub x10, x10, x0
 	next
 
 defword forth_mode_compile, "]"
@@ -384,14 +385,26 @@ defword forth_set_does, "SET-DOES"
 	/* x0: Address of DOES word's CFA / DOES word's XT
 	 * x1: Snippet to do jump to absolute addr
 	 * x2: Address of word, later addr of CFA
-	 * x3: Length of word name
+	 * x3: Length of word name (DOES, then target)
 	 */
 	mov x0, x10
+	ldrb w3, [x10, #9]!
+	add x10, x10, #1
+	add x0, x10, x3
 	pop
-	ldr x1, =0xd61f000058000040 /* ldr x0, [pc+8]; br x0 */
+
 	ldr x2, [x19]
 	ldrb w3, [x2, #9]!
+	add x2, x2, #1
 	add x2, x2, x3
+
+	/* TODO: Store a direct B instruction when possible? */
+	ldr x1, =0xd61f012058000049 /* ldr x9, [pc, 8]; br x9 */
+	str x1, [x2]
+	str x0, [x2, #8]
+
+	/* TODO: Probably clear the icaches? */
+
 	next
 
 defword forth_set_source, "SET-SOURCE"
