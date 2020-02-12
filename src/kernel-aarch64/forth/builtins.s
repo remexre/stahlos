@@ -195,12 +195,10 @@ defword forth_here, "HERE"
 	next
 
 defword forth_immediate, "IMMEDIATE"
-	ldr x0, =data_space_ptr
-	ldr x1, [x0]
-	ldrb w3, [x1, #8]
-	orr w3, w3, #1
-	strb w3, [x1, #8]
-	b forth_impl_debug
+	ldr x0, [x19]
+	ldrb w1, [x0, #8]
+	orr w1, w1, #1
+	strb w1, [x0, #8]
 	next
 
 defword forth_impl_branch, "(BRANCH)"
@@ -388,16 +386,11 @@ defword forth_set_does, "SET-DOES"
 	 * x3: Length of word name (DOES, then target)
 	 */
 	mov x0, x10
-	ldrb w3, [x10, #9]!
-	add x10, x10, #1
-	add x0, x10, x3
 	pop
-
 	ldr x2, [x19]
 	ldrb w3, [x2, #9]!
 	add x2, x2, #1
 	add x2, x2, x3
-
 	/* TODO: Store a direct B instruction when possible? */
 	ldr x1, =0xd61f012058000049 /* ldr x9, [pc, 8]; br x9 */
 	str x1, [x2]

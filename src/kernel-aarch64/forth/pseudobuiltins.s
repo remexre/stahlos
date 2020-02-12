@@ -80,10 +80,6 @@ forth_evaluate.loop:
 	.quad forth_impl_branch_zero, forth_evaluate.end
 
 	.quad forth_two_dup
-	.quad forth_type
-	.quad forth_cr
-
-	.quad forth_two_dup
 	.quad forth_find_header
 
 	.quad forth_dup
@@ -133,6 +129,7 @@ defword forth_quote, "'"
 	.quad forth_dup
 	.quad forth_impl_branch_zero, forth_quote.error
 	.quad forth_find_header
+	.quad forth_header_to_xt
 	.quad forth_impl_semicolon
 forth_quote.error:
 	.quad panic.end_of_source_when_parsing
