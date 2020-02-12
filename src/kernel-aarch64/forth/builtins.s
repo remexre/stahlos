@@ -373,7 +373,7 @@ forth_parse_name.loop:
 forth_parse_name.end:
 	add x2, x2, x10
 	str x2, [x19, #24]
-	bl forth_impl_debug
+	next
 
 defword forth_process_table, "PROCESS-TABLE"
 	push
@@ -392,7 +392,7 @@ defword forth_set_does, "SET-DOES"
 	ldr x2, [x19]
 	ldrb w3, [x2, #9]!
 	add x2, x2, x3
-	b forth_impl_debug
+	next
 
 defword forth_set_source, "SET-SOURCE"
 	str x10, [x19, #24]
@@ -417,7 +417,7 @@ defword forth_store_qword, "!"
 	pop
 	mov x1, x10
 	pop
-	str x0, [x1]
+	str x1, [x0]
 	next
 
 defword forth_swap, "SWAP"
