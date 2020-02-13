@@ -434,6 +434,10 @@ defword forth_swap, "SWAP"
 	mov x10, x1
 	next
 
+defword forth_to_number, ">NUMBER"
+	/* Not the ANS >NUMBER! */
+	/* ( c-addr len -- num valid? ) */
+
 defword forth_to_rstack, ">R"
 	rpush
 	mov x14, x10

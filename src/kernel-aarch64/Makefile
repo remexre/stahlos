@@ -2,6 +2,7 @@ UNITS+=main
 
 UNITS+=format
 UNITS+=panic
+UNITS+=to_number
 
 UNITS+=forth/builtins
 UNITS+=forth/pseudobuiltins
