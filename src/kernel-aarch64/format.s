@@ -70,6 +70,9 @@ format_write_newline:
  *   x2: Current nybble being printed, as a number, address, or char
  *   x3: Address of the formatting table
  *   x4: Address of the number buffer
+ *
+ * TODOs:
+ *   Don't print extra zeroes
  */
 .global format_write_num_ux
 format_write_num_ux:

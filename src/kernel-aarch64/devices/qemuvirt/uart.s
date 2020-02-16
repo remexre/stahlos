@@ -46,7 +46,6 @@ qemuvirt_uart_read_line.wait_for_rx_ok:
 	tbz w5, 6, qemuvirt_uart_read_line.wait_for_rx_ok
 
 	ldrb w4, [x3]
-	strb w4, [x0, x1]
 
 qemuvirt_uart_read_line.wait_for_tx_ok:
 	ldrb w5, [x3, #0x18]
@@ -61,6 +60,7 @@ qemuvirt_uart_read_line.wait_for_tx_ok:
 	cmp w4, #127
 	b.eq qemuvirt_uart_read_line.backspace
 
+	strb w4, [x0, x1]
 	add x1, x1, #1
 	b qemuvirt_uart_read_line.loop
 

@@ -55,13 +55,15 @@ Process Flags
 -------------
 
 ```
+0x28                                                           0x2f
 MSB  LSB
-0000000M
+000000BM 00000000 00000000 00000000 00000000 00000000 00000000 00000000
 ```
 
 |   | Name     | Description                |
 |---|----------|----------------------------|
 | 0 | Reserved | Should be 0                |
+| B | Base     | 0 = decimal, 1 = hex       |
 | M | Mode     | 0 = compile, 1 = interpret |
 
 Word Header

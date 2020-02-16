@@ -41,6 +41,7 @@ debug: $(DESTDIR)/stahlos.elf $(TMPDIR)/stahlos-unstripped.elf
 		-ex "add-symbol-file $(TMPDIR)/stahlos-unstripped.elf" \
 		-ex "break forth_impl_debug" \
 		-ex "break panic" \
+		-ex "break *0x200" \
 		-ex "layout regs" \
 		-x misc/gdb_extensions.py
 emu: $(DESTDIR)/stahlos.elf $(DESTDIR)/stahlos.img

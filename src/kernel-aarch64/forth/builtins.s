@@ -84,6 +84,7 @@ defword forth_comma_char, "C,"
 	next
 
 defword forth_compile_comma, "COMPILE,"
+	/* TODO(safety): alignment check */
 	ldr x0, =data_space_ptr
 	ldr x1, [x0]
 	str x10, [x1], #8
@@ -93,6 +94,12 @@ defword forth_compile_comma, "COMPILE,"
 
 defword forth_cr, "CR"
 	bl format_write_newline
+	next
+
+defword forth_depth, "DEPTH"
+	lsr x0, x12, #3
+	push
+	mov x10, x0
 	next
 
 defword forth_dot_hex, ".HEX"
@@ -235,8 +242,7 @@ defword forth_impl_semicolon, "(;)" /* aka exit */
 
 defword forth_impl_variable, "(VARIABLE)"
 	push
-	mov x10, x18
-	/* TODO: Correctness? */
+	add x10, x0, #16
 	next
 
 defword forth_load_char, "C@"
@@ -374,9 +380,51 @@ forth_parse_name.end:
 	str x2, [x19, #24]
 	next
 
+defword forth_pick, "PICK"
+	/* TODO(safety): Check stack depth */
+	sub x0, x12, x10, lsl #4
+	ldr x10, [x11, x0]
+	next
+
+defword forth_plus, "+"
+	/* TODO(safety): Check stack depth */
+	mov x0, x10
+	pop
+	add x10, x0, x10
+	next
+
 defword forth_process_table, "PROCESS-TABLE"
 	push
 	mov x10, x19
+	next
+
+defword forth_read_line, "READ-LINE"
+	/* TODO(safety): Check stack depth */
+	mov x1, x10
+	pop
+	mov x0, x10
+	bl format_read_line
+	mov x10, x1
+	next
+
+defword forth_rot, "ROT"
+	/* TODO(safety): Check stack depth */
+	sub x0, x12, #8
+	sub x1, x12, #16
+	ldr x2, [x11, x0]
+	str x10, [x11, x0]
+	ldr x10, [x11, x1]
+	str x2, [x11, x1]
+	next
+
+defword forth_rot_rev, "-ROT"
+	/* TODO(safety): Check stack depth */
+	sub x0, x12, #8
+	sub x1, x12, #16
+	ldr x2, [x11, x1]
+	str x10, [x11, x1]
+	ldr x10, [x11, x0]
+	str x2, [x11, x0]
 	next
 
 defword forth_set_does, "SET-DOES"
@@ -391,8 +439,8 @@ defword forth_set_does, "SET-DOES"
 	ldrb w3, [x2, #9]!
 	add x2, x2, #1
 	add x2, x2, x3
-	/* TODO: Store a direct B instruction when possible? */
-	ldr x1, =0xd61f012058000049 /* ldr x9, [pc, 8]; br x9 */
+	/* TODO: Store a direct BL instruction when possible? */
+	ldr x1, =0xd63f012058000049 /* ldr x9, [pc, 8]; blr x9 */
 	str x1, [x2]
 	str x0, [x2, #8]
 
@@ -435,8 +483,19 @@ defword forth_swap, "SWAP"
 	next
 
 defword forth_to_number, ">NUMBER"
+	/* TODO(safety): Check stack depth */
 	/* Not the ANS >NUMBER! */
 	/* ( c-addr len -- num valid? ) */
+	mov x1, x10
+	pop
+	mov x0, x10
+	ldrb w2, [x19, #0x28]
+	and x2, x2, #2
+	bl to_number
+	mov x10, x3
+	push
+	mov x10, x4
+	next
 
 defword forth_to_rstack, ">R"
 	rpush

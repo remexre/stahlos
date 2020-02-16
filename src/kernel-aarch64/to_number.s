@@ -13,7 +13,7 @@
  *
  * Output:
  *   x3: The parsed number
- *   x4: Status Code: zero if invalid, nonzero if valid
+ *   x4: Status Code: zero if valid, -1 if invalid
  *
  * Effects:
  * - Trashes x0, x1, x4, x5
@@ -45,6 +45,7 @@ to_number.check_negative:
 
 to_number.branch_on_base:
 	cbz x1, to_number.error
+	mov x3, xzr
 	cbz x2, to_number.loop_dec
 
 to_number.loop_hex:
@@ -63,13 +64,14 @@ to_number.loop_dec:
 	sub w4, w4, '0'
 	add x3, x3, x3, lsl #2
 	add x3, x4, x3, lsl #1
+	sub x1, x1, #1
 	b to_number.loop_dec
 
 to_number.ok:
-	mvn x4, xzr
+	mov x4, xzr
 	ret
 to_number.error:
-	mov x4, xzr
+	mvn x4, xzr
 	ret
 
 to_number.override_dec:

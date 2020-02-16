@@ -58,6 +58,7 @@ forth_create.write_name:
 	.quad forth_impl_branch, forth_create.write_name
 
 forth_create.write_cfa:
+	.quad forth_two_drop
 	.quad forth_impl_literal, 16
 	.quad forth_allot
 	.quad forth_impl_literal, forth_impl_variable
@@ -105,12 +106,38 @@ forth_evaluate.loop.compile_word:
 	.quad forth_impl_branch, forth_evaluate.loop
 
 forth_evaluate.loop.try_as_number:
+	.quad forth_drop
+	.quad forth_two_dup
+	.quad forth_to_number
+	.quad forth_impl_branch_zero, forth_evaluate.loop.number
+	.quad forth_drop
+	.quad forth_impl_literal, word_not_found
+	.quad forth_impl_literal, word_not_found.len
+	.quad forth_type
+	.quad forth_type
+	.quad forth_cr
+	.quad panic
 
-	.quad panic.todo
+forth_evaluate.loop.number:
+	.quad forth_flags
+	.quad forth_impl_literal, 1
+	.quad forth_and
+	.quad forth_impl_branch_zero, forth_evaluate.loop.number.compile
 
+forth_evaluate.loop.number.interpret:
+	.quad forth_rot_rev
+	.quad forth_two_drop
+	.quad forth_impl_branch, forth_evaluate.loop
+
+forth_evaluate.loop.number.compile:
+	.quad forth_impl_literal, forth_impl_literal
+	.quad forth_compile_comma
+	.quad forth_comma
+	.quad forth_two_drop
 	.quad forth_impl_branch, forth_evaluate.loop
 
 forth_evaluate.end:
+	.quad forth_two_drop
 	.quad forth_from_rstack
 	.quad forth_from_rstack
 	.quad forth_from_rstack
@@ -162,5 +189,10 @@ forth_type.end:
 
 .global forth.last_pseudobuiltin_header
 .equiv forth.last_pseudobuiltin_header, last_defword
+
+.section .rodata
+
+word_not_found: .ascii "Word not found: "
+.equ word_not_found.len, . - word_not_found
 
 /* vi: set ft=arm64asm : */
