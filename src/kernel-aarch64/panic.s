@@ -23,6 +23,7 @@ defpanic out_of_return_stack
 defpanic underflow_data_stack
 defpanic underflow_return_stack
 defpanic end_of_source_when_parsing
+defpanic word_not_found
 
 loop_forever:
 	wfi
@@ -56,5 +57,8 @@ underflow_return_stack: .ascii "return stack underflow\n"
 
 end_of_source_when_parsing: .ascii "end of source when parsing\n"
 .equ end_of_source_when_parsing.len, . - end_of_source_when_parsing
+
+word_not_found: .ascii "word not found\n"
+.equ word_not_found.len, . - word_not_found
 
 /* vi: set ft=arm64asm : */

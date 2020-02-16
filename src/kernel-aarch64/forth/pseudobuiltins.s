@@ -116,7 +116,7 @@ forth_evaluate.loop.try_as_number:
 	.quad forth_type
 	.quad forth_type
 	.quad forth_cr
-	.quad panic
+	.quad panic.word_not_found
 
 forth_evaluate.loop.number:
 	.quad forth_flags
